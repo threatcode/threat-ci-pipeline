@@ -138,7 +138,7 @@ def run(repo_url, gitlab_url, gitlab_private_token):
     project = gl.projects.get(repo_id)
     add_privileged_runner(project)
     if get_mr_in_progress(project):
-        print('[{repo_url}] There is a MR already in course, please merge it to allow new MRs be proposed by salsa-ci-bot')
+        print(f'[{repo_url}] There is a MR already in course, please merge it to allow new MRs be proposed by salsa-ci-bot')
         return
     with tempfile.TemporaryDirectory() as tmpdir:
         yml_path = os.path.join(tmpdir, SALSA_PIPELINE_YML_PATH)
