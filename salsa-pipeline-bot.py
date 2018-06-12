@@ -66,7 +66,8 @@ def git_add_pipeline_rendered(content, yml_path, git_comment, workdir):
     run_cmd(f'git commit -m "{git_comment}"', workdir=workdir)
 
 
-def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path):
+def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path,
+                    branch_name=SALSA_GCI_NEW_BRANCH, auto_accept=True):
     project = gl.projects.get(repo_id)
     gl.projects.update(
         repo_id,
@@ -74,18 +75,19 @@ def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path):
             'ci_config_path': os.path.relpath(SALSA_PIPELINE_YML_PATH),
         },
     )
-    run_cmd(f'git checkout -b {SALSA_GCI_NEW_BRANCH}', workdir=workdir)
+    run_cmd(f'git checkout -b {branch_name}', workdir=workdir)
 
     git_add_pipeline_template(yml_tpl_path, workdir)
     pipeline = load_pipeline(yml_tpl_path)
     git_add_pipeline_rendered(pipeline, yml_path, 'Initial pipeline', workdir)
 
-    run_cmd(f'git push origin {SALSA_GCI_NEW_BRANCH}', workdir=workdir)
+    run_cmd(f'git push origin {branch_name}', workdir=workdir)
     create_merge_request(project,
-                         SALSA_GCI_NEW_BRANCH,
+                         branch_name,
                          'Add salsa-ci pipeline',
                          '',
-                         [SALSA_PIPELINE_BOT_LABEL])
+                         [SALSA_PIPELINE_BOT_LABEL],
+                         auto_accept)
 
 
 def check_for_pipeline_update(gl, repo_id, workdir, yml_path, yml_tpl_path):
