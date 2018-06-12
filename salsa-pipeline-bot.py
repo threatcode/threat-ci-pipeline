@@ -6,6 +6,7 @@ import tempfile
 import subprocess
 import shlex
 import requests
+import time
 
 import gitlab
 import yaml
@@ -36,6 +37,22 @@ def get_mr_in_progress(project):
     return project.mergerequests.list(labels=[SALSA_PIPELINE_BOT_LABEL], state='opened')
 
 
+def create_merge_request(project, source_branch, title, description, labels,
+                         auto_accept=True):
+    target_branch = 'master'
+    mr = project.mergerequests.create({
+        'source_branch': source_branch,
+        'target_branch': target_branch,
+        'title': title,
+        'description': description,
+        'labels': labels,
+    })
+    if auto_accept:
+        time.sleep(10) # waiting for the pipeline creation
+        mr = project.mergerequests.get(mr.id)
+        mr.cancel_merge_when_pipeline_succeeds()
+
+
 def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path):
     project = gl.projects.get(repo_id)
     add_privileged_runner(project)
@@ -60,15 +77,11 @@ def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path):
     run_cmd(f'git add {SALSA_PIPELINE_YML_PATH}', workdir=workdir)
     run_cmd(f'git commit -m "Add initial pipeline"', workdir=workdir)
     run_cmd(f'git push origin {SALSA_GCI_NEW_BRANCH}', workdir=workdir)
-    mr = project.mergerequests.create({
-        'source_branch': SALSA_GCI_NEW_BRANCH,
-        'target_branch': 'master',
-        'title': 'Add salsa-ci pipeline',
-        'labels': [SALSA_PIPELINE_BOT_LABEL],
-    })
-    # TODO the following request fails with
-    # gitlab.exceptions.GitlabHttpError: 404: b'{"error":"404 Not Found"}'
-    # mr.cancel_merge_when_pipeline_succeeds()
+    create_merge_request(project,
+                         SALSA_GCI_NEW_BRANCH,
+                         'Add salsa-ci pipeline',
+                         '',
+                         [SALSA_PIPELINE_BOT_LABEL])
 
 
 def check_for_pipeline_update(gl, repo_id, workdir, yml_path, yml_tpl_path):
