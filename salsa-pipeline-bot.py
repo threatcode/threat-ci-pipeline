@@ -32,14 +32,14 @@ def run_cmd(*args, **kwargs):
     return stdout, stderr, exit_code
 
 
-def check_if_there_is_mr_in_progress(project):
+def get_mr_in_progress(project):
     return project.mergerequests.list(labels=[SALSA_PIPELINE_BOT_LABEL], state='opened')
 
 
 def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path):
     project = gl.projects.get(repo_id)
     add_privileged_runner(project)
-    if check_if_there_is_mr_in_progress(project):
+    if get_mr_in_progress(project):
         print('There is a MR already in course, please merge it to allow new MRs be proposed by salsa-ci-bot')
         return
     gl.projects.update(
@@ -73,7 +73,7 @@ def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path):
 
 def check_for_pipeline_update(gl, repo_id, workdir, yml_path, yml_tpl_path):
     project = gl.projects.get(repo_id)
-    if check_if_there_is_mr_in_progress(project):
+    if get_mr_in_progress(project):
         print('There is a MR already in course, please merge it to allow new MRs be proposed by salsa-ci-bot')
         return
     if not os.path.exists(yml_tpl_path):
