@@ -53,9 +53,6 @@ def create_merge_request(project, source_branch, title, description, labels,
 
 def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path):
     project = gl.projects.get(repo_id)
-    if get_mr_in_progress(project):
-        print('There is a MR already in course, please merge it to allow new MRs be proposed by salsa-ci-bot')
-        return
     gl.projects.update(
         repo_id,
         {
@@ -83,9 +80,6 @@ def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path):
 
 def check_for_pipeline_update(gl, repo_id, workdir, yml_path, yml_tpl_path):
     project = gl.projects.get(repo_id)
-    if get_mr_in_progress(project):
-        print('There is a MR already in course, please merge it to allow new MRs be proposed by salsa-ci-bot')
-        return
     if not os.path.exists(yml_tpl_path):
         print('WARNING not using templates')
         return
@@ -117,6 +111,9 @@ def run(repo_url, gitlab_url, gitlab_private_token):
     repo_id = get_repo_id(gl, repo_url)
     project = gl.projects.get(repo_id)
     add_privileged_runner(project)
+    if get_mr_in_progress(project):
+        print('There is a MR already in course, please merge it to allow new MRs be proposed by salsa-ci-bot')
+        return
     with tempfile.TemporaryDirectory() as tmpdir:
         yml_path = os.path.join(tmpdir, SALSA_PIPELINE_YML_PATH)
         yml_tpl_path = os.path.join(tmpdir, SALSA_PIPELINE_YML_TPL_PATH)
