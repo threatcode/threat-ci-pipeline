@@ -53,7 +53,7 @@ def create_merge_request(project, source_branch, title, description, labels,
 
 
 def git_add_pipeline_template(yml_tpl_path, workdir):
-    with open(yml_tpl_path, 'w') as f:
+    with open(yml_tpl_path, 'w', encoding='utf-8') as f:
         data = fetch_remote_content(SALSA_PIPELINE_TPL_URL)
         f.write(data)
     run_cmd(f'git add {SALSA_PIPELINE_YML_TPL_PATH}', workdir=workdir)
@@ -61,7 +61,7 @@ def git_add_pipeline_template(yml_tpl_path, workdir):
 
 
 def git_add_pipeline_rendered(content, yml_path, git_comment, workdir):
-    with open(yml_path, 'w') as f:
+    with open(yml_path, 'w', encoding='utf-8') as f:
         f.write(content)
     run_cmd(f'git add {SALSA_PIPELINE_YML_PATH}', workdir=workdir)
     run_cmd(f'git commit -m "{git_comment}"', workdir=workdir)
