@@ -59,6 +59,13 @@ def git_add_pipeline_template(yml_tpl_path, workdir):
     run_cmd(f'git commit -m "Add pipeline template"', workdir=workdir)
 
 
+def git_add_pipeline_rendered(content, yml_path, git_comment, workdir):
+    with open(yml_path, 'w') as f:
+        f.write(content)
+    run_cmd(f'git add {SALSA_PIPELINE_YML_PATH}', workdir=workdir)
+    run_cmd(f'git commit -m "{git_comment}"', workdir=workdir)
+
+
 def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path):
     project = gl.projects.get(repo_id)
     gl.projects.update(
@@ -68,12 +75,11 @@ def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path):
         },
     )
     run_cmd(f'git checkout -b {SALSA_GCI_NEW_BRANCH}', workdir=workdir)
+
     git_add_pipeline_template(yml_tpl_path, workdir)
-    with open(yml_path, 'w') as f:
-        pipeline = load_pipeline(yml_tpl_path)
-        f.write(pipeline)
-    run_cmd(f'git add {SALSA_PIPELINE_YML_PATH}', workdir=workdir)
-    run_cmd(f'git commit -m "Add initial pipeline"', workdir=workdir)
+    pipeline = load_pipeline(yml_tpl_path)
+    git_add_pipeline_rendered(pipeline, yml_path, 'Initial pipeline', workdir)
+
     run_cmd(f'git push origin {SALSA_GCI_NEW_BRANCH}', workdir=workdir)
     create_merge_request(project,
                          SALSA_GCI_NEW_BRANCH,
