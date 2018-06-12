@@ -6,6 +6,7 @@ import tempfile
 import subprocess
 import shlex
 import requests
+import time
 
 import gitlab
 import yaml
@@ -92,11 +93,24 @@ def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path,
 
 def check_for_pipeline_update(gl, repo_id, workdir, yml_path, yml_tpl_path):
     project = gl.projects.get(repo_id)
+    branch_name = f'salsa-ci-{int(time.time())}'
     if not os.path.exists(yml_tpl_path):
-        print('WARNING not using templates')
+        add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path,
+                        branch_name, auto_accept=False)
         return
-    pipeline = load_pipeline(yml_tpl_path)
-    # do comparison between the current on the repo and see if a mr is needed
+    pipeline_rendered = load_pipeline(yml_tpl_path)
+    with open(yml_path, 'r', encoding='utf-8') as f:
+        current_pipeline = f.read()
+    print(current_pipeline, pipeline_rendered)
+    if current_pipeline != pipeline_rendered:
+        run_cmd(f'git checkout -b {branch_name}', workdir=workdir)
+        git_add_pipeline_rendered(pipeline, yml_path, 'Update pipeline', workdir)
+        run_cmd(f'git push origin {branch_name}', workdir=workdir)
+        create_merge_request(project,
+                             branch_name,
+                             'Update salsa-ci pipeline',
+                             '',
+                             [SALSA_PIPELINE_BOT_LABEL])
 
 
 class RepositoryNotFound(Exception):
