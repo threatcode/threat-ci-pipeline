@@ -6,7 +6,6 @@ import tempfile
 import subprocess
 import shlex
 import requests
-import time
 
 import gitlab
 import yaml
@@ -48,9 +47,8 @@ def create_merge_request(project, source_branch, title, description, labels,
         'labels': labels,
     })
     if auto_accept:
-        time.sleep(10) # waiting for the pipeline creation
-        mr = project.mergerequests.get(mr.id)
-        mr.cancel_merge_when_pipeline_succeeds()
+        mr.merge(should_remove_source_branch=True,
+                 merge_when_pipeline_succeeds=True)
 
 
 def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path):
