@@ -16,4 +16,7 @@ REPOS = [
     'git@salsa.debian.org:debian/python-livereload.git',
     'git@salsa.debian.org:debian/webassets.git',
     'git@salsa.debian.org:debian/yapsy.git',
+    'git@salsa.debian.org:debian/python-icecream.git',
+    'git@salsa.debian.org:debian/python-furl.git',
+    'git@salsa.debian.org:debian/python-orderedmultidict.git',
 ]
