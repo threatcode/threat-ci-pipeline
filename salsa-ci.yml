@@ -41,10 +41,16 @@ run lintian:
 run reprotest:
   stage: test
   image: genericpipeline/reprotest-docker
+  artifacts:
+    name: "$CI_BUILD_NAME"
+    expire_in: 180 day
+    paths:
+      - ./reprotest.log
+    when: always
   script:
     - apt-get update && apt-get install eatmydata -y
     - eatmydata apt-get build-dep -y .
-    - eatmydata reprotest . -- null
+    - eatmydata reprotest . -- null &> reprotest.log
   tags:
     - privileged
 
