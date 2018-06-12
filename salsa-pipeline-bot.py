@@ -96,12 +96,16 @@ def check_for_pipeline_update(gl, repo_id, workdir, yml_path, yml_tpl_path):
     # do comparison between the current on the repo and see if a mr is needed
 
 
+class RepositoryNotFound(Exception):
+    pass
+
+
 def get_repo_id(gl, repo_url):
     project_name, _ = os.path.splitext(os.path.basename(repo_url))
     for project in gl.projects.list(search=project_name):
         if project.attributes['path_with_namespace'] in repo_url:
             return project.attributes['id']
-    raise Exception("Couldn't find the project íd for {}".format(repo_url))
+    raise RepositoryNotFound("Couldn't find the íd for {}".format(repo_url))
 
 
 def add_privileged_runner(project):
