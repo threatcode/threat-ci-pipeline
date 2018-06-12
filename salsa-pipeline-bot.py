@@ -51,6 +51,14 @@ def create_merge_request(project, source_branch, title, description, labels,
                  merge_when_pipeline_succeeds=True)
 
 
+def git_add_pipeline_template(workdir, yml_tpl_path):
+    with open(yml_tpl_path, 'w') as f:
+        data = fetch_remote_content(SALSA_PIPELINE_TPL_URL)
+        f.write(data)
+    run_cmd(f'git add {SALSA_PIPELINE_YML_TPL_PATH}', workdir=workdir)
+    run_cmd(f'git commit -m "Add pipeline template"', workdir=workdir)
+
+
 def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path):
     project = gl.projects.get(repo_id)
     gl.projects.update(
@@ -60,11 +68,7 @@ def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path):
         },
     )
     run_cmd(f'git checkout -b {SALSA_GCI_NEW_BRANCH}', workdir=workdir)
-    with open(yml_tpl_path, 'w') as f:
-        data = fetch_remote_content(SALSA_PIPELINE_TPL_URL)
-        f.write(data)
-    run_cmd(f'git add {SALSA_PIPELINE_YML_TPL_PATH}', workdir=workdir)
-    run_cmd(f'git commit -m "Add template of pipeline"', workdir=workdir)
+    git_add_pipeline_template(workdir, yml_tpl_path)
     with open(yml_path, 'w') as f:
         pipeline = load_pipeline(yml_tpl_path)
         f.write(pipeline)
