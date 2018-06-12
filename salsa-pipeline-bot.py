@@ -38,8 +38,8 @@ def get_mr_in_progress(project):
 
 
 def create_merge_request(project, source_branch, title, description, labels,
-                         auto_accept=True):
-    target_branch = 'master'
+                         auto_accept=True, target_branch=None):
+    target_branch = target_branch or project.attributes['default_branch']
     mr = project.mergerequests.create({
         'source_branch': source_branch,
         'target_branch': target_branch,
