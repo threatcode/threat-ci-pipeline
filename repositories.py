@@ -19,4 +19,5 @@ REPOS = [
     'git@salsa.debian.org:debian/python-icecream.git',
     'git@salsa.debian.org:debian/python-furl.git',
     'git@salsa.debian.org:debian/python-orderedmultidict.git',
+    'git@salsa.debian.org:debian/fades.git',
 ]
