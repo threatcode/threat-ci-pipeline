@@ -104,7 +104,8 @@ def check_for_pipeline_update(gl, repo_id, workdir, yml_path, yml_tpl_path):
     print(current_pipeline, pipeline_rendered)
     if current_pipeline != pipeline_rendered:
         run_cmd(f'git checkout -b {branch_name}', workdir=workdir)
-        git_add_pipeline_rendered(pipeline, yml_path, 'Update pipeline', workdir)
+        git_add_pipeline_rendered(pipeline_rendered, yml_path,
+                                  'Update pipeline', workdir)
         run_cmd(f'git push origin {branch_name}', workdir=workdir)
         create_merge_request(project,
                              branch_name,
