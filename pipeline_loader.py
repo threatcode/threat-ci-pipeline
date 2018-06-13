@@ -53,13 +53,18 @@ def render_salsa_pipeline_tpl(salsa_pipeline_tpl):
     for item in include:
         content = get_include_item(item)
         content_rendered.append(content)
+        content_rendered.append('# End of include\n')
     return ''.join(content_rendered)
 
 
 def load_pipeline(filename):
     salsa_pipeline_tpl, salsa_pipeline = parse_salsa_pipeline_tpl(filename)
     content = render_salsa_pipeline_tpl(salsa_pipeline_tpl)
-    return HEADER + content + salsa_pipeline
+    customization_mark = ['#' * 35]
+    customization_mark.append('# Below starts the local customization ')
+    customization_mark.append('#' * 35)
+    customization_mark.append('\n')
+    return HEADER + content + ''.join(customization_mark) + salsa_pipeline
 
 
 if __name__ == '__main__':
