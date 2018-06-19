@@ -118,12 +118,12 @@ class RepositoryNotFound(Exception):
     pass
 
 
-def get_repo_id(gl, repo_url):
-    project_name, _ = os.path.splitext(os.path.basename(repo_url))
+def get_repo_id(gl, repo):
+    project_name, _ = os.path.splitext(os.path.basename(repo))
     for project in gl.projects.list(search=project_name):
-        if project.attributes['path_with_namespace'] in repo_url:
+        if project.attributes['path_with_namespace'] in repo:
             return project.attributes['id']
-    raise RepositoryNotFound("Couldn't find the íd for {}".format(repo_url))
+    raise RepositoryNotFound("Couldn't find the íd for {}".format(repo))
 
 
 def add_privileged_runner(project):
@@ -133,13 +133,14 @@ def add_privileged_runner(project):
         pass
 
 
-def run(repo_url, gitlab_url, gitlab_private_token):
+def run(repo, gitlab_url, gitlab_private_token):
     gl = gitlab.Gitlab(gitlab_url, private_token=gitlab_private_token)
-    repo_id = get_repo_id(gl, repo_url)
+    repo_id = get_repo_id(gl, repo)
+    repo_url = f'git@salsa.debian.org:{repo}'
     project = gl.projects.get(repo_id)
     add_privileged_runner(project)
     if get_mr_in_progress(project):
-        print(f'[{repo_url}] There is a MR already in course, please merge it to allow new MRs be proposed by salsa-ci-bot')
+        print(f'[{repo}] There is a MR already in course, please merge it to allow new MRs be proposed by salsa-ci-bot')
         return
     with tempfile.TemporaryDirectory() as tmpdir:
         yml_path = os.path.join(tmpdir, SALSA_PIPELINE_YML_PATH)
@@ -152,5 +153,5 @@ def run(repo_url, gitlab_url, gitlab_private_token):
 
 
 if __name__ == '__main__':
-    for repo_url in REPOS:
-        run(repo_url, GITLAB_URL, GITLAB_PRIVATE_TOKEN)
+    for repo in REPOS:
+        run(repo, GITLAB_URL, GITLAB_PRIVATE_TOKEN)
