@@ -7,6 +7,7 @@ import subprocess
 import shlex
 import requests
 import time
+import logging
 
 import gitlab
 import yaml
@@ -24,12 +25,12 @@ SALSA_PIPELINE_BOT_LABEL = 'salsa-ci-bot'
 
 
 def run_cmd(*args, **kwargs):
-    print('Executing {}'.format(*args))
+    logging.info('Executing {}'.format(*args))
     cmd = shlex.split(args[0])
     proc = subprocess.Popen(cmd, cwd=kwargs.get('workdir'), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = proc.communicate()
     exit_code = proc.poll()
-    print(stdout, stderr)
+    logging.debug(stdout, stderr)
     return stdout, stderr, exit_code
 
 
@@ -101,7 +102,7 @@ def check_for_pipeline_update(gl, repo_id, workdir, yml_path, yml_tpl_path):
     pipeline_rendered = load_pipeline(yml_tpl_path)
     with open(yml_path, 'r', encoding='utf-8') as f:
         current_pipeline = f.read()
-    print(current_pipeline, pipeline_rendered)
+
     if current_pipeline != pipeline_rendered:
         run_cmd(f'git checkout -b {branch_name}', workdir=workdir)
         git_add_pipeline_rendered(pipeline_rendered, yml_path,
@@ -140,7 +141,7 @@ def run(repo, gitlab_url, gitlab_private_token):
     project = gl.projects.get(repo_id)
     add_privileged_runner(project)
     if get_mr_in_progress(project):
-        print(f'[{repo}] There is a MR already in course, please merge it to allow new MRs be proposed by salsa-ci-bot')
+        logging.info(f'[{repo}] There is a MR already in course, please merge it to allow new MRs be proposed by salsa-ci-bot')
         return
     with tempfile.TemporaryDirectory() as tmpdir:
         yml_path = os.path.join(tmpdir, SALSA_PIPELINE_YML_PATH)
@@ -153,5 +154,6 @@ def run(repo, gitlab_url, gitlab_private_token):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=os.environ.get('LOG_LEVEL', logging.INFO))
     for repo in REPOS:
         run(repo, GITLAB_URL, GITLAB_PRIVATE_TOKEN)
