@@ -22,4 +22,5 @@ REPOS = [
     'debian/fades.git',
     'debian/openntpd.git',
     'debian/doit.git',
+    'debian/FeedReader.git',
 ]
