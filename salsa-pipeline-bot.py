@@ -148,7 +148,7 @@ def run(repo, gitlab_url, gitlab_private_token):
     with tempfile.TemporaryDirectory() as tmpdir:
         yml_path = os.path.join(tmpdir, SALSA_PIPELINE_YML_PATH)
         yml_tpl_path = os.path.join(tmpdir, SALSA_PIPELINE_YML_TPL_PATH)
-        run_cmd(f'git clone {repo_url} .', workdir=tmpdir)
+        run_cmd(f'git clone --depth 1 {repo_url} .', workdir=tmpdir)
         if not os.path.exists(yml_path):
             add_gci_support(gl, repo_id, tmpdir, yml_path, yml_tpl_path)
         else:
