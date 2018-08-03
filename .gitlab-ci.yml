@@ -1,8 +1,7 @@
-image: debian:unstable
+image: registry.salsa.debian.org/salsa-ci-team/images/pipeline
 
 run:
   before_script:
-    - apt-get update && apt-get install -y python3 python3-gitlab openssh-client git
     - eval $(ssh-agent -s)
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - mkdir -p ~/.ssh
