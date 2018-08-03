@@ -8,9 +8,8 @@ run:
     - chmod 700 ~/.ssh
     - ssh-keyscan salsa.debian.org >> ~/.ssh/known_hosts
     - chmod 644 ~/.ssh/known_hosts
-    - git config user.name "Salsa Pipeline Bot"
-    - git config user.email "salsa-pipeline@debian.org"
-
+    - git config --global user.name "Salsa Pipeline Bot"
+    - git config --global user.email "salsa-pipeline@debian.org"
   script:
     - python3 salsa-pipeline-bot.py
   only: 
