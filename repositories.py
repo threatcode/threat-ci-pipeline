@@ -23,4 +23,5 @@ REPOS = [
     'debian/openntpd.git',
     'debian/doit.git',
     'debian/FeedReader.git',
+    'debian/python-stem.git',
 ]
