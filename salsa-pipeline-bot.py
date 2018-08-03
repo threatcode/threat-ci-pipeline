@@ -158,4 +158,7 @@ def run(repo, gitlab_url, gitlab_private_token):
 if __name__ == '__main__':
     logging.basicConfig(level=os.environ.get('LOG_LEVEL', logging.INFO))
     for repo in REPOS:
-        run(repo, GITLAB_URL, GITLAB_PRIVATE_TOKEN)
+        try:
+            run(repo, GITLAB_URL, GITLAB_PRIVATE_TOKEN)
+        except Exception as e:
+            logging.error(e)
