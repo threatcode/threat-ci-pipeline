@@ -12,6 +12,7 @@ image: debian:unstable
 
 build package:
   stage: build
+  image: registry.salsa.debian.org/salsa-ci-team/images/gbp
   artifacts:
     expire_in: 180 day
     name: "$CI_BUILD_NAME"
@@ -19,27 +20,25 @@ build package:
         - ${WORKING_DIR}/
   script:
     - apt-get update
-    - apt-get install eatmydata -y
     - eatmydata apt-get build-dep -y .
-    - eatmydata apt-get install git-buildpackage -y
     - gbp pull --ignore-branch
     - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} -us -uc
 
 run autopkgtest:
   stage: test
+  image: registry.salsa.debian.org/salsa-ci-team/images/autopkgtest
   script:
-    - apt-get update && apt-get install autopkgtest eatmydata -y --no-install-recommends
     - eatmydata autopkgtest ${WORKING_DIR}/*.deb -- null
 
 run lintian:
   stage: test
+  image: registry.salsa.debian.org/salsa-ci-team/images/lintian
   script:
-    - apt-get update && apt-get install lintian -y --no-install-recommends
     - lintian -iI ${WORKING_DIR}/*.changes
 
 run reprotest:
   stage: test
-  image: genericpipeline/reprotest-docker
+  image: registry.salsa.debian.org/salsa-ci-team/images/reprotest
   artifacts:
     name: "$CI_BUILD_NAME"
     expire_in: 180 day
@@ -47,7 +46,7 @@ run reprotest:
       - ./reprotest.log
     when: always
   script:
-    - apt-get update && apt-get install eatmydata -y
+    - apt-get update
     - eatmydata apt-get build-dep -y .
     - export DEB_BUILD_OPTIONS=nocheck
     - eatmydata reprotest . -- null &> reprotest.log
@@ -56,7 +55,7 @@ run reprotest:
 
 run piuparts:
   stage: test
-  image: genericpipeline/piuparts-docker
+  image: registry.salsa.debian.org/salsa-ci-team/images/piuparts
   services:
     - docker:dind
   script:
