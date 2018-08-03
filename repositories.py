@@ -24,4 +24,5 @@ REPOS = [
     'debian/doit.git',
     'debian/FeedReader.git',
     'debian/python-stem.git',
+    'science-team/silx.git',
 ]
