@@ -51,6 +51,9 @@ def create_merge_request(project, source_branch, title, description, labels,
         'labels': labels,
     })
     if auto_accept:
+        # Sometimes it gets merged with no waiting for the pipeline...
+        # Let's see if the following seep helps... /shrug
+        time.sleep(15)
         mr.merge(should_remove_source_branch=True,
                  merge_when_pipeline_succeeds=True)
 
