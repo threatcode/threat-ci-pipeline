@@ -139,8 +139,8 @@ def add_privileged_runner(project):
 def run(repo, gitlab_url, gitlab_private_token):
     gl = gitlab.Gitlab(gitlab_url, private_token=gitlab_private_token)
     repo_id = get_repo_id(gl, repo)
-    if os.environ.get('CI_JOB_TOKEN', None):
-        repo_url = f'https://gitlab-ci-token:${{CI_JOB_TOKEN}}@salsa.debian.org/{repo}'
+    if os.environ.get('SALSA_PIPELINE_PASSWORD', None):
+        repo_url = f'https://salsa.debian.org/{repo}'
     else:
         repo_url = f'git@salsa.debian.org:{repo}'
     project = gl.projects.get(repo_id)
