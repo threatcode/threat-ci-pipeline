@@ -31,7 +31,7 @@ def run_cmd(*args, **kwargs):
     stdout, stderr = proc.communicate()
     exit_code = proc.poll()
     if exit_code != 0:
-        logging.error(stdout, stderr)
+        logging.error('stdout:\n%r\n\nstderr:\n%r' % (stdout, stderr))
         raise subprocess.CalledProcessError(exit_code, ' '.join(args))
     return stdout, stderr, exit_code
 
