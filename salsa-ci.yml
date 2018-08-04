@@ -28,7 +28,7 @@ run autopkgtest:
   stage: test
   image: registry.salsa.debian.org/salsa-ci-team/images/autopkgtest
   script:
-    - eatmydata autopkgtest ${WORKING_DIR}/*.deb -- null
+    - eatmydata autopkgtest -U ${WORKING_DIR}/*.deb -- null
 
 run lintian:
   stage: test
