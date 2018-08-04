@@ -2,12 +2,6 @@ image: registry.salsa.debian.org/salsa-ci-team/images/pipeline
 
 run:
   before_script:
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan salsa.debian.org >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
     - git config --global user.name "Salsa Pipeline Bot"
     - git config --global user.email "salsa-pipeline@debian.org"
     - echo -e "machine salsa.debian.org\nlogin salsa-pipeline-guest\npassword ${SALSA_PIPELINE_PASSWORD}" > ~/.netrc
