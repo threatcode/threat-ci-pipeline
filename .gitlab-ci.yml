@@ -10,6 +10,7 @@ run:
     - chmod 644 ~/.ssh/known_hosts
     - git config --global user.name "Salsa Pipeline Bot"
     - git config --global user.email "salsa-pipeline@debian.org"
+    - echo -e "machine salsa.debian.org\nlogin gitlab-ci-token\npassword ${CI_JOB_TOKEN}" > ~/.netrc
   script:
     - python3 salsa-pipeline-bot.py
   only: 
