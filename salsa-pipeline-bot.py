@@ -30,8 +30,8 @@ def run_cmd(*args, **kwargs):
     proc = subprocess.Popen(cmd, cwd=kwargs.get('workdir'), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = proc.communicate()
     exit_code = proc.poll()
-    logging.debug(stdout, stderr)
     if exit_code != 0:
+        logging.error(stdout, stderr)
         raise subprocess.CalledProcessError(exit_code, ' '.join(args))
     return stdout, stderr, exit_code
 
