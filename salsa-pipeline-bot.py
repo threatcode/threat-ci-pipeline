@@ -75,6 +75,7 @@ def git_add_pipeline_rendered(content, yml_path, git_comment, workdir):
 
 def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path,
                     branch_name=SALSA_GCI_NEW_BRANCH, auto_accept=True):
+    logging.info('Adding gci support for the first time')
     project = gl.projects.get(repo_id)
     gl.projects.update(
         repo_id,
@@ -98,6 +99,7 @@ def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path,
 
 
 def check_for_pipeline_update(gl, repo_id, workdir, yml_path, yml_tpl_path):
+    logging.info('Checking for pipeline update')
     project = gl.projects.get(repo_id)
     branch_name = f'salsa-ci-{int(time.time())}'
     if not os.path.exists(yml_tpl_path):
