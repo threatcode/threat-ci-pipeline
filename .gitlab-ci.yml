@@ -15,5 +15,3 @@ run:
     - python3 salsa-pipeline-bot.py
   only: 
     - master
-  tags:
-    - privileged
