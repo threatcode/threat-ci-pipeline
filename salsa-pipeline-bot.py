@@ -77,12 +77,6 @@ def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path,
                     branch_name=SALSA_GCI_NEW_BRANCH, auto_accept=True):
     logging.info('Adding gci support for the first time')
     project = gl.projects.get(repo_id)
-    gl.projects.update(
-        repo_id,
-        {
-            'ci_config_path': os.path.relpath(SALSA_PIPELINE_YML_PATH),
-        },
-    )
     run_cmd(f'git checkout -b {branch_name}', workdir=workdir)
 
     git_add_pipeline_template(yml_tpl_path, workdir)
