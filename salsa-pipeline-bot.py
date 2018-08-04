@@ -129,13 +129,6 @@ def get_repo_id(gl, repo):
     raise RepositoryNotFound("Couldn't find the íd for {}".format(repo))
 
 
-def add_privileged_runner(project):
-    try:
-        project.runners.create({'runner_id': 40})
-    except gitlab.exceptions.GitlabCreateError:
-        pass
-
-
 def run(repo, gitlab_url, gitlab_private_token):
     gl = gitlab.Gitlab(gitlab_url, private_token=gitlab_private_token)
     repo_id = get_repo_id(gl, repo)
@@ -144,7 +137,6 @@ def run(repo, gitlab_url, gitlab_private_token):
     else:
         repo_url = f'git@salsa.debian.org:{repo}'
     project = gl.projects.get(repo_id)
-    add_privileged_runner(project)
     if get_mr_in_progress(project):
         logging.info(f'[{repo}] There is a MR already in course, please merge it to allow new MRs be proposed by salsa-ci-bot')
         return
