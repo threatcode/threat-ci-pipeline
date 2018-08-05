@@ -49,6 +49,7 @@ def create_merge_request(project, source_branch, title, description, labels,
         'title': title,
         'description': description,
         'labels': labels,
+        'remove_source_branch': True,
     })
     if auto_accept:
         # Sometimes it gets merged with no waiting for the pipeline...
