@@ -126,7 +126,7 @@ def get_repo_id(gl, repo):
     for project in gl.projects.list(search=project_name):
         if project.attributes['path_with_namespace'] in repo:
             return project.attributes['id']
-    raise RepositoryNotFound("Couldn't find the íd for {}".format(repo))
+    raise RepositoryNotFound("Couldn't find the id for {}".format(repo))
 
 
 def run(repo, gitlab_url, gitlab_private_token):
