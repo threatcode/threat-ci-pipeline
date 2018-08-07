@@ -8,4 +8,4 @@ run:
   script:
     - python3 salsa-pipeline-bot.py
   only: 
-    - master
+    - ${SALSA_TOKEN} && ${SALSA_PIPELINE_PASSWORD}
