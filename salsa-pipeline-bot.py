@@ -140,6 +140,10 @@ def run(repo, gitlab_url, gitlab_private_token):
     if get_mr_in_progress(project):
         logging.info(f'[{repo}] There is a MR already in course, please merge it to allow new MRs be proposed by salsa-ci-bot')
         return
+    if gl.projects.get(repo_id).attributes['ci_config_path'] != os.path.relpath(SALSA_PIPELINE_YML_PATH):
+        ci_config_path = os.path.relpath(SALSA_PIPELINE_YML_PATH)
+        logging.error(f'[{repo}] Wrong CI config path, please change it to {ci_config_path}')
+        return
     with tempfile.TemporaryDirectory() as tmpdir:
         yml_path = os.path.join(tmpdir, SALSA_PIPELINE_YML_PATH)
         yml_tpl_path = os.path.join(tmpdir, SALSA_PIPELINE_YML_TPL_PATH)
