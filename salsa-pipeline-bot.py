@@ -151,7 +151,8 @@ def run(repo, gitlab_url, gitlab_private_token):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=os.environ.get('LOG_LEVEL', logging.INFO))
+    FORMAT = '%(message)s'
+    logging.basicConfig(level=os.environ.get('LOG_LEVEL', logging.INFO), format=FORMAT)
     for repo in REPOS:
         try:
             run(repo, GITLAB_URL, GITLAB_PRIVATE_TOKEN)
