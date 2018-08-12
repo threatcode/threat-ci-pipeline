@@ -64,14 +64,14 @@ def git_add_pipeline_template(yml_tpl_path, workdir):
         data = fetch_remote_content(SALSA_PIPELINE_TPL_URL)
         f.write(data)
     run_cmd(f'git add {SALSA_PIPELINE_YML_TPL_PATH}', workdir=workdir)
-    run_cmd(f'git commit -m "Add pipeline template\nGbp-Dch: Ignore"', workdir=workdir)
+    run_cmd(f'git commit -m "Add pipeline template\n\nGbp-Dch: Ignore"', workdir=workdir)
 
 
 def git_add_pipeline_rendered(content, yml_path, git_comment, workdir):
     with open(yml_path, 'w', encoding='utf-8') as f:
         f.write(content)
     run_cmd(f'git add {SALSA_PIPELINE_YML_PATH}', workdir=workdir)
-    run_cmd(f'git commit -m "{git_comment}\nGbp-Dch: Ignore"', workdir=workdir)
+    run_cmd(f'git commit -m "{git_comment}\n\nGbp-Dch: Ignore"', workdir=workdir)
 
 
 def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path,
