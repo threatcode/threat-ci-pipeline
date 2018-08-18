@@ -7,7 +7,6 @@ REPOS = [
     'debian/docopt.git',
     'debian/gcc-arm-none-eabi.git',
     'debian/libstdcxx_arm_none_eabi_newlib.git',
-    'debian/imagesloaded.git',
     'debian/jquery-colorbox.git',
     'debian/libcsp.git',
     'debian/lm4tools.git',
