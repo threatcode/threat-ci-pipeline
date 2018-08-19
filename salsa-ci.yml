@@ -13,16 +13,15 @@ image: debian:unstable
 build package:
   stage: build
   image: registry.salsa.debian.org/salsa-ci-team/images/gbp
+  services:
+    - docker:dind
   artifacts:
     expire_in: 180 day
     name: "$CI_BUILD_NAME"
     paths:
         - ${WORKING_DIR}/
   script:
-    - apt-get update
-    - eatmydata apt-get build-dep -y .
-    - gbp pull --ignore-branch
-    - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} -us -uc
+    - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder='docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/dockerbuilder'
 
 run autopkgtest:
   stage: test
