@@ -49,7 +49,7 @@ run reprotest:
     - apt-get update
     - eatmydata apt-get build-dep -y .
     - export DEB_BUILD_OPTIONS=nocheck
-    - eatmydata reprotest . -- null &> reprotest.log
+    - eatmydata reprotest --no-diffoscope . -- null &> reprotest.log
 
 run piuparts:
   stage: test
