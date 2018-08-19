@@ -21,7 +21,6 @@ build package:
   script:
     - apt-get update
     - eatmydata apt-get build-dep -y .
-    - gbp pull --ignore-branch
     - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} -us -uc
 
 run autopkgtest:
