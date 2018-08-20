@@ -21,6 +21,7 @@ build package:
     paths:
         - ${WORKING_DIR}/
   script:
+    - gbp pull --ignore-branch --pristine-tar --track-missing
     - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder='docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/dockerbuilder'
 
 run autopkgtest:
