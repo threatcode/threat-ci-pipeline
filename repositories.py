@@ -28,4 +28,5 @@ REPOS = [
     'science-team/pyfai.git',
     'science-team/pymca.git',
     'science-team/silx.git',
+    'science-team/siconos.git',
 ]
