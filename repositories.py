@@ -23,6 +23,7 @@ REPOS = [
     'debian/doit.git',
     'debian/FeedReader.git',
     'debian/python-stem.git',
+    'debian/logbook.git',
     'python-team/modules/python-fisx',
     'samba-team/samba',
     'science-team/pyfai.git',
