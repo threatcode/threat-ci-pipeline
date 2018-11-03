@@ -56,7 +56,7 @@ stages:
   stage: test
   image: registry.salsa.debian.org/salsa-ci-team/images/autopkgtest
   script:
-    - eatmydata autopkgtest -U ${WORKING_DIR}/*.deb -- null
+    - eatmydata autopkgtest -U ${WORKING_DIR}/*.deb -- null || [ $? -eq 8 ]
   variables:
       <<: *global_variables
 
