@@ -39,7 +39,7 @@ stages:
   <<: *artifacts-default-expire
   variables:
       <<: *global_variables
-      RELEASE: 'latest' # unstable
+      RELEASE: 'unstable'
 
 .build-stretch: &build-stretch
   <<: *build-definition
