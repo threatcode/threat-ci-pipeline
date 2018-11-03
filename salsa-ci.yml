@@ -4,9 +4,6 @@
   DEBIAN_FRONTEND: noninteractive
   WORKING_DIR: ./debian/output
 
-variables:
-  <<: *global_variables
-
 stages:
   - build
   - test
@@ -60,12 +57,16 @@ stages:
   image: registry.salsa.debian.org/salsa-ci-team/images/autopkgtest
   script:
     - eatmydata autopkgtest -U ${WORKING_DIR}/*.deb -- null
+  variables:
+      <<: *global_variables
 
 .test-lintian: &test-lintian
   stage: test
   image: registry.salsa.debian.org/salsa-ci-team/images/lintian
   script:
     - lintian -iI ${WORKING_DIR}/*.changes
+  variables:
+      <<: *global_variables
 
 .test-reprotest: &test-reprotest
   stage: test
@@ -94,6 +95,8 @@ stages:
     - docker export ${CONTAINER_ID} | tar -C ${CHROOT_PATH} -xf -
     - mknod -m 666 ${CHROOT_PATH}/dev/urandom c 1 9
     - piuparts --hard-link -e ${CHROOT_PATH} ${WORKING_DIR}/*.deb
+  variables:
+      <<: *global_variables
 
 .all-tests: &all-tests
   autopkgtest: *test-autopkgtest
