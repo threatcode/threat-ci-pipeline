@@ -11,8 +11,6 @@ stages:
   - build
   - test
 
-image: debian:unstable
-
 .artifacts: &artifacts
     name: "$CI_BUILD_NAME:$CI_COMMIT_REF_NAME"
     paths:
