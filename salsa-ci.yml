@@ -97,14 +97,3 @@ stages:
     - piuparts --hard-link -e ${CHROOT_PATH} ${WORKING_DIR}/*.deb
   variables:
       <<: *global_variables
-
-.all-tests: &all-tests
-  autopkgtest: *test-autopkgtest
-  lintian: *test-lintian
-  reprotest: *test-reprotest
-  piuparts: *test-piuparts
-
-.all-builds: &all-builds
-  unstable: *build-unstable
-  stretch: *build-stretch
-  stretch bpo: *build-stretch-bpo
