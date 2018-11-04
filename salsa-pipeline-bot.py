@@ -51,20 +51,6 @@ def create_merge_request(project, source_branch, title, description, labels,
         'labels': labels,
         'remove_source_branch': True,
     })
-    if auto_accept:
-        # Sometimes it gets merged with no waiting for the pipeline...
-        # Let's see if the following seep helps... /shrug
-        time.sleep(15)
-        mr.merge(should_remove_source_branch=True,
-                 merge_when_pipeline_succeeds=True)
-
-
-def git_add_pipeline_template(yml_tpl_path, workdir):
-    with open(yml_tpl_path, 'w', encoding='utf-8') as f:
-        data = fetch_remote_content(SALSA_PIPELINE_TPL_URL)
-        f.write(data)
-    run_cmd(f'git add {SALSA_PIPELINE_YML_TPL_PATH}', workdir=workdir)
-    run_cmd(f'git commit -m "Add pipeline template\n\nGbp-Dch: Ignore"', workdir=workdir)
 
 
 def git_add_pipeline_rendered(content, yml_path, git_comment, workdir):
@@ -74,14 +60,14 @@ def git_add_pipeline_rendered(content, yml_path, git_comment, workdir):
     run_cmd(f'git commit -m "{git_comment}\n\nGbp-Dch: Ignore"', workdir=workdir)
 
 
-def add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path,
+def add_gci_support(gl, repo_id, workdir, yml_path,
                     branch_name=SALSA_GCI_NEW_BRANCH, auto_accept=True):
     logging.info('Adding gci support for the first time')
     project = gl.projects.get(repo_id)
     run_cmd(f'git checkout -b {branch_name}', workdir=workdir)
 
-    git_add_pipeline_template(yml_tpl_path, workdir)
-    pipeline = load_pipeline(yml_tpl_path)
+    with open('salsa-ci-example.yml', 'r', encoding='utf-8') as f:
+        pipeline = f.read()
     git_add_pipeline_rendered(pipeline, yml_path, 'Initial pipeline', workdir)
 
     run_cmd(f'git push origin {branch_name}', workdir=workdir)
@@ -97,13 +83,20 @@ def check_for_pipeline_update(gl, repo_id, workdir, yml_path, yml_tpl_path):
     logging.info('Checking for pipeline update')
     project = gl.projects.get(repo_id)
     branch_name = f'salsa-ci-{int(time.time())}'
-    if not os.path.exists(yml_tpl_path):
-        add_gci_support(gl, repo_id, workdir, yml_path, yml_tpl_path,
-                        branch_name, auto_accept=False)
-        return
-    pipeline_rendered = load_pipeline(yml_tpl_path)
+    if os.path.exists(yml_tpl_path):
+        git_comment = 'Remove workaround for gitlab include'
+        run_cmd(f'git rm {yml_tpl_path}', workdir=workdir)
+        run_cmd(f'git commit -m "{git_comment}\n\nGbp-Dch: Ignore"',
+                workdir=workdir)
+
+    with open('salsa-ci-example.yml', 'r', encoding='utf-8') as f:
+        pipeline_rendered = f.read()
     with open(yml_path, 'r', encoding='utf-8') as f:
         current_pipeline = f.read()
+    mr_description = "You can remove now the developer permissions " \
+    "granted to @salsa-pipeline-guest. It won't be needed anymore, " \
+    "new pipeline updates will be received automatically via the " \
+    "`include` sentence.\n"
 
     if current_pipeline != pipeline_rendered:
         run_cmd(f'git checkout -b {branch_name}', workdir=workdir)
@@ -113,7 +106,7 @@ def check_for_pipeline_update(gl, repo_id, workdir, yml_path, yml_tpl_path):
         create_merge_request(project,
                              branch_name,
                              'Update salsa-ci pipeline',
-                             '',
+                             mr_description,
                              [SALSA_PIPELINE_BOT_LABEL])
 
 
@@ -149,7 +142,7 @@ def run(repo, gitlab_url, gitlab_private_token):
         yml_tpl_path = os.path.join(tmpdir, SALSA_PIPELINE_YML_TPL_PATH)
         run_cmd(f'git clone --depth 1 {repo_url} .', workdir=tmpdir)
         if not os.path.exists(yml_path):
-            add_gci_support(gl, repo_id, tmpdir, yml_path, yml_tpl_path)
+            add_gci_support(gl, repo_id, tmpdir, yml_path)
         else:
             check_for_pipeline_update(gl, repo_id, tmpdir, yml_path, yml_tpl_path)
 
