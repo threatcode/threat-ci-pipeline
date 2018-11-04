@@ -1,5 +1,4 @@
-Debian pipeline for Developers
-==============================
+# Debian pipeline for Developers
 
 Gitlab integrates very well the continuous integration (CI) with the repository, so since Debian has migrated to Gitlab we can have CI in our repositories easily. Actually, we can have the same services that Debian QA offers today but before uploading a release to the archive. The main idea is having a faster feedback when you are working in a package, it is not intended to replace Debian QA. Debian QA services are the answer if you want to know if your package is reproducible or if piuparts is passing ok, etc.
 
@@ -14,13 +13,52 @@ We started looking for the services that Debian QA is offering today and tried t
 Those services are enabled by something we called `salsa-pipeline` and it'll be shared for all Gitlab projects who adopt it. Having the same pipeline on GCI ensure that every package accomplishes the minimum quality to be in the archive and if we improve or add a new service the project will get the benefit instantaneously.
 
 
-HowTo
-=====
+## Using Salsa-Pipeline
 
-In order to add your project to the list of updated repositories, 3 steps are mandatory:
+This project provides the definition of build and test jobs.
+It you want to use this tools to build and test your project, adding the following definitions to your `gitlab-ci.yml` file is the only thing you need to do.
 
-1. Add @salsa-pipeline-guest as `Developer` in the project. This is the minimum permission necessary to push branches and open Merge Requests.
+```yaml
+include: https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
 
-2. Change the Gitlab CI YAML location from `.gitlab-ci.yml` to `debian/gitlab-ci.yml`. It can be changed in Settings -> CI/CD -> General Pipelines -> Custom CI config path.
+build:
+    extends: .build-unstable
 
-3. Open a Merge Request on this project adding your repo to the `repositories.py` file.
+reprotest:
+    extends: .test-reprotest
+
+lintian:
+    extends: .test-lintian
+
+autopkgtest:
+    extends: .test-autopkgtest
+
+piuparts:
+    extends: .test-piuparts
+
+```
+
+On Debian projects, you would normally want to put this file under the `debian/` folder, so changing the config path on your project will be necessary.
+This can be done on `Settings` -> `CI/CD` -> `General Pipelines` -> `Custom CI config path`.
+
+Due to current `include` limitations, yaml anchors can't be used here, so every job has to be defined and extended with the corresponding definition from the included file.
+
+On the previous example, the package is built on Debian unstable and tested on all four tests.
+You can choose to run only some of the jobs. 
+Anyway, we **firmly recommend NOT to do it**.
+
+### Building
+3 different build jobs are provided: 
+ - build-unstable
+ - build-stretch
+ - build-stretch-bpo
+
+Any of this 3 builds can be chosen.
+The stretch\* jobs are intended to be used on the corresponding Debian branches.
+
+### Testing
+4 different tests are available to be used:
+ - [test-autopkgtest](https://people.debian.org/~mpitt/autopkgtest/README.package-tests.html)
+ - [test-lintian](https://github.com/Debian/lintian)
+ - [test-reprotest](https://reproducible-builds.org/tools)
+ - [test-piuparts](https://piuparts.debian.org)

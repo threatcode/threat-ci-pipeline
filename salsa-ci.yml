@@ -1,4 +1,4 @@
-variables:
+.global_variables: &global_variables
   DEBFULLNAME: "Salsa Pipeline"
   DEBEMAIL: "<salsa-pipeline@debian.org>"
   DEBIAN_FRONTEND: noninteractive
@@ -8,40 +8,71 @@ stages:
   - build
   - test
 
-image: debian:unstable
+.artifacts: &artifacts
+    name: "$CI_BUILD_NAME:$CI_COMMIT_REF_NAME"
+    paths:
+        - ${WORKING_DIR}/
 
-build package:
+.artifacts-long-expire: &artifacts-long-expire
+  artifacts:
+    expire_in: 180 day
+    <<: *artifacts
+
+.artifacts-default-expire: &artifacts-default-expire
+  artifacts:
+    <<: *artifacts
+
+.build-definition: &build-definition
   stage: build
   image: registry.salsa.debian.org/salsa-ci-team/images/gbp
   services:
     - docker:dind
-  artifacts:
-    expire_in: 180 day
-    name: "$CI_BUILD_NAME"
-    paths:
-        - ${WORKING_DIR}/
   script:
     - gbp pull --ignore-branch --pristine-tar --track-missing
-    - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder='docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/dockerbuilder'
+    - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/base:${RELEASE}"
 
-run autopkgtest:
+.build-unstable: &build-unstable
+  <<: *build-definition
+  <<: *artifacts-default-expire
+  variables:
+      <<: *global_variables
+      RELEASE: 'unstable'
+
+.build-stretch: &build-stretch
+  <<: *build-definition
+  <<: *artifacts-default-expire
+  variables:
+      <<: *global_variables
+      RELEASE: 'stretch'
+
+.build-stretch-bpo: &build-stretch-bpo
+  <<: *build-definition
+  <<: *artifacts-default-expire
+  variables:
+      <<: *global_variables
+      RELEASE: 'stretch-backports'
+
+.test-autopkgtest: &test-autopkgtest
   stage: test
   image: registry.salsa.debian.org/salsa-ci-team/images/autopkgtest
   script:
     - eatmydata autopkgtest -U ${WORKING_DIR}/*.deb -- null
+  variables:
+      <<: *global_variables
 
-run lintian:
+.test-lintian: &test-lintian
   stage: test
   image: registry.salsa.debian.org/salsa-ci-team/images/lintian
   script:
     - lintian -iI ${WORKING_DIR}/*.changes
+  variables:
+      <<: *global_variables
 
-run reprotest:
+.test-reprotest: &test-reprotest
   stage: test
   image: registry.salsa.debian.org/salsa-ci-team/images/reprotest
   artifacts:
-    name: "$CI_BUILD_NAME"
-    expire_in: 180 day
+    name: "$CI_BUILD_NAME:$CI_COMMIT_REF_NAME"
     paths:
       - ./reprotest.log
     when: always
@@ -51,7 +82,7 @@ run reprotest:
     - export DEB_BUILD_OPTIONS=nocheck
     - eatmydata reprotest --no-diffoscope --min-cpus $(nproc --all) . -- null &> reprotest.log
 
-run piuparts:
+.test-piuparts: &test-piuparts
   stage: test
   image: registry.salsa.debian.org/salsa-ci-team/images/piuparts
   services:
@@ -64,3 +95,5 @@ run piuparts:
     - docker export ${CONTAINER_ID} | tar -C ${CHROOT_PATH} -xf -
     - mknod -m 666 ${CHROOT_PATH}/dev/urandom c 1 9
     - piuparts --hard-link -e ${CHROOT_PATH} ${WORKING_DIR}/*.deb
+  variables:
+      <<: *global_variables
