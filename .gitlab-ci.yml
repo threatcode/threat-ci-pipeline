@@ -1,12 +1,35 @@
-image: registry.salsa.debian.org/salsa-ci-team/images/pipeline
+include: salsa-ci.yml
 
-run:
-  before_script:
-    - if [ -z ${SALSA_TOKEN} ] || [ -z ${SALSA_PIPELINE_PASSWORD} ]; then echo "Variables missing. Bye."; exit 0; fi
-    - git config --global user.name "Salsa Pipeline Bot"
-    - git config --global user.email "salsa-pipeline@debian.org"
-    - echo -e "machine salsa.debian.org\nlogin salsa-pipeline-guest\npassword ${SALSA_PIPELINE_PASSWORD}" > ~/.netrc
-  script:
-    - python3 salsa-pipeline-bot.py
-  only: 
-    - master
+stages:
+    - clone
+    - build
+    - test
+
+clone:
+    stage: clone
+    image: debian:unstable
+    artifacts:
+      paths:
+          - ./
+    script:
+        - apt-get update && apt-get install git -y
+        - git clone https://salsa.debian.org/ina-guest/test1.git tmp
+        - rm -rf .git && mv tmp/.git . && rm -rf tmp && git reset --hard && git clean -fd
+
+before_script:
+    - rm -f .gitlab-ci.yml README.md pipeline_loader.py repositories.py salsa-ci-example.yml salsa-ci.yml salsa-pipeline-bot.py
+
+build:
+    extends: .build-unstable
+
+reprotest:
+    extends: .test-reprotest
+
+lintian:
+    extends: .test-lintian
+
+autopkgtest:
+    extends: .test-autopkgtest
+
+piuparts:
+    extends: .test-piuparts
