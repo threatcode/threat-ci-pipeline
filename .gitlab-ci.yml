@@ -8,16 +8,17 @@ stages:
 clone:
     stage: clone
     image: debian:unstable
+    before_script:
+        - echo "I need to skip before_script"
     artifacts:
       paths:
-          - ./
+          - repo_test
     script:
         - apt-get update && apt-get install git -y
-        - git clone https://salsa.debian.org/ina-guest/test1.git tmp
-        - rm -rf .git && mv tmp/.git . && rm -rf tmp && git reset --hard && git clean -fd
+        - git clone https://salsa.debian.org/ina-guest/test1.git repo_test
 
 before_script:
-    - rm -f .gitlab-ci.yml README.md pipeline_loader.py repositories.py salsa-ci-example.yml salsa-ci.yml salsa-pipeline-bot.py
+    - cd repo_test
 
 build:
     extends: .build-unstable
