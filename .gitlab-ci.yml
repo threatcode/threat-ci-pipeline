@@ -15,7 +15,7 @@ clone:
           - repo_test
     script:
         - apt-get update && apt-get install git -y
-        - git clone https://salsa.debian.org/ina-guest/test1.git repo_test
+        - git clone https://salsa.debian.org/salsa-ci-team/dummypackage repo_test
 
 before_script:
     - cd repo_test
