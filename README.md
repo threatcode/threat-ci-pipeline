@@ -58,7 +58,7 @@ The stretch\* jobs are intended to be used on the corresponding Debian branches.
 
 ### Testing
 4 different tests are available to be used:
- - [test-autopkgtest](https://people.debian.org/~mpitt/autopkgtest/README.package-tests.html)
+ - [test-autopkgtest](https://salsa.debian.org/ci-team/autopkgtest/raw/master/doc/README.package-tests.rst)
  - [test-lintian](https://github.com/Debian/lintian)
  - [test-reprotest](https://reproducible-builds.org/tools)
  - [test-piuparts](https://piuparts.debian.org)
