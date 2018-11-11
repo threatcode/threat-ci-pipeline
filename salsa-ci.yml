@@ -67,6 +67,7 @@ stages:
     - lintian -iI ${WORKING_DIR}/*.changes
   variables:
       <<: *global_variables
+      GIT_STRATEGY: none
 
 .test-reprotest: &test-reprotest
   stage: test
@@ -97,3 +98,4 @@ stages:
     - piuparts --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${WORKING_DIR}/*.deb
   variables:
       <<: *global_variables
+      GIT_STRATEGY: none
