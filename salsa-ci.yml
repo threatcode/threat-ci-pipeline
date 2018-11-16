@@ -9,7 +9,7 @@ stages:
   - test
 
 .artifacts: &artifacts
-    name: "$CI_BUILD_NAME:$CI_COMMIT_REF_NAME"
+    name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
     paths:
         - ${WORKING_DIR}/
 
@@ -74,7 +74,7 @@ stages:
   stage: test
   image: registry.salsa.debian.org/salsa-ci-team/images/reprotest
   artifacts:
-    name: "$CI_BUILD_NAME:$CI_COMMIT_REF_NAME"
+    name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
     paths:
       - ./reprotest.log
     when: always
