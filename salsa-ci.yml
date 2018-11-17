@@ -76,13 +76,13 @@ stages:
   artifacts:
     name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
     paths:
-      - ./reprotest.log
+      - $CI_PROJECT_DIR/reprotest.log
     when: always
   script:
     - apt-get update
     - eatmydata apt-get build-dep -y .
     - export DEB_BUILD_OPTIONS=nocheck
-    - eatmydata reprotest --no-diffoscope --min-cpus $(nproc --all) . -- null &> reprotest.log
+    - eatmydata reprotest --no-diffoscope --min-cpus $(nproc --all) . -- null &> "${CI_PROJECT_DIR}/reprotest.log"
 
 .test-piuparts: &test-piuparts
   stage: test
