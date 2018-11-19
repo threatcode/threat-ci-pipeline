@@ -83,6 +83,8 @@ stages:
     - eatmydata apt-get build-dep -y .
     - export DEB_BUILD_OPTIONS=nocheck
     - eatmydata reprotest --no-diffoscope --min-cpus $(nproc --all) . -- null &> "${CI_PROJECT_DIR}/reprotest.log"
+  after_script:
+    - tail -n 5000 "${CI_PROJECT_DIR}/reprotest.log" >&2;
 
 .test-piuparts: &test-piuparts
   stage: test
