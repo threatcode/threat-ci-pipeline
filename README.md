@@ -61,4 +61,5 @@ The stretch\* jobs are intended to be used on the corresponding Debian branches.
  - [test-autopkgtest](https://salsa.debian.org/ci-team/autopkgtest/raw/master/doc/README.package-tests.rst)
  - [test-lintian](https://github.com/Debian/lintian)
  - [test-reprotest](https://reproducible-builds.org/tools)
+   - Reprotest stage can be run with diffoscope, which is an useful tool that helps identifying reproducibility issues. Large projects won't pass on low resources runners as the ones available right now. To use it, just extend from `test-reprotest-diffoscope`
  - [test-piuparts](https://piuparts.debian.org)
