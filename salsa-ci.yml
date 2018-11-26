@@ -78,11 +78,20 @@ stages:
     paths:
       - $CI_PROJECT_DIR/reprotest.log
     when: always
+  variables:
+    REPROTEST_EXTRA_ARGS: '--no-diffoscope'
   script:
     - apt-get update
     - eatmydata apt-get build-dep -y .
     - export DEB_BUILD_OPTIONS=nocheck
-    - eatmydata reprotest --no-diffoscope --min-cpus $(nproc --all) . -- null &> "${CI_PROJECT_DIR}/reprotest.log"
+    - eatmydata reprotest --min-cpus $(nproc --all) ${REPROTEST_EXTRA_ARGS} . -- null &> "${CI_PROJECT_DIR}/reprotest.log"
+  after_script:
+    - tail -n 5000 "${CI_PROJECT_DIR}/reprotest.log" >&2;
+
+.test-reprotest-diffoscope: &test-reprotest-diffoscope
+  <<: *test-reprotest
+  variables:
+    REPROTEST_EXTRA_ARGS: ''
 
 .test-piuparts: &test-piuparts
   stage: test

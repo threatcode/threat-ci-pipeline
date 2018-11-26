@@ -26,6 +26,9 @@ build:
 reprotest:
     extends: .test-reprotest
 
+reprotest-diffoscope:
+    extends: .test-reprotest-diffoscope
+
 lintian:
     extends: .test-lintian
 
