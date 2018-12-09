@@ -65,10 +65,14 @@ stages:
   stage: test
   image: registry.salsa.debian.org/salsa-ci-team/images/lintian
   script:
-    - lintian -iI ${WORKING_DIR}/*.changes
+    - lintian ${WORKING_DIR}/*.changes | tee lintian.output
+    - cat lintian.output | /root/go/bin/lintian2junit > ${WORKING_DIR}/lintian.xml
   variables:
       <<: *global_variables
       GIT_STRATEGY: none
+  artifacts:
+    reports:
+      junit: ${WORKING_DIR}/lintian.xml
 
 .test-reprotest: &test-reprotest
   stage: test
