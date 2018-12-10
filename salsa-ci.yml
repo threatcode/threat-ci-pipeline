@@ -29,7 +29,7 @@ stages:
     - docker:dind
   script:
     - gbp pull --ignore-branch --pristine-tar --track-missing
-    - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/base:${RELEASE}"
+    - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/dockerbuilder:${RELEASE}"
 
 .build-unstable: &build-unstable
   <<: *build-definition
