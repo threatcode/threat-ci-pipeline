@@ -52,6 +52,13 @@ stages:
       <<: *global_variables
       RELEASE: 'stretch-backports'
 
+.build-jessie: &build-jessie
+  <<: *build-definition
+  <<: *artifacts-default-expire
+  variables:
+      <<: *global_variables
+      RELEASE: 'jessie'
+
 .test-autopkgtest: &test-autopkgtest
   stage: test
   image: registry.salsa.debian.org/salsa-ci-team/images/autopkgtest

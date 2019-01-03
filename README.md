@@ -52,6 +52,7 @@ Anyway, we **firmly recommend NOT to do it**.
  - build-unstable
  - build-stretch
  - build-stretch-bpo
+ - build-jessie
 
 Any of this 3 builds can be chosen.
 The stretch\* jobs are intended to be used on the corresponding Debian branches.
