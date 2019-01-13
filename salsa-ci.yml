@@ -68,7 +68,7 @@ stages:
       <<: *global_variables
       GIT_STRATEGY: none
 
- .test-blhc: &test-blhc
+.test-blhc: &test-blhc
   stage: test
   image: registry.salsa.debian.org/salsa-ci-team/images/blhc
   script:
