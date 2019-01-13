@@ -68,6 +68,15 @@ stages:
       <<: *global_variables
       GIT_STRATEGY: none
 
+ .test-blhc: &test-blhc
+  stage: test
+  image: registry.salsa.debian.org/salsa-ci-team/images/blhc
+  script:
+    - blhc --debian --line-numbers --color ${WORKING_DIR}/*.build
+  variables:
+      <<: *global_variables
+      GIT_STRATEGY: none
+
 .test-lintian: &test-lintian
   stage: test
   image: registry.salsa.debian.org/salsa-ci-team/images/lintian

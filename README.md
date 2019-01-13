@@ -9,6 +9,7 @@ We started looking for the services that Debian QA is offering today and tried t
  * Reproducible build (Using reprotest)
  * piuparts
  * Autopkgtest
+ * Buildd Log Scanner
 
 Those services are enabled by something we called `salsa-pipeline` and it'll be shared for all Gitlab projects who adopt it. Having the same pipeline on GCI ensure that every package accomplishes the minimum quality to be in the archive and if we improve or add a new service the project will get the benefit instantaneously.
 
@@ -33,6 +34,9 @@ lintian:
 autopkgtest:
     extends: .test-autopkgtest
 
+blhc:
+    extends: .test-blhc
+
 piuparts:
     extends: .test-piuparts
 
@@ -43,7 +47,7 @@ This can be done on `Settings` -> `CI/CD` -> `General Pipelines` -> `Custom CI c
 
 Due to current `include` limitations, yaml anchors can't be used here, so every job has to be defined and extended with the corresponding definition from the included file.
 
-On the previous example, the package is built on Debian unstable and tested on all four tests.
+On the previous example, the package is built on Debian unstable and tested on all five tests.
 You can choose to run only some of the jobs. 
 Anyway, we **firmly recommend NOT to do it**.
 
@@ -58,9 +62,10 @@ Any of this 3 builds can be chosen.
 The stretch\* jobs are intended to be used on the corresponding Debian branches.
 
 ### Testing
-4 different tests are available to be used:
+5 different tests are available to be used:
  - [test-autopkgtest](https://salsa.debian.org/ci-team/autopkgtest/raw/master/doc/README.package-tests.rst)
  - [test-lintian](https://github.com/Debian/lintian)
  - [test-reprotest](https://reproducible-builds.org/tools)
    - Reprotest stage can be run with diffoscope, which is an useful tool that helps identifying reproducibility issues. Large projects won't pass on low resources runners as the ones available right now. To use it, just extend from `test-reprotest-diffoscope`
  - [test-piuparts](https://piuparts.debian.org)
+ - [test-blhc](https://qa.debian.org/bls/)
