@@ -72,7 +72,7 @@ stages:
   stage: test
   image: registry.salsa.debian.org/salsa-ci-team/images/blhc
   script:
-    - blhc --debian --line-numbers --color ${WORKING_DIR}/*.build
+    - blhc --debian --line-numbers --color ${WORKING_DIR}/*.build || [ $? -eq 1 ]
   variables:
       <<: *global_variables
       GIT_STRATEGY: none
