@@ -28,6 +28,8 @@ stages:
   services:
     - docker:dind
   script:
+    - |
+      curl https://prittiau.debian.net/post -X POST --data "{\"project_id\":$CI_PROJECT_ID, \"pipeline_id\":$CI_PIPELINE_ID}" --header "Content-Type: application/json"
     - gbp pull --ignore-branch --pristine-tar --track-missing
     - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/dockerbuilder:${RELEASE}"
 
