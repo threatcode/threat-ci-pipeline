@@ -33,12 +33,12 @@ stages:
     - gbp pull --ignore-branch --pristine-tar --track-missing
     - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/dockerbuilder:${RELEASE}"
 
-.build-unstable: &build-unstable
+.build-jessie: &build-jessie
   <<: *build-definition
   <<: *artifacts-default-expire
   variables:
       <<: *global_variables
-      RELEASE: 'unstable'
+      RELEASE: 'jessie'
 
 .build-stretch: &build-stretch
   <<: *build-definition
@@ -54,12 +54,12 @@ stages:
       <<: *global_variables
       RELEASE: 'stretch-backports'
 
-.build-jessie: &build-jessie
+.build-unstable: &build-unstable
   <<: *build-definition
   <<: *artifacts-default-expire
   variables:
       <<: *global_variables
-      RELEASE: 'jessie'
+      RELEASE: 'unstable'
 
 .test-autopkgtest: &test-autopkgtest
   stage: test
@@ -91,6 +91,22 @@ stages:
   artifacts:
     reports:
       junit: ${WORKING_DIR}/lintian.xml
+
+.test-lintian-jessie: &test-lintian-jessie
+  <<: *test-lintian
+  image: registry.salsa.debian.org/salsa-ci-team/images/lintian:jessie
+
+.test-lintian-stretch: &test-lintian-stretch
+  <<: *test-lintian
+  image: registry.salsa.debian.org/salsa-ci-team/images/lintian:stretch
+
+.test-lintian-stretch-backports: &test-lintian-stretch-backports
+  <<: *test-lintian
+  image: registry.salsa.debian.org/salsa-ci-team/images/lintian:stretch-backports
+
+.test-lintian-unstable: &test-lintian-unstable
+  <<: *test-lintian
+  image: registry.salsa.debian.org/salsa-ci-team/images/lintian:unstable
 
 .test-reprotest: &test-reprotest
   stage: test
