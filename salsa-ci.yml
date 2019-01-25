@@ -1,4 +1,4 @@
-.global_variables: &global_variables
+variables:
   DEBFULLNAME: "Salsa Pipeline"
   DEBEMAIL: "<salsa-pipeline@debian.org>"
   DEBIAN_FRONTEND: noninteractive
@@ -37,8 +37,6 @@ stages:
 .build-package: &build-package
   <<: *build-definition
   <<: *artifacts-default-expire
-  variables:
-      <<: *global_variables
 
 .test-autopkgtest: &test-autopkgtest
   stage: test
@@ -46,7 +44,6 @@ stages:
   script:
     - eatmydata autopkgtest -U ${WORKING_DIR}/*.changes -- null || [ $? -eq 8 ]
   variables:
-      <<: *global_variables
       GIT_STRATEGY: none
 
 .test-blhc: &test-blhc
@@ -55,7 +52,6 @@ stages:
   script:
     - blhc --debian --line-numbers --color ${WORKING_DIR}/*.build || [ $? -eq 1 ]
   variables:
-      <<: *global_variables
       GIT_STRATEGY: none
 
 .test-lintian: &test-lintian
@@ -65,7 +61,6 @@ stages:
     - lintian ${WORKING_DIR}/*.changes | tee lintian.output
     - cat lintian.output | /root/go/bin/lintian2junit > ${WORKING_DIR}/lintian.xml
   variables:
-      <<: *global_variables
       GIT_STRATEGY: none
   artifacts:
     reports:
@@ -111,5 +106,4 @@ stages:
     - cp -aTv /etc/apt/preferences.d  ${CHROOT_PATH}/etc-target/apt/preferences.d
     - piuparts --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${WORKING_DIR}/*.deb
   variables:
-      <<: *global_variables
       GIT_STRATEGY: none
