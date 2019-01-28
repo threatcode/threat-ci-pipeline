@@ -107,3 +107,70 @@ stages:
     - piuparts --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${WORKING_DIR}/*.deb
   variables:
       GIT_STRATEGY: none
+
+
+# Backwards compatibility stuff
+#
+
+.deprecation-warning: &deprecation-warning
+  before_script:
+      - |
+          echo "--------------------------------------";
+          echo "------------- Deprecated -------------";
+          echo "--------------------------------------";
+          echo;
+          echo "Please use the new jobs.";
+          echo "More info on salsa-ci-team/pipeline";
+          echo "This job will be removed soon";
+          echo;
+          echo "--------------------------------------";
+          echo "------------- Deprecated -------------";
+          echo "--------------------------------------";
+
+.build-jessie: &build-jessie
+  extends: .build-package
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'jessie'
+
+.build-stretch: &build-stretch
+  extends: .build-package
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'stretch'
+
+.build-stretch-bpo: &build-stretch-bpo
+  extends: .build-package
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'stretch-backports'
+
+.build-unstable: &build-unstable
+  extends: .build-package
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'unstable'
+
+.test-lintian-jessie: &test-lintian-jessie
+  extends: .test-lintian
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'jessie'
+
+.test-lintian-stretch: &test-lintian-stretch
+  extends: .test-lintian
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'stretch'
+
+.test-lintian-stretch-backports: &test-lintian-stretch-backports
+  extends: .test-lintian
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'stretch-backports'
+
+.test-lintian-unstable: &test-lintian-unstable
+  extends: .test-lintian
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'unstable'
