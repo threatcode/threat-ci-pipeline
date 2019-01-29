@@ -16,11 +16,35 @@ Those services are enabled by something we called `salsa-pipeline` and it'll be 
 
 ## Using Salsa-Pipeline
 
-This project provides the definition of build and test jobs.
-It you want to use this tools to build and test your project, adding the following definitions to your `gitlab-ci.yml` file is the only thing you need to do.
+The `salsa-ci.yml` template only delivers the jobs definitions. Including only this file, no job will be added to the pipeline.
+On the other hand, `pipeline-jobs.yml` includes all the jobs' implementations.
+
+To use the Salsa Pipeline, simply add a `debian/gitlab-ci.yml` like the following:
+
+```yaml
+include: 
+ - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+ - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+ RELEASE: 'unstable'
+```
+
+`RELEASE: 'unstable'` can be replaced with any of the releases provided.
+
+On Debian projects, you would normally want to put this file under the `debian/` folder, so changing the config path on your project will be necessary.
+This can be done on `Settings` -> `CI/CD` -> `General Pipelines` -> `Custom CI config path`.
+
+### Including only the jobs' definition
+
+The `salsa-ci.yml` file provides the definition of build and test jobs.
+It you want to use this tools to build and test your project, but you want to explicitly define which jobs to run, you can do as follows:
 
 ```yaml
 include: https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+
+variables:
+    RELEASE: 'unstable'
 
 build:
     extends: .build-package
@@ -41,11 +65,6 @@ piuparts:
     extends: .test-piuparts
 
 ```
-
-On Debian projects, you would normally want to put this file under the `debian/` folder, so changing the config path on your project will be necessary.
-This can be done on `Settings` -> `CI/CD` -> `General Pipelines` -> `Custom CI config path`.
-
-Due to current `include` limitations, yaml anchors can't be used here, so every job has to be defined and extended with the corresponding definition from the included file.
 
 On the previous example, the package is built on Debian unstable and tested on all five tests.
 You can choose to run only some of the jobs. 
