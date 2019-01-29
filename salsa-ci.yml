@@ -1,8 +1,9 @@
-.global_variables: &global_variables
+variables:
   DEBFULLNAME: "Salsa Pipeline"
   DEBEMAIL: "<salsa-pipeline@debian.org>"
   DEBIAN_FRONTEND: noninteractive
   WORKING_DIR: $CI_PROJECT_DIR/debian/output
+  RELEASE: 'unstable'
 
 stages:
   - build
@@ -33,33 +34,9 @@ stages:
     - gbp pull --ignore-branch --pristine-tar --track-missing
     - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/dockerbuilder:${RELEASE}"
 
-.build-jessie: &build-jessie
+.build-package: &build-package
   <<: *build-definition
   <<: *artifacts-default-expire
-  variables:
-      <<: *global_variables
-      RELEASE: 'jessie'
-
-.build-stretch: &build-stretch
-  <<: *build-definition
-  <<: *artifacts-default-expire
-  variables:
-      <<: *global_variables
-      RELEASE: 'stretch'
-
-.build-stretch-bpo: &build-stretch-bpo
-  <<: *build-definition
-  <<: *artifacts-default-expire
-  variables:
-      <<: *global_variables
-      RELEASE: 'stretch-backports'
-
-.build-unstable: &build-unstable
-  <<: *build-definition
-  <<: *artifacts-default-expire
-  variables:
-      <<: *global_variables
-      RELEASE: 'unstable'
 
 .test-autopkgtest: &test-autopkgtest
   stage: test
@@ -67,7 +44,6 @@ stages:
   script:
     - eatmydata autopkgtest -U ${WORKING_DIR}/*.changes -- null || [ $? -eq 8 ]
   variables:
-      <<: *global_variables
       GIT_STRATEGY: none
 
 .test-blhc: &test-blhc
@@ -76,37 +52,19 @@ stages:
   script:
     - blhc --debian --line-numbers --color ${WORKING_DIR}/*.build || [ $? -eq 1 ]
   variables:
-      <<: *global_variables
       GIT_STRATEGY: none
 
 .test-lintian: &test-lintian
   stage: test
-  image: registry.salsa.debian.org/salsa-ci-team/images/lintian
+  image: registry.salsa.debian.org/salsa-ci-team/images/lintian:${RELEASE}
   script:
     - lintian ${WORKING_DIR}/*.changes | tee lintian.output
     - cat lintian.output | /root/go/bin/lintian2junit > ${WORKING_DIR}/lintian.xml
   variables:
-      <<: *global_variables
       GIT_STRATEGY: none
   artifacts:
     reports:
       junit: ${WORKING_DIR}/lintian.xml
-
-.test-lintian-jessie: &test-lintian-jessie
-  <<: *test-lintian
-  image: registry.salsa.debian.org/salsa-ci-team/images/lintian:jessie
-
-.test-lintian-stretch: &test-lintian-stretch
-  <<: *test-lintian
-  image: registry.salsa.debian.org/salsa-ci-team/images/lintian:stretch
-
-.test-lintian-stretch-backports: &test-lintian-stretch-backports
-  <<: *test-lintian
-  image: registry.salsa.debian.org/salsa-ci-team/images/lintian:stretch-backports
-
-.test-lintian-unstable: &test-lintian-unstable
-  <<: *test-lintian
-  image: registry.salsa.debian.org/salsa-ci-team/images/lintian:unstable
 
 .test-reprotest: &test-reprotest
   stage: test
@@ -148,5 +106,71 @@ stages:
     - cp -aTv /etc/apt/preferences.d  ${CHROOT_PATH}/etc-target/apt/preferences.d
     - piuparts --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${WORKING_DIR}/*.deb
   variables:
-      <<: *global_variables
       GIT_STRATEGY: none
+
+
+# Backwards compatibility stuff
+#
+
+.deprecation-warning: &deprecation-warning
+  before_script:
+      - |
+          echo "--------------------------------------";
+          echo "------------- Deprecated -------------";
+          echo "--------------------------------------";
+          echo;
+          echo "Please use the new jobs.";
+          echo "More info on salsa-ci-team/pipeline";
+          echo "This job will be removed soon";
+          echo;
+          echo "--------------------------------------";
+          echo "------------- Deprecated -------------";
+          echo "--------------------------------------";
+
+.build-jessie: &build-jessie
+  extends: .build-package
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'jessie'
+
+.build-stretch: &build-stretch
+  extends: .build-package
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'stretch'
+
+.build-stretch-bpo: &build-stretch-bpo
+  extends: .build-package
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'stretch-backports'
+
+.build-unstable: &build-unstable
+  extends: .build-package
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'unstable'
+
+.test-lintian-jessie: &test-lintian-jessie
+  extends: .test-lintian
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'jessie'
+
+.test-lintian-stretch: &test-lintian-stretch
+  extends: .test-lintian
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'stretch'
+
+.test-lintian-stretch-backports: &test-lintian-stretch-backports
+  extends: .test-lintian
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'stretch-backports'
+
+.test-lintian-unstable: &test-lintian-unstable
+  extends: .test-lintian
+  <<: *deprecation-warning
+  variables:
+      RELEASE: 'unstable'

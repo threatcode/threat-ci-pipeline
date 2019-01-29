@@ -23,7 +23,7 @@ It you want to use this tools to build and test your project, adding the followi
 include: https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
 
 build:
-    extends: .build-unstable
+    extends: .build-package
 
 reprotest:
     extends: .test-reprotest
@@ -52,14 +52,22 @@ You can choose to run only some of the jobs.
 Anyway, we **firmly recommend NOT to do it**.
 
 ### Building
-3 different build jobs are provided: 
- - build-unstable
- - build-stretch
- - build-stretch-bpo
- - build-jessie
+The Debian release can be specified declaring the variable `RELEASE` on any of the images availables.
+ - unstable
+ - stretch-backports
+ - stretch
+ - jessie
 
-Any of this 3 builds can be chosen.
-The stretch\* jobs are intended to be used on the corresponding Debian branches.
+This release is also gonna be used for some stages like lintian.
+By default, `unstable` is used.
+
+To change the `RELEASE`, define this after including the yaml:
+```yaml
+variables:
+    RELEASE: 'stretch'
+```
+Replace `stretch` with any of the releases listed previously.
+
 
 ### Testing
 5 different tests are available to be used:

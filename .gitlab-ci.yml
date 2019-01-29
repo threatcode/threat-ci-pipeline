@@ -1,9 +1,13 @@
 include: salsa-ci.yml
 
+variables:
+    RELEASE: 'stretch-backports'
+
 stages:
     - clone
     - build
     - test
+    - test-backwards
 
 clone:
     stage: clone
@@ -21,7 +25,7 @@ before_script:
     - cd repo_test
 
 build:
-    extends: .build-unstable
+    extends: .build-package
 
 reprotest:
     extends: .test-reprotest
@@ -40,3 +44,50 @@ blhc:
 
 piuparts:
     extends: .test-piuparts
+
+# Backwards compat tests
+
+.dry: &dry
+    before_script:
+        - cd repo_test
+    stage: test-backwards
+    
+build-unstable:
+    extends: .build-unstable
+    <<: *dry
+    dependencies:
+        - clone
+
+build-stretch-backports:
+    extends: .build-stretch-bpo
+    <<: *dry
+    dependencies:
+        - clone
+
+build-stretch:
+    extends: .build-stretch
+    <<: *dry
+    dependencies:
+        - clone
+
+build-jessie:
+    extends: .build-jessie
+    <<: *dry
+    dependencies:
+        - clone
+
+lintian-unstable:
+    extends: .test-lintian-unstable
+    <<: *dry
+
+lintian-stretch-backports:
+    extends: .test-lintian-stretch-backports
+    <<: *dry
+
+lintian-stretch:
+    extends: .test-lintian-stretch
+    <<: *dry
+
+lintian-jessie:
+    extends: .test-lintian-jessie
+    <<: *dry
