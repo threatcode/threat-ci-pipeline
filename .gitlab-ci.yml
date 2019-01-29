@@ -1,4 +1,6 @@
-include: salsa-ci.yml
+include:
+ - salsa-ci.yml
+ - pipeline-jobs.yml
 
 variables:
     RELEASE: 'stretch-backports'
@@ -23,27 +25,6 @@ clone:
 
 before_script:
     - cd repo_test
-
-build:
-    extends: .build-package
-
-reprotest:
-    extends: .test-reprotest
-
-reprotest-diffoscope:
-    extends: .test-reprotest-diffoscope
-
-lintian:
-    extends: .test-lintian
-
-autopkgtest:
-    extends: .test-autopkgtest
-
-blhc:
-    extends: .test-blhc
-
-piuparts:
-    extends: .test-piuparts
 
 # Backwards compat tests
 

@@ -51,6 +51,24 @@ On the previous example, the package is built on Debian unstable and tested on a
 You can choose to run only some of the jobs. 
 Anyway, we **firmly recommend NOT to do it**.
 
+### Including the job implementation
+
+The `salsa-ci.yml` template only delivers the jobs definitions. Including only this file, no job will be added to the pipeline.
+On the other hand, `pipeline-jobs.yml` includes all the jobs' _implementation_.
+
+To use this, simply add a `debian/gitlab-ci.yml` like the following:
+
+```yaml
+include: 
+ - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+ - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+ RELEASE: 'unstable'
+```
+
+`RELEASE: 'unstable'` can be replaced with any of the releases provided.
+
 ### Building
 The Debian release can be specified declaring the variable `RELEASE` on any of the images availables.
  - unstable
