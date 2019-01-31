@@ -104,8 +104,8 @@ stages:
   services:
     - docker:dind
   script:
-    - CHROOT_PATH=/tmp/debian-unstable
-    - CONTAINER_ID=$(docker run --rm -d debian:unstable sleep infinity)
+    - CHROOT_PATH="/tmp/debian-chroot"
+    - CONTAINER_ID=$(docker run --rm -d "debian:$RELEASE" sleep infinity)
     - docker exec ${CONTAINER_ID} bash -c "apt-get update && apt-get install eatmydata -y"
     - mkdir -p ${CHROOT_PATH}
     - docker export ${CONTAINER_ID} | tar -C ${CHROOT_PATH} -xf -
@@ -116,9 +116,12 @@ stages:
     - cp -aTLv /etc/apt/preferences.d  ${CHROOT_PATH}/etc-target/apt/preferences.d
     - cp -aTLv /srv/local-apt-repository ${CHROOT_PATH}/srv/local-apt-repository
     - cp -aTLv /var/lib/local-apt-repository/ ${CHROOT_PATH}/var/lib/local-apt-repository/
+    - PIUPARTS_DISTRIBUTION_ARG=''
+    - '[ "$RELEASE" = unstable ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE/updates"'
+    - '[ "${RELEASE/-backports/}" = "$RELEASE" ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE"'
     - |
         for PACKAGE in $(ls ${WORKING_DIR}/*.deb); do
-            piuparts --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PACKAGE}
+            piuparts --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PIUPARTS_DISTRIBUTION_ARG} ${PACKAGE}
         done
   variables:
       GIT_STRATEGY: none
