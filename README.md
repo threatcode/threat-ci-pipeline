@@ -96,3 +96,6 @@ Replace `stretch` with any of the releases listed previously.
    - Reprotest stage can be run with diffoscope, which is an useful tool that helps identifying reproducibility issues. Large projects won't pass on low resources runners as the ones available right now. To use it, just extend from `test-reprotest-diffoscope`
  - [test-piuparts](https://piuparts.debian.org)
  - [test-blhc](https://qa.debian.org/bls/)
+
+## Support
+\#salsaci on OFTC or open an issue here. 
