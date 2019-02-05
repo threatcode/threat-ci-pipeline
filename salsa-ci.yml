@@ -40,7 +40,7 @@ stages:
 
 .test-autopkgtest: &test-autopkgtest
   stage: test
-  image: registry.salsa.debian.org/salsa-ci-team/images/autopkgtest
+  image: registry.salsa.debian.org/salsa-ci-team/images/autopkgtest:${RELEASE}
   script:
     - eatmydata autopkgtest -U ${WORKING_DIR}/*.changes -- null || [ $? -eq 8 ]
   variables:
