@@ -28,11 +28,20 @@ stages:
   image: registry.salsa.debian.org/salsa-ci-team/images/gbp
   services:
     - docker:dind
+  cache:
+    paths:
+      - ${CCACHE_WORK_DIR}
+  variables:
+    CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
+    CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
   script:
     - |
       curl https://prittiau.debian.net/post -X POST --data "{\"project_id\":$CI_PROJECT_ID, \"pipeline_id\":$CI_PIPELINE_ID}" --header "Content-Type: application/json"
+    - mkdir -p ${CCACHE_WORK_DIR}
+    - mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
     - gbp pull --ignore-branch --pristine-tar --track-missing
     - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/dockerbuilder:${RELEASE}"
+    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
 
 .build-package: &build-package
   <<: *build-definition
