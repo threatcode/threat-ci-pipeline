@@ -104,7 +104,10 @@ stages:
     - mkdir -p ${CHROOT_PATH}/etc-target/apt/sources.list.d ${CHROOT_PATH}/etc-target/apt/preferences.d
     - cp -aTv /etc/apt/sources.list.d  ${CHROOT_PATH}/etc-target/apt/sources.list.d
     - cp -aTv /etc/apt/preferences.d  ${CHROOT_PATH}/etc-target/apt/preferences.d
-    - piuparts --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${WORKING_DIR}/*.deb
+    - |
+        for PACKAGE in $(ls ${WORKING_DIR}/*.deb); do
+            piuparts --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PACKAGE}
+        done
   variables:
       GIT_STRATEGY: none
 
