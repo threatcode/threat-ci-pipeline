@@ -110,9 +110,12 @@ stages:
     - mkdir -p ${CHROOT_PATH}
     - docker export ${CONTAINER_ID} | tar -C ${CHROOT_PATH} -xf -
     - mknod -m 666 ${CHROOT_PATH}/dev/urandom c 1 9
+    - mkdir -p /srv/local-apt-repository/ && cp -a ${WORKING_DIR}/*.deb /srv/local-apt-repository/ && /usr/lib/local-apt-repository/rebuild
     - mkdir -p ${CHROOT_PATH}/etc-target/apt/sources.list.d ${CHROOT_PATH}/etc-target/apt/preferences.d
     - cp -aTLv /etc/apt/sources.list.d  ${CHROOT_PATH}/etc-target/apt/sources.list.d
     - cp -aTLv /etc/apt/preferences.d  ${CHROOT_PATH}/etc-target/apt/preferences.d
+    - cp -aTLv /srv/local-apt-repository ${CHROOT_PATH}/srv/local-apt-repository
+    - cp -aTLv /var/lib/local-apt-repository/ ${CHROOT_PATH}/var/lib/local-apt-repository/
     - |
         for PACKAGE in $(ls ${WORKING_DIR}/*.deb); do
             piuparts --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PACKAGE}
