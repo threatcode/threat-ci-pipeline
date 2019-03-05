@@ -72,6 +72,7 @@ Anyway, we **firmly recommend NOT to do it**.
 
 ### Building
 The Debian release can be specified declaring the variable `RELEASE` on any of the images availables.
+ - experimental
  - unstable
  - stretch-backports
  - stretch
