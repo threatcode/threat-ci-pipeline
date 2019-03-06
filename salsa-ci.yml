@@ -117,7 +117,7 @@ stages:
     - cp -aTLv /srv/local-apt-repository ${CHROOT_PATH}/srv/local-apt-repository
     - cp -aTLv /var/lib/local-apt-repository/ ${CHROOT_PATH}/var/lib/local-apt-repository/
     - PIUPARTS_DISTRIBUTION_ARG=''
-    - '[ "$RELEASE" = unstable ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE/updates"'
+    - '[ "$RELEASE" = unstable -o "$RELEASE" = experimental ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE/updates"'
     - '[ "${RELEASE/-backports/}" = "$RELEASE" ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE"'
     - |
         for PACKAGE in $(ls ${WORKING_DIR}/*.deb); do
