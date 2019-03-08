@@ -78,7 +78,7 @@ The Debian release can be specified declaring the variable `RELEASE` on any of t
  - stretch
  - jessie
 
-This release is also gonna be used for some stages like lintian.
+This release is also going to be used for some stages like lintian.
 By default, `unstable` is used.
 
 To change the `RELEASE`, define this after including the yaml:
