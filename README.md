@@ -22,12 +22,12 @@ On the other hand, `pipeline-jobs.yml` includes all the jobs' implementations.
 To use the Salsa Pipeline, simply add a `debian/gitlab-ci.yml` like the following:
 
 ```yaml
-include: 
- - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
- - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 
 variables:
- RELEASE: 'unstable'
+  RELEASE: 'unstable'
 ```
 
 `RELEASE: 'unstable'` can be replaced with any of the releases provided.
@@ -44,30 +44,30 @@ It you want to use this tools to build and test your project, but you want to ex
 include: https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
 
 variables:
-    RELEASE: 'unstable'
+  RELEASE: 'unstable'
 
 build:
-    extends: .build-package
+  extends: .build-package
 
 reprotest:
-    extends: .test-reprotest
+  extends: .test-reprotest
 
 lintian:
-    extends: .test-lintian
+  extends: .test-lintian
 
 autopkgtest:
-    extends: .test-autopkgtest
+  extends: .test-autopkgtest
 
 blhc:
-    extends: .test-blhc
+  extends: .test-blhc
 
 piuparts:
-    extends: .test-piuparts
+  extends: .test-piuparts
 
 ```
 
 On the previous example, the package is built on Debian unstable and tested on all five tests.
-You can choose to run only some of the jobs. 
+You can choose to run only some of the jobs.
 Anyway, we **firmly recommend NOT to do it**.
 
 ### Building
@@ -78,7 +78,7 @@ The Debian release can be specified declaring the variable `RELEASE` on any of t
  - stretch
  - jessie
 
-This release is also gonna be used for some stages like lintian.
+This release is also going to be used for some stages like lintian.
 By default, `unstable` is used.
 
 To change the `RELEASE`, define this after including the yaml:
@@ -99,4 +99,4 @@ Replace `stretch` with any of the releases listed previously.
  - [test-blhc](https://qa.debian.org/bls/)
 
 ## Support
-\#salsaci on OFTC or open an issue here. 
+\#salsaci on OFTC or open an issue here.
