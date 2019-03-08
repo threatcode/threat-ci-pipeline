@@ -23,11 +23,11 @@ To use the Salsa Pipeline, simply add a `debian/gitlab-ci.yml` like the followin
 
 ```yaml
 include:
- - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
- - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 
 variables:
- RELEASE: 'unstable'
+  RELEASE: 'unstable'
 ```
 
 `RELEASE: 'unstable'` can be replaced with any of the releases provided.
@@ -44,25 +44,25 @@ It you want to use this tools to build and test your project, but you want to ex
 include: https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
 
 variables:
-    RELEASE: 'unstable'
+  RELEASE: 'unstable'
 
 build:
-    extends: .build-package
+  extends: .build-package
 
 reprotest:
-    extends: .test-reprotest
+  extends: .test-reprotest
 
 lintian:
-    extends: .test-lintian
+  extends: .test-lintian
 
 autopkgtest:
-    extends: .test-autopkgtest
+  extends: .test-autopkgtest
 
 blhc:
-    extends: .test-blhc
+  extends: .test-blhc
 
 piuparts:
-    extends: .test-piuparts
+  extends: .test-piuparts
 
 ```
 
