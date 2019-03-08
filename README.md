@@ -22,7 +22,7 @@ On the other hand, `pipeline-jobs.yml` includes all the jobs' implementations.
 To use the Salsa Pipeline, simply add a `debian/gitlab-ci.yml` like the following:
 
 ```yaml
-include: 
+include:
  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 
@@ -67,7 +67,7 @@ piuparts:
 ```
 
 On the previous example, the package is built on Debian unstable and tested on all five tests.
-You can choose to run only some of the jobs. 
+You can choose to run only some of the jobs.
 Anyway, we **firmly recommend NOT to do it**.
 
 ### Building
@@ -99,4 +99,4 @@ Replace `stretch` with any of the releases listed previously.
  - [test-blhc](https://qa.debian.org/bls/)
 
 ## Support
-\#salsaci on OFTC or open an issue here. 
+\#salsaci on OFTC or open an issue here.
