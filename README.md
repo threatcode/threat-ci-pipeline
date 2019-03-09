@@ -70,6 +70,30 @@ On the previous example, the package is built on Debian unstable and tested on a
 You can choose to run only some of the jobs.
 Anyway, we **firmly recommend NOT to do it**.
 
+### Testing build of arch=any and arch=all packages
+
+If your package contains binary packages for `all` or `any`, you may want to test if those can be build in isolation from the full build normally done.
+
+This verifies the Debian buildds can build your package correctly when building for other architectures that the one you uploaded in or in case a binNMU is needed or you want to do source-only uploads.
+
+To test this two additional build jobs are available for you to include in your `gitlab-ci.yml` file:
+
+```yaml
+build-any:
+  extends: .build-package-any
+
+build-all:
+  extends: .build-package-all
+```
+
+`.build-package-any` runs `dpkg-buildpackage` with the option `--build=any` and will only build architecture-dependent packages.
+
+`.build-package-all` does the opposite and runs `dpkg-buildpackage` with the option `--build=all` building only architecture-independent packages.
+
+You need to chose the applicable jobs types for your packages manually, depending on the type of packages your source builds.
+
+Note: These additional build jobs don't work with `RELEASE: 'jessie'`.
+
 ### Building
 The Debian release can be specified declaring the variable `RELEASE` on any of the images availables.
  - experimental
