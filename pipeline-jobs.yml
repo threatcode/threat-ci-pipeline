@@ -7,6 +7,12 @@
 build:
     extends: .build-package
 
+build-any:
+    extends: .build-package-any
+
+build-all:
+    extends: .build-package-all
+
 reprotest:
     extends: .test-reprotest-no-diffoscope
 
