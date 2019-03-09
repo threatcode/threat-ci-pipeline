@@ -186,9 +186,9 @@ build-all:
   extends: .build-package-all
 ```
 
-`.build-package-any` runs `dpkg-buildpackage` with the option `--build=any` and will only build architecture-dependent packages.
+`.build-package-any` runs `dpkg-buildpackage` with the option `--build=any` and will only build arch-specific packages.
 
-`.build-package-all` does the opposite and runs `dpkg-buildpackage` with the option `--build=all` building only architecture-independent packages.
+`.build-package-all` does the opposite and runs `dpkg-buildpackage` with the option `--build=all` building only arch-indep packages.
 
 Note: These additional build jobs don't work with `RELEASE: 'jessie'` and are skipped in that case.
 
