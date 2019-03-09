@@ -58,24 +58,31 @@ stages:
   variables:
     CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
     CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
+    DB_BUILD_PARAM: ''
   script:
     - mkdir -p ${WORKING_DIR} ${CCACHE_WORK_DIR}
     - mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
     - gbp pull --ignore-branch --pristine-tar --track-missing
-    - |
-      # Check if we can obtain the orig from the git branches
-      if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
-        # Fallback using origtargz
-        origtargz -dt
-        mv ../*.orig.* ${WORKING_DIR}
-        gbp_args="--git-overlay"
-      fi
-      gbp buildpackage --git-ignore-branch --git-ignore-new --git-no-create-orig $gbp_args --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER}"
+    - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/dockerbuilder:${RELEASE} ${DB_BUILD_PARAM}"
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
 
 .build-package: &build-package
   <<: *build-definition
   <<: *artifacts-default-expire
+
+.build-package-any: &build-package-any
+  <<: *build-definition
+  variables:
+     CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
+     CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
+     DB_BUILD_PARAM: "--build=any"
+
+.build-package-all: &build-package-all
+  <<: *build-definition
+  variables:
+     CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
+     CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
+     DB_BUILD_PARAM: "--build=all"
 
 .test-autopkgtest: &test-autopkgtest
   stage: test

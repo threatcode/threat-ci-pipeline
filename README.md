@@ -170,9 +170,37 @@ As new changes are expected to happen from time to time, we **firmly recommend N
 Please consider if [skipping jobs](#skipping-a-job) meets your needs instead.
 
 
-### Running reprotest with diffoscope
-Reprotest stage can be run with [diffoscope](https://try.diffoscope.org/), which is an useful tool that helps identifying reproducibility issues.
-Large projects will not pass on low resources runners as the ones available right now. 
+### Testing build of arch=any and arch=all packages
+
+If your package contains binary packages for `all` or `any`, you may want to test if those can be build in isolation from the full build normally done.
+
+This verifies the Debian buildds can build your package correctly when building for other architectures that the one you uploaded in or in case a binNMU is needed or you want to do source-only uploads.
+
+To test this two additional build jobs are available for you to include in your `gitlab-ci.yml` file:
+
+```yaml
+build-any:
+  extends: .build-package-any
+
+build-all:
+  extends: .build-package-all
+```
+
+`.build-package-any` runs `dpkg-buildpackage` with the option `--build=any` and will only build architecture-dependent packages.
+
+`.build-package-all` does the opposite and runs `dpkg-buildpackage` with the option `--build=all` building only architecture-independent packages.
+
+You need to chose the applicable jobs types for your packages manually, depending on the type of packages your source builds.
+
+Note: These additional build jobs don't work with `RELEASE: 'jessie'`.
+
+### Building
+The Debian release can be specified declaring the variable `RELEASE` on any of the images availables.
+ - experimental
+ - unstable
+ - stretch-backports
+ - stretch
+ - jessie
 
 To enable diffoscope, setting `SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE` to 1 (or 'yes' or 'true') is needed.
 
