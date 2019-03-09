@@ -64,7 +64,7 @@ stages:
     - mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
     - gbp pull --ignore-branch --pristine-tar --track-missing
     - |
-      if grep -q "^Architecture: ${BUILD_ARCH}" debian/control; then DB_BUILD_PARAM="--build=${DB_BUILD_ARCH:=full}"; else exit 0; fi
+      if grep -q "^Architecture: ${DB_BUILD_ARCH}" debian/control; then DB_BUILD_PARAM="--build=${DB_BUILD_ARCH:=full}"; else exit 0; fi
     - |
       if [ "${RELEASE}" = 'jessie' -a "${DB_BUILD_ARCH}" = 'full' ]; then DB_BUILD_PARAM=''; elif [ "${RELEASE}" = 'jessie' -a "${DB_BUILD_ARCH}" != 'full' ]; then exit 0; fi
     - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/dockerbuilder:${RELEASE} ${DB_BUILD_PARAM}"
