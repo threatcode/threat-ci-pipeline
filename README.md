@@ -190,9 +190,9 @@ build-all:
 
 `.build-package-all` does the opposite and runs `dpkg-buildpackage` with the option `--build=all` building only architecture-independent packages.
 
-You need to chose the applicable jobs types for your packages manually, depending on the type of packages your source builds.
+The default `pipeline-jobs.yml` does this automatically based on the contents of `debian/control`, but if you manually define the jobs to run, you also need to include the `build-any` and `build-all` jobs manually as well.
 
-Note: These additional build jobs don't work with `RELEASE: 'jessie'`.
+Note: These additional build jobs don't work with `RELEASE: 'jessie'` and are NOPed in that case.
 
 ### Building
 The Debian release can be specified declaring the variable `RELEASE` on any of the images availables.
