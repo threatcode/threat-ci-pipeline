@@ -34,13 +34,25 @@ stages:
   variables:
     CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
     CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
-    DB_BUILD_PARAM: ''
+    DB_BUILD_ARCH: ''
   script:
     - |
       curl https://prittiau.debian.net/post -X POST --data "{\"project_id\":$CI_PROJECT_ID, \"pipeline_id\":$CI_PIPELINE_ID}" --header "Content-Type: application/json"
     - mkdir -p ${CCACHE_WORK_DIR}
     - mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
     - gbp pull --ignore-branch --pristine-tar --track-missing
+    - |
+        if [ grep -q "Architecture: ${BUILD_ARCH}" debian/control ]; then
+          DB_BUILD_PARAM="--build=${DB_BUILD_ARCH:=full}";
+        else
+          exit 0;
+        fi
+    - |
+        if [ "${RELEASE}" = 'jessie' -a "${DB_BUILD_ARCH}" = 'full' ]; then
+          DB_BUILD_PARAM='';
+        elif [ "${RELEASE}" = 'jessie' -a "${DB_BUILD_ARCH}" != 'full' ]; then
+          exit 0;
+        fi
     - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/dockerbuilder:${RELEASE} ${DB_BUILD_PARAM}"
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
 
@@ -53,14 +65,14 @@ stages:
   variables:
      CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
      CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
-     DB_BUILD_PARAM: "--build=any"
+     DB_BUILD_ARCH: 'any'
 
 .build-package-all: &build-package-all
   <<: *build-definition
   variables:
      CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
      CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
-     DB_BUILD_PARAM: "--build=all"
+     DB_BUILD_ARCH: 'all'
 
 .test-autopkgtest: &test-autopkgtest
   stage: test
