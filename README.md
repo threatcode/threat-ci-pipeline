@@ -176,7 +176,7 @@ If your package contains binary packages for `all` or `any`, you may want to tes
 
 This verifies the Debian buildds can build your package correctly when building for other architectures that the one you uploaded in or in case a binNMU is needed or you want to do source-only uploads.
 
-To test this two additional build jobs are available for you to include in your `gitlab-ci.yml` file:
+The default `pipeline-jobs.yml` does this automatically based on the contents of `debian/control`, but if you manually define the jobs to run, you also need to include the `build-any` and `build-all` jobs manually as well:
 
 ```yaml
 build-any:
@@ -190,9 +190,7 @@ build-all:
 
 `.build-package-all` does the opposite and runs `dpkg-buildpackage` with the option `--build=all` building only architecture-independent packages.
 
-The default `pipeline-jobs.yml` does this automatically based on the contents of `debian/control`, but if you manually define the jobs to run, you also need to include the `build-any` and `build-all` jobs manually as well.
-
-Note: These additional build jobs don't work with `RELEASE: 'jessie'` and are NOPed in that case.
+Note: These additional build jobs don't work with `RELEASE: 'jessie'` and are skipped in that case.
 
 ### Building
 The Debian release can be specified declaring the variable `RELEASE` on any of the images availables.
