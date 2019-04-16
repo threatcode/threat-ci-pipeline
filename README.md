@@ -74,6 +74,7 @@ Anyway, we **firmly recommend NOT to do it**.
 The Debian release can be specified declaring the variable `RELEASE` on any of the images availables.
  - experimental
  - unstable
+ - buster
  - stretch-backports
  - stretch
  - jessie
