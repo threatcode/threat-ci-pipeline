@@ -176,19 +176,19 @@ If your package contains binary packages for `all` or `any`, you may want to tes
 
 This verifies the Debian buildds can build your package correctly when building for other architectures that the one you uploaded in or in case a binNMU is needed or you want to do source-only uploads.
 
-The default `pipeline-jobs.yml` does this automatically based on the contents of `debian/control`, but if you manually define the jobs to run, you also need to include the `build-any` and `build-all` jobs manually as well:
+The default `pipeline-jobs.yml` does this automatically based on the contents of `debian/control`, but if you manually define the jobs to run, you also need to include the `test-build-any` and `test-build-all` jobs manually as well:
 
 ```yaml
-build-any:
-  extends: .build-package-any
+test-build-any:
+  extends: .test-build-package-any
 
-build-all:
-  extends: .build-package-all
+test-build-all:
+  extends: .test-build-package-all
 ```
 
-`.build-package-any` runs `dpkg-buildpackage` with the option `--build=any` and will only build arch-specific packages.
+`.test-build-package-any` runs `dpkg-buildpackage` with the option `--build=any` and will only build arch-specific packages.
 
-`.build-package-all` does the opposite and runs `dpkg-buildpackage` with the option `--build=all` building only arch-indep packages.
+`.test-build-package-all` does the opposite and runs `dpkg-buildpackage` with the option `--build=all` building only arch-indep packages.
 
 Note: These additional build jobs don't work with `RELEASE: 'jessie'` and are skipped in that case.
 

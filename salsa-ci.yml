@@ -75,15 +75,17 @@ stages:
   <<: *build-definition
   <<: *artifacts-default-expire
 
-.build-package-any: &build-package-any
+.test-build-package-any: &test-build-package-any
   <<: *build-definition
+  stage: test
   variables:
      CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
      CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
      DB_BUILD_ARCH: 'any'
 
-.build-package-all: &build-package-all
+.test-build-package-all: &test-build-package-all
   <<: *build-definition
+  stage: test
   variables:
      CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
      CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
