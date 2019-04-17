@@ -1,11 +1,11 @@
 build:
     extends: .build-package
 
-build-any:
-    extends: .build-package-any
+test-build-any:
+    extends: .test-build-package-any
 
-build-all:
-    extends: .build-package-all
+test-build-all:
+    extends: .test-build-package-all
 
 reprotest:
     extends: .test-reprotest
