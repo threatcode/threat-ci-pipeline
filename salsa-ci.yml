@@ -88,7 +88,6 @@ stages:
   script:
     - apt-get update
     - eatmydata apt-get build-dep -y .
-    - export DEB_BUILD_OPTIONS=nocheck
     - eatmydata reprotest --min-cpus $(nproc --all) ${REPROTEST_EXTRA_ARGS} . -- null &> "${CI_PROJECT_DIR}/reprotest.log"
   after_script:
     - tail -n 5000 "${CI_PROJECT_DIR}/reprotest.log" >&2;
