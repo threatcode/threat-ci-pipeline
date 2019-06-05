@@ -105,7 +105,7 @@ stages:
     - docker:dind
   script:
     - CHROOT_PATH="/tmp/debian-chroot"
-    - CONTAINER_ID=$(docker run --rm -d "debian:$RELEASE" sleep infinity)
+    - CONTAINER_ID=$(docker run --rm -d "registry.salsa.debian.org/salsa-ci-team/images/base:$RELEASE" sleep infinity)
     - docker exec ${CONTAINER_ID} bash -c "apt-get update && apt-get install eatmydata -y"
     - mkdir -p ${CHROOT_PATH}
     - docker export ${CONTAINER_ID} | tar -C ${CHROOT_PATH} -xf -
