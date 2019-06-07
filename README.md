@@ -20,7 +20,7 @@ The `salsa-ci.yml` template only delivers the jobs definitions. Including only t
 On the other hand, `pipeline-jobs.yml` includes all the jobs' implementations.
 
 To use the Salsa Pipeline, you first have to change the project's setting to make it point to the config file we're going to create later.
-This can be done on `Settings` -> `CI/CD` -> `General Pipelines` -> `Custom CI config path`.
+This can be done on `Settings` -> `CI/CD` (on the expanded menu, don't click on the CI / CD rocket) -> `General Pipelines` -> `Custom CI config path`.
 On Debian projects, you would normally want to put this file under the `debian/` folder. For example `debian/salsa-ci.yml`.
 
 The second step is to create and commit the file on the path set before with the following content:
