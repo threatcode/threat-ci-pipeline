@@ -19,7 +19,19 @@ Those services are enabled by something we called `salsa-pipeline` and it'll be 
 The `salsa-ci.yml` template only delivers the jobs definitions. Including only this file, no job will be added to the pipeline.
 On the other hand, `pipeline-jobs.yml` includes all the jobs' implementations.
 
-To use the Salsa Pipeline, simply add a `debian/gitlab-ci.yml` like the following:
+To use the Salsa Pipeline, you first have to change the project's setting to make it point to the config file we're going to create later.
+This can be done on `Settings` -> `CI/CD` -> `General Pipelines` -> `Custom CI config path`.
+On Debian projects, you would normally want to put this file under the `debian/` folder. For example `debian/salsa-ci.yml`.
+
+The second step is to create and commit the file on the path set before with the following content:
+
+```yaml
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+```
+
+By default, everything will run against the `'unstable'` suite. Changing the suite is as easy as setting a `RELEASE`.
 
 ```yaml
 include:
@@ -29,11 +41,6 @@ include:
 variables:
   RELEASE: 'unstable'
 ```
-
-`RELEASE: 'unstable'` can be replaced with any of the releases provided.
-
-On Debian projects, you would normally want to put this file under the `debian/` folder, so changing the config path on your project will be necessary.
-This can be done on `Settings` -> `CI/CD` -> `General Pipelines` -> `Custom CI config path`.
 
 ### Including only the jobs' definition
 
