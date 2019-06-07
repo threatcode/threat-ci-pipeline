@@ -61,7 +61,7 @@ stages:
     - umount -R /sys/fs/cgroup && mount -a
     - /etc/init.d/lxc-net start
     - /etc/init.d/lxc start
-    - debci localtest $CI_PROJECT_DIR/debian/output/*.changes --suite ${RELEASE}
+    - debci localtest $CI_PROJECT_DIR/debian/output/*.changes --suite ${RELEASE} || [ $? -eq 8 ]
   variables:
       GIT_STRATEGY: none
       SCI_LXC_PATH: ${CI_PROJECT_DIR}/lxc
