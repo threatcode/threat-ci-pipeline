@@ -3,7 +3,7 @@ include:
  - pipeline-jobs.yml
 
 variables:
-    RELEASE: 'stretch-backports'
+    RELEASE: 'buster'
 
 stages:
     - clone
