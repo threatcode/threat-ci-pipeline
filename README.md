@@ -103,6 +103,12 @@ Replace `stretch` with any of the releases listed previously.
  - [test-lintian](https://github.com/Debian/lintian)
  - [test-reprotest](https://reproducible-builds.org/tools)
    - Reprotest stage can be run with diffoscope, which is an useful tool that helps identifying reproducibility issues. Large projects won't pass on low resources runners as the ones available right now. To use it, just extend from `test-reprotest-diffoscope`
+```yaml
+include: https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+
+reprotest:
+  extends: .test-reprotest-diffoscope
+````
  - [test-piuparts](https://piuparts.debian.org)
  - [test-blhc](https://qa.debian.org/bls/)
 
