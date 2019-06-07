@@ -73,11 +73,22 @@ stages:
 
 .test-autopkgtest: &test-autopkgtest
   stage: test
-  image: registry.salsa.debian.org/salsa-ci-team/images/autopkgtest:${RELEASE}
+  image: registry.salsa.debian.org/salsa-ci-team/images/autopkgtest
   script:
-    - eatmydata autopkgtest -U ${WORKING_DIR}/*.changes -- null || [ $? -eq 8 ]
+    - wget https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc/-/jobs/artifacts/master/raw/artifacts/lxc.tar?job=${RELEASE} -O lxc.tar
+    - mkdir ${SCI_LXC_PATH} && tar xf lxc.tar -C ${SCI_LXC_PATH}
+    - sed -i "s@salsa-ci-team/autopkgtest-lxc@${CI_PROJECT_PATH}@" ${SCI_LXC_PATH}/autopkgtest-${RELEASE}-amd64/config
+    - |
+        cat >/etc/lxc/lxc.conf <<EOT
+        lxc.lxcpath=${SCI_LXC_PATH}
+        EOT
+    - umount -R /sys/fs/cgroup && mount -a
+    - /etc/init.d/lxc-net start
+    - /etc/init.d/lxc start
+    - debci localtest $CI_PROJECT_DIR/debian/output/*.changes --suite ${RELEASE} || [ $? -eq 8 ]
   variables:
       GIT_STRATEGY: none
+      SCI_LXC_PATH: ${CI_PROJECT_DIR}/lxc
 
 .test-blhc: &test-blhc
   stage: test
@@ -112,7 +123,6 @@ stages:
   script:
     - apt-get update
     - eatmydata apt-get build-dep -y .
-    - export DEB_BUILD_OPTIONS=nocheck
     - eatmydata reprotest --min-cpus $(nproc --all) ${REPROTEST_EXTRA_ARGS} . -- null &> "${CI_PROJECT_DIR}/reprotest.log"
   after_script:
     - tail -n 5000 "${CI_PROJECT_DIR}/reprotest.log" >&2;
@@ -129,7 +139,7 @@ stages:
     - docker:dind
   script:
     - CHROOT_PATH="/tmp/debian-chroot"
-    - CONTAINER_ID=$(docker run --rm -d "debian:$RELEASE" sleep infinity)
+    - CONTAINER_ID=$(docker run --rm -d "registry.salsa.debian.org/salsa-ci-team/images/base:$RELEASE" sleep infinity)
     - docker exec ${CONTAINER_ID} bash -c "apt-get update && apt-get install eatmydata -y"
     - mkdir -p ${CHROOT_PATH}
     - docker export ${CONTAINER_ID} | tar -C ${CHROOT_PATH} -xf -
@@ -140,8 +150,9 @@ stages:
     - cp -aTLv /etc/apt/preferences.d  ${CHROOT_PATH}/etc-target/apt/preferences.d
     - cp -aTLv /srv/local-apt-repository ${CHROOT_PATH}/srv/local-apt-repository
     - cp -aTLv /var/lib/local-apt-repository/ ${CHROOT_PATH}/var/lib/local-apt-repository/
+    - sed -i '1s/^/127.0.0.1 pipeline.salsa.debian.org localhost\n/' ${CHROOT_PATH}/etc/hosts
     - PIUPARTS_DISTRIBUTION_ARG=''
-    - '[ "$RELEASE" = unstable -o "$RELEASE" = experimental ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE/updates"'
+    - '[ "$RELEASE" = unstable -o "$RELEASE" = experimental -o "$RELEASE" = testing ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE/updates"'
     - '[ "${RELEASE/-backports/}" = "$RELEASE" ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE"'
     - |
         for PACKAGE in $(ls ${WORKING_DIR}/*.deb); do
@@ -149,70 +160,3 @@ stages:
         done
   variables:
       GIT_STRATEGY: none
-
-
-# Backwards compatibility stuff
-#
-
-.deprecation-warning: &deprecation-warning
-  before_script:
-      - |
-          echo "--------------------------------------";
-          echo "------------- Deprecated -------------";
-          echo "--------------------------------------";
-          echo;
-          echo "Please use the new jobs.";
-          echo "More info on salsa-ci-team/pipeline";
-          echo "This job will be removed soon";
-          echo;
-          echo "--------------------------------------";
-          echo "------------- Deprecated -------------";
-          echo "--------------------------------------";
-
-.build-jessie: &build-jessie
-  extends: .build-package
-  <<: *deprecation-warning
-  variables:
-      RELEASE: 'jessie'
-
-.build-stretch: &build-stretch
-  extends: .build-package
-  <<: *deprecation-warning
-  variables:
-      RELEASE: 'stretch'
-
-.build-stretch-bpo: &build-stretch-bpo
-  extends: .build-package
-  <<: *deprecation-warning
-  variables:
-      RELEASE: 'stretch-backports'
-
-.build-unstable: &build-unstable
-  extends: .build-package
-  <<: *deprecation-warning
-  variables:
-      RELEASE: 'unstable'
-
-.test-lintian-jessie: &test-lintian-jessie
-  extends: .test-lintian
-  <<: *deprecation-warning
-  variables:
-      RELEASE: 'jessie'
-
-.test-lintian-stretch: &test-lintian-stretch
-  extends: .test-lintian
-  <<: *deprecation-warning
-  variables:
-      RELEASE: 'stretch'
-
-.test-lintian-stretch-backports: &test-lintian-stretch-backports
-  extends: .test-lintian
-  <<: *deprecation-warning
-  variables:
-      RELEASE: 'stretch-backports'
-
-.test-lintian-unstable: &test-lintian-unstable
-  extends: .test-lintian
-  <<: *deprecation-warning
-  variables:
-      RELEASE: 'unstable'

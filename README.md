@@ -19,7 +19,19 @@ Those services are enabled by something we called `salsa-pipeline` and it'll be 
 The `salsa-ci.yml` template only delivers the jobs definitions. Including only this file, no job will be added to the pipeline.
 On the other hand, `pipeline-jobs.yml` includes all the jobs' implementations.
 
-To use the Salsa Pipeline, simply add a `debian/gitlab-ci.yml` like the following:
+To use the Salsa Pipeline, you first have to change the project's setting to make it point to the config file we're going to create later.
+This can be done on `Settings` -> `CI/CD` (on the expanded menu, don't click on the CI / CD rocket) -> `General Pipelines` -> `Custom CI config path`.
+On Debian projects, you would normally want to put this file under the `debian/` folder. For example `debian/salsa-ci.yml`.
+
+The second step is to create and commit the file on the path set before with the following content:
+
+```yaml
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+```
+
+By default, everything will run against the `'unstable'` suite. Changing the suite is as easy as setting a `RELEASE`.
 
 ```yaml
 include:
@@ -29,11 +41,6 @@ include:
 variables:
   RELEASE: 'unstable'
 ```
-
-`RELEASE: 'unstable'` can be replaced with any of the releases provided.
-
-On Debian projects, you would normally want to put this file under the `debian/` folder, so changing the config path on your project will be necessary.
-This can be done on `Settings` -> `CI/CD` -> `General Pipelines` -> `Custom CI config path`.
 
 ### Including only the jobs' definition
 
@@ -96,6 +103,7 @@ Note: These additional build jobs don't work with `RELEASE: 'jessie'` and are sk
 The Debian release can be specified declaring the variable `RELEASE` on any of the images availables.
  - experimental
  - unstable
+ - buster
  - stretch-backports
  - stretch
  - jessie
@@ -117,6 +125,12 @@ Replace `stretch` with any of the releases listed previously.
  - [test-lintian](https://github.com/Debian/lintian)
  - [test-reprotest](https://reproducible-builds.org/tools)
    - Reprotest stage can be run with diffoscope, which is an useful tool that helps identifying reproducibility issues. Large projects won't pass on low resources runners as the ones available right now. To use it, just extend from `test-reprotest-diffoscope`
+```yaml
+include: https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+
+reprotest:
+  extends: .test-reprotest-diffoscope
+````
  - [test-piuparts](https://piuparts.debian.org)
  - [test-blhc](https://qa.debian.org/bls/)
 
