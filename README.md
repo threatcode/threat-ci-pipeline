@@ -26,6 +26,7 @@ On Debian projects, you would normally want to put this file under the `debian/`
 The second step is to create and commit the file on the path set before with the following content:
 
 ```yaml
+---
 include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
@@ -34,6 +35,7 @@ include:
 By default, everything will run against the `'unstable'` suite. Changing the suite is as easy as setting a `RELEASE`.
 
 ```yaml
+---
 include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
