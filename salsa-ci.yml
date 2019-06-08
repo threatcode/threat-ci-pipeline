@@ -99,7 +99,7 @@ stages:
   script:
     - apt-get update
     - eatmydata apt-get build-dep -y .
-    - eatmydata reprotest --min-cpus $(nproc --all) ${REPROTEST_EXTRA_ARGS} . -- null &> "${CI_PROJECT_DIR}/reprotest.log"
+    - eatmydata reprotest --min-cpus $(nproc --all) --store-dir ${WORKING_DIR}/reprotest ${REPROTEST_EXTRA_ARGS} . -- null &> "${CI_PROJECT_DIR}/reprotest.log"
   after_script:
     - tail -n 5000 "${CI_PROJECT_DIR}/reprotest.log" >&2;
 
