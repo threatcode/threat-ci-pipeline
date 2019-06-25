@@ -98,6 +98,18 @@ variables:
 ```
 Replace `stretch` with any of the releases listed previously.
 
+If your package has dependencies or build-dependencies in the `contrib`
+or `non-free` components (archive areas), set `SALSA_CI_COMPONENTS` to
+indicate this:
+
+```yaml
+variables:
+    RELEASE: 'stretch'
+    SALSA_CI_COMPONENTS: 'main contrib non-free'
+```
+
+This is currently used for `piuparts`, but is likely to be used for
+other stages in future.
 
 ### Testing
 5 different tests are available to be used:

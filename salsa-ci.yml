@@ -4,6 +4,7 @@ variables:
   DEBIAN_FRONTEND: noninteractive
   WORKING_DIR: $CI_PROJECT_DIR/debian/output
   RELEASE: 'unstable'
+  SALSA_CI_COMPONENTS: 'main'
 
 stages:
   - build
@@ -128,7 +129,7 @@ stages:
     - '[ "${RELEASE/-backports/}" = "$RELEASE" ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE"'
     - |
         for PACKAGE in $(ls ${WORKING_DIR}/*.deb); do
-            piuparts --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PIUPARTS_DISTRIBUTION_ARG} ${PACKAGE}
+            piuparts --mirror "http://deb.debian.org/debian ${SALSA_CI_COMPONENTS}" --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PIUPARTS_DISTRIBUTION_ARG} ${PACKAGE}
         done
   variables:
       GIT_STRATEGY: none
