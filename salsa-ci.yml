@@ -97,7 +97,7 @@ stages:
   script:
     - apt-get update
     - eatmydata apt-get build-dep -y .
-    - eatmydata reprotest --min-cpus $(nproc --all) --store-dir ${WORKING_DIR}/reprotest ${REPROTEST_EXTRA_ARGS} . -- null |& tee "${WORKING_DIR}/reprotest.log"
+    - eatmydata reprotest --min-cpus $(nproc --all) --store-dir ${WORKING_DIR}/reprotest --verbosity=2 ${REPROTEST_EXTRA_ARGS} . -- null |& tee "${WORKING_DIR}/reprotest.log"
 
 .test-reprotest-diffoscope: &test-reprotest-diffoscope
   <<: *test-reprotest
