@@ -123,7 +123,7 @@ stages:
     - cp -aTLv /etc/apt/preferences.d  ${CHROOT_PATH}/etc-target/apt/preferences.d
     - cp -aTLv /srv/local-apt-repository ${CHROOT_PATH}/srv/local-apt-repository
     - cp -aTLv /var/lib/local-apt-repository/ ${CHROOT_PATH}/var/lib/local-apt-repository/
-    - sed -i '1s/^/127.0.0.1 pipeline.salsa.debian.org localhost\n/' ${CHROOT_PATH}/etc/hosts
+    - sed  '/127.0.0.1/s/localhost/pipeline.salsa.debian.org localhost/' /etc/hosts > ${CHROOT_PATH}/etc/hosts
     - cat ${CHROOT_PATH}/etc/hosts # it seems that the above sed doesn't actually work
     - chroot ${CHROOT_PATH}  hostname --fqdn # test to demonstrate that things are broken as a result
     - PIUPARTS_DISTRIBUTION_ARG=''
