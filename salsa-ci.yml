@@ -5,6 +5,7 @@ variables:
   WORKING_DIR: $CI_PROJECT_DIR/debian/output
   RELEASE: 'unstable'
   SALSA_CI_COMPONENTS: 'main'
+  SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/images'
 
 stages:
   - build
@@ -26,7 +27,7 @@ stages:
 
 .build-definition: &build-definition
   stage: build
-  image: registry.salsa.debian.org/salsa-ci-team/images/gbp
+  image: $SALSA_CI_IMAGES/gbp
   services:
     - docker:dind
   cache:
@@ -39,7 +40,7 @@ stages:
     - mkdir -p ${CCACHE_WORK_DIR}
     - mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
     - gbp pull --ignore-branch --pristine-tar --track-missing
-    - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/dockerbuilder:${RELEASE}"
+    - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES}/dockerbuilder:${RELEASE}"
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
 
 .build-package: &build-package
@@ -48,7 +49,7 @@ stages:
 
 .test-autopkgtest: &test-autopkgtest
   stage: test
-  image: registry.salsa.debian.org/salsa-ci-team/images/autopkgtest
+  image: $SALSA_CI_IMAGES/autopkgtest
   script:
     - wget --progress=dot:giga https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc/-/jobs/artifacts/master/raw/artifacts/lxc.tar?job=${RELEASE} -O lxc.tar
     - mkdir ${SCI_LXC_PATH} && tar xf lxc.tar -C ${SCI_LXC_PATH}
@@ -67,7 +68,7 @@ stages:
 
 .test-blhc: &test-blhc
   stage: test
-  image: registry.salsa.debian.org/salsa-ci-team/images/blhc
+  image: $SALSA_CI_IMAGES/blhc
   script:
     - blhc --debian --line-numbers --color ${WORKING_DIR}/*.build || [ $? -eq 1 ]
   variables:
@@ -75,7 +76,7 @@ stages:
 
 .test-lintian: &test-lintian
   stage: test
-  image: registry.salsa.debian.org/salsa-ci-team/images/lintian:${RELEASE}
+  image: $SALSA_CI_IMAGES/lintian:${RELEASE}
   script:
     - lintian ${WORKING_DIR}/*.changes | tee lintian.output
     - cat lintian.output | /root/go/bin/lintian2junit > ${WORKING_DIR}/lintian.xml
@@ -87,7 +88,7 @@ stages:
 
 .test-reprotest: &test-reprotest
   stage: test
-  image: registry.salsa.debian.org/salsa-ci-team/images/reprotest
+  image: $SALSA_CI_IMAGES/reprotest
   artifacts:
     name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
     paths:
@@ -107,7 +108,7 @@ stages:
 
 .test-piuparts: &test-piuparts
   stage: test
-  image: registry.salsa.debian.org/salsa-ci-team/images/piuparts
+  image: $SALSA_CI_IMAGES/piuparts
   services:
     - docker:dind
   script:
