@@ -26,6 +26,7 @@ On Debian projects, you would normally want to put this file under the `debian/`
 The second step is to create and commit the file on the path set before with the following content:
 
 ```yaml
+---
 include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
@@ -34,6 +35,7 @@ include:
 By default, everything will run against the `'unstable'` suite. Changing the suite is as easy as setting a `RELEASE`.
 
 ```yaml
+---
 include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
@@ -118,6 +120,18 @@ variables:
 ```
 Replace `stretch` with any of the releases listed previously.
 
+If your package has dependencies or build-dependencies in the `contrib`
+or `non-free` components (archive areas), set `SALSA_CI_COMPONENTS` to
+indicate this:
+
+```yaml
+variables:
+    RELEASE: 'stretch'
+    SALSA_CI_COMPONENTS: 'main contrib non-free'
+```
+
+This is currently used for `piuparts`, but is likely to be used for
+other stages in future.
 
 ### Testing
 5 different tests are available to be used:

@@ -4,6 +4,8 @@ variables:
   DEBIAN_FRONTEND: noninteractive
   WORKING_DIR: $CI_PROJECT_DIR/debian/output
   RELEASE: 'unstable'
+  SALSA_CI_COMPONENTS: 'main'
+  SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/images'
 
 stages:
   - build
@@ -25,7 +27,7 @@ stages:
 
 .build-definition: &build-definition
   stage: build
-  image: registry.salsa.debian.org/salsa-ci-team/images/gbp
+  image: $SALSA_CI_IMAGES/gbp
   services:
     - docker:dind
   cache:
@@ -36,8 +38,6 @@ stages:
     CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
     DB_BUILD_ARCH: ''
   script:
-    - |
-      curl https://prittiau.debian.net/post -X POST --data "{\"project_id\":$CI_PROJECT_ID, \"pipeline_id\":$CI_PIPELINE_ID}" --header "Content-Type: application/json"
     - mkdir -p ${CCACHE_WORK_DIR}
     - mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
     - gbp pull --ignore-branch --pristine-tar --track-missing
@@ -46,7 +46,7 @@ stages:
       if [ -z "${DB_BUILD_ARCH}" -o "${DB_BUILD_ARCH}" = "full" ]; then DB_BUILD_PARAM="--build=full"; DB_BUILD_ARCH="full"; elif [ "${DB_BUILD_ARCH}" = "any" ] && egrep -q "^Architecture: (any|.*${LOCAL_ARCH})" debian/control; then DB_BUILD_PARAM="--build=any"; elif [ "${DB_BUILD_ARCH}" = "all" ] && grep -q "^Architecture: all" debian/control; then DB_BUILD_PARAM="--build=all"; else exit 0; fi
     - |
       if [ "${RELEASE}" = 'jessie' -a "${DB_BUILD_ARCH}" = 'full' ]; then DB_BUILD_PARAM=''; elif [ "${RELEASE}" = 'jessie' -a "${DB_BUILD_ARCH}" != 'full' ]; then exit 0; fi
-    - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh registry.salsa.debian.org/salsa-ci-team/images/dockerbuilder:${RELEASE} ${DB_BUILD_PARAM}"
+    - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES}/dockerbuilder:${RELEASE} ${DB_BUILD_PARAM}"
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
 
 .build-package: &build-package
@@ -73,9 +73,9 @@ stages:
 
 .test-autopkgtest: &test-autopkgtest
   stage: test
-  image: registry.salsa.debian.org/salsa-ci-team/images/autopkgtest
+  image: $SALSA_CI_IMAGES/autopkgtest
   script:
-    - wget https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc/-/jobs/artifacts/master/raw/artifacts/lxc.tar?job=${RELEASE} -O lxc.tar
+    - wget --progress=dot:giga https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc/-/jobs/artifacts/master/raw/artifacts/lxc.tar?job=${RELEASE} -O lxc.tar
     - mkdir ${SCI_LXC_PATH} && tar xf lxc.tar -C ${SCI_LXC_PATH}
     - sed -i "s@salsa-ci-team/autopkgtest-lxc@${CI_PROJECT_PATH}@" ${SCI_LXC_PATH}/autopkgtest-${RELEASE}-amd64/config
     - |
@@ -85,14 +85,14 @@ stages:
     - umount -R /sys/fs/cgroup && mount -a
     - /etc/init.d/lxc-net start
     - /etc/init.d/lxc start
-    - debci localtest $CI_PROJECT_DIR/debian/output/*.changes --suite ${RELEASE} || [ $? -eq 8 ]
+    - debci localtest $CI_PROJECT_DIR/debian/output/*.changes --suite ${RELEASE} || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
   variables:
       GIT_STRATEGY: none
       SCI_LXC_PATH: ${CI_PROJECT_DIR}/lxc
 
 .test-blhc: &test-blhc
   stage: test
-  image: registry.salsa.debian.org/salsa-ci-team/images/blhc
+  image: $SALSA_CI_IMAGES/blhc
   script:
     - blhc --debian --line-numbers --color ${WORKING_DIR}/*.build || [ $? -eq 1 ]
   variables:
@@ -100,7 +100,7 @@ stages:
 
 .test-lintian: &test-lintian
   stage: test
-  image: registry.salsa.debian.org/salsa-ci-team/images/lintian:${RELEASE}
+  image: $SALSA_CI_IMAGES/lintian:${RELEASE}
   script:
     - lintian ${WORKING_DIR}/*.changes | tee lintian.output
     - cat lintian.output | /root/go/bin/lintian2junit > ${WORKING_DIR}/lintian.xml
@@ -112,20 +112,18 @@ stages:
 
 .test-reprotest: &test-reprotest
   stage: test
-  image: registry.salsa.debian.org/salsa-ci-team/images/reprotest
+  image: $SALSA_CI_IMAGES/reprotest
   artifacts:
     name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
     paths:
-      - $CI_PROJECT_DIR/reprotest.log
+      - $WORKING_DIR
     when: always
   variables:
     REPROTEST_EXTRA_ARGS: '--no-diffoscope'
   script:
     - apt-get update
     - eatmydata apt-get build-dep -y .
-    - eatmydata reprotest --min-cpus $(nproc --all) ${REPROTEST_EXTRA_ARGS} . -- null &> "${CI_PROJECT_DIR}/reprotest.log"
-  after_script:
-    - tail -n 5000 "${CI_PROJECT_DIR}/reprotest.log" >&2;
+    - eatmydata reprotest --min-cpus $(nproc --all) --store-dir ${WORKING_DIR}/reprotest --verbosity=2 ${REPROTEST_EXTRA_ARGS} . -- null |& tee "${WORKING_DIR}/reprotest.log"
 
 .test-reprotest-diffoscope: &test-reprotest-diffoscope
   <<: *test-reprotest
@@ -134,7 +132,7 @@ stages:
 
 .test-piuparts: &test-piuparts
   stage: test
-  image: registry.salsa.debian.org/salsa-ci-team/images/piuparts
+  image: $SALSA_CI_IMAGES/piuparts
   services:
     - docker:dind
   script:
@@ -150,13 +148,13 @@ stages:
     - cp -aTLv /etc/apt/preferences.d  ${CHROOT_PATH}/etc-target/apt/preferences.d
     - cp -aTLv /srv/local-apt-repository ${CHROOT_PATH}/srv/local-apt-repository
     - cp -aTLv /var/lib/local-apt-repository/ ${CHROOT_PATH}/var/lib/local-apt-repository/
-    - sed -i '1s/^/127.0.0.1 pipeline.salsa.debian.org localhost\n/' ${CHROOT_PATH}/etc/hosts
+    - sed  '/127.0.0.1/s/localhost/pipeline.salsa.debian.org localhost/' /etc/hosts > ${CHROOT_PATH}/etc/hosts
     - PIUPARTS_DISTRIBUTION_ARG=''
     - '[ "$RELEASE" = unstable -o "$RELEASE" = experimental -o "$RELEASE" = testing ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE/updates"'
     - '[ "${RELEASE/-backports/}" = "$RELEASE" ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE"'
     - |
         for PACKAGE in $(ls ${WORKING_DIR}/*.deb); do
-            piuparts --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PIUPARTS_DISTRIBUTION_ARG} ${PACKAGE}
+            piuparts --mirror "http://deb.debian.org/debian ${SALSA_CI_COMPONENTS}" --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PIUPARTS_DISTRIBUTION_ARG} ${PACKAGE}
         done
   variables:
       GIT_STRATEGY: none
