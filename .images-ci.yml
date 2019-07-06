@@ -1,6 +1,7 @@
 stages:
   - base
   - others
+  - cleanup
 
 .build_template: &build_template
   image: docker:latest
@@ -31,6 +32,25 @@ stages:
           docker tag $CI_REGISTRY_IMAGE/$NAME $CI_REGISTRY_IMAGE/$alias${STAGING_TAG}
           docker push $CI_REGISTRY_IMAGE/$alias${STAGING_TAG}
         done
+
+clean images:
+  stage: cleanup
+  image: debian:unstable
+  before_script:
+    - apt-get update && apt-get install curl -y
+  variables:
+      REF_NAME: "master"
+  script:
+    - |
+        curl -X POST \
+         -F "token=$GARBAGE_COLLECTOR_TRIGGER_TOKEN" \
+         -F "ref=$REF_NAME" \
+         -F "variables[GIT_SHA]=${CI_COMMIT_SHORT_SHA}" \
+         -F "variables[IMAGES_PROJECT_ID]=${CI_PROJECT_ID}" \
+         https://salsa.debian.org/api/v4/projects/36571/trigger/pipeline
+  except:
+    - master
+  when: always
 
 .build_base: &build_base
   <<: *build_template
