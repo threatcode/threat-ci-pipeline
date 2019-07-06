@@ -3,6 +3,14 @@ stages:
   - others
   - cleanup
 
+.should_build_images: &should_build_images
+  only:
+    refs:
+      - master
+    changes:
+      - images/**/*
+      - .images-ci.yml
+
 .build_template: &build_template
   image: docker:latest
   services:
@@ -32,6 +40,7 @@ stages:
           docker tag $CI_REGISTRY_IMAGE/$NAME $CI_REGISTRY_IMAGE/$alias${STAGING_TAG}
           docker push $CI_REGISTRY_IMAGE/$alias${STAGING_TAG}
         done
+  <<: *should_build_images
 
 clean images:
   stage: cleanup
@@ -51,6 +60,7 @@ clean images:
   except:
     - master
   when: always
+  <<: *should_build_images
 
 .build_base: &build_base
   <<: *build_template
