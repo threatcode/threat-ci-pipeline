@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if [ "$PIUPARTS_TEST" = install -o "$PIUPARTS_TEST" = 'upgrade' -a "$PIUPARTS_PHASE" = 'upgrade' ]; then
+    if [ -d /etc-target ]; then
+        cd /etc-target
+        for f in $(find -mindepth 1); do
+            if [ -d "$f" ]; then
+                echo "Not removing dir /etc/$f"
+            else
+                rm -v "/etc/$f"
+            fi
+	done
+    fi
+fi

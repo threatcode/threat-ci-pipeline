@@ -1,0 +1,18 @@
+ARG CI_REGISTRY_IMAGE
+ARG RELEASE
+ARG STAGING_TAG
+FROM $CI_REGISTRY_IMAGE/base:${RELEASE}${STAGING_TAG}
+# This needs to be redeclared after FROM for it to affect subsequent
+# commands
+ARG RELEASE
+
+RUN \
+set -eux; \
+apt-get update; \
+printf 'Package: lintian\nPin: release a=%s\nPin-Priority: 900\n' "$RELEASE" \
+  | tee /etc/apt/preferences.d/salsa-ci; \
+eatmydata apt-get -y install git lintian python3-junit.xml; \
+rm -rf /var/lib/apt; \
+:
+
+COPY scripts/lintian2junit.py /usr/local/bin

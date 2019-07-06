@@ -1,0 +1,24 @@
+ARG CI_REGISTRY_IMAGE
+ARG RELEASE
+ARG STAGING_TAG
+FROM $CI_REGISTRY_IMAGE/base:${RELEASE}${STAGING_TAG}
+
+RUN apt-get update && eatmydata apt-get dist-upgrade -y && rm -rf /var/lib/apt
+
+RUN apt-get update && eatmydata apt-get --no-install-recommends install \
+    dpkg-dev \
+    build-essential \
+    aptitude \
+    devscripts \
+    equivs  \
+    ccache \
+    -y && rm -rf /var/lib/apt
+
+# Generate links
+RUN dpkg-reconfigure ccache
+
+RUN useradd --gid 100 salsa-ci
+
+ENV PATH="/usr/lib/ccache/:${PATH}"
+
+COPY ./scripts/install-build-deps.sh /usr/local/bin/

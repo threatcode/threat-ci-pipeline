@@ -1,0 +1,142 @@
+stages:
+  - base
+  - others
+
+.build_template: &build_template
+  image: docker:latest
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+    - cd images
+  script:
+    - NAME="${NAME:-$CI_JOB_NAME}"
+    - |
+        IMAGE=$(echo $NAME | awk -F: '{ print $1 }'); \
+        RELEASE=$(echo $NAME | awk -F: '{ print $2 }');
+    - |
+        if [ "${CI_COMMIT_REF_NAME}" != "master" ]; then
+            STAGING_TAG=_${CI_COMMIT_SHORT_SHA}
+            NAME=${NAME}${STAGING_TAG}
+        fi
+    - |
+        docker build --pull -t $CI_REGISTRY_IMAGE/$NAME \
+            --build-arg CI_REGISTRY_IMAGE=$CI_REGISTRY_IMAGE \
+            --build-arg RELEASE=$RELEASE \
+            --build-arg STAGING_TAG=$STAGING_TAG \
+            -f dockerfiles/$IMAGE .
+    - |
+        docker push $CI_REGISTRY_IMAGE/$NAME
+        for alias in $ALIASES; do
+          docker tag $CI_REGISTRY_IMAGE/$NAME $CI_REGISTRY_IMAGE/$alias${STAGING_TAG}
+          docker push $CI_REGISTRY_IMAGE/$alias${STAGING_TAG}
+        done
+
+.build_base: &build_base
+  <<: *build_template
+  stage: base
+
+.build_others: &build_others
+  <<: *build_template
+  stage: others
+
+base:stretch:
+  <<: *build_base
+
+base:stretch-backports:
+  <<: *build_base
+
+base:buster:
+  <<: *build_base
+
+base:stable:
+  <<: *build_base
+
+base:unstable:
+  <<: *build_base
+  variables:
+      ALIASES: 'base:latest'
+
+base:experimental:
+  <<: *build_base
+
+base:testing:
+  <<: *build_base
+
+piuparts:unstable:
+  <<: *build_others
+  variables:
+      ALIASES: 'piuparts:latest'
+
+reprotest:unstable:
+  <<: *build_others
+  variables:
+      ALIASES: 'reprotest:latest'
+
+# Image for the pipeline runner
+# salsa.debian.org/salsa-ci-team/pipeline
+pipeline:unstable:
+  <<: *build_others
+  variables:
+      ALIASES: 'pipeline:latest'
+
+autopkgtest:unstable:
+  <<: *build_others
+  variables:
+      ALIASES: 'autopkgtest:latest'
+
+blhc:unstable:
+  <<: *build_others
+  variables:
+      ALIASES: 'blhc:latest'
+
+lintian:stretch:
+  <<: *build_others
+
+lintian:stretch-backports:
+  <<: *build_others
+
+lintian:buster:
+  <<: *build_others
+
+lintian:stable:
+  <<: *build_others
+
+lintian:unstable:
+  <<: *build_others
+  variables:
+      ALIASES: 'lintian:latest'
+
+lintian:experimental:
+  <<: *build_others
+
+lintian:testing:
+  <<: *build_others
+
+gbp:unstable:
+  <<: *build_others
+  variables:
+      ALIASES: 'gbp:latest'
+
+dockerbuilder:stretch:
+  <<: *build_others
+
+dockerbuilder:stretch-backports:
+  <<: *build_others
+
+dockerbuilder:buster:
+  <<: *build_others
+
+dockerbuilder:stable:
+  <<: *build_others
+
+dockerbuilder:unstable:
+  <<: *build_others
+  variables:
+      ALIASES: 'dockerbuilder:latest'
+
+dockerbuilder:experimental:
+  <<: *build_others
+
+dockerbuilder:testing:
+  <<: *build_others

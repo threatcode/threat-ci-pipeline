@@ -1,0 +1,13 @@
+ARG CI_REGISTRY_IMAGE
+ARG RELEASE
+ARG STAGING_TAG
+FROM $CI_REGISTRY_IMAGE/base:${RELEASE}${STAGING_TAG}
+
+RUN apt-get update && eatmydata apt-get install docker.io piuparts local-apt-repository --no-install-recommends -y && rm -rf /var/lib/apt
+
+COPY ./scripts/*_install_*_configs /etc/piuparts/scripts/
+
+RUN chmod -c o-w /etc/piuparts/scripts/*_install_*_configs
+
+# Support for docker:dind
+ENV DOCKER_HOST=tcp://docker:2375
