@@ -1,8 +1,3 @@
-stages:
-  - base
-  - others
-  - cleanup
-
 .should_build_images: &should_build_images
   only:
     refs:
@@ -64,11 +59,11 @@ clean images:
 
 .build_base: &build_base
   <<: *build_template
-  stage: base
+  stage: images_base
 
 .build_others: &build_others
   <<: *build_template
-  stage: others
+  stage: images_others
 
 base:jessie:
   <<: *build_base

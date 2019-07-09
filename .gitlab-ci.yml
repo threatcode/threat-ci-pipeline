@@ -1,2 +1,8 @@
 include:
  - .images-ci.yml
+ - .pipeline-test.yml
+
+stages:
+  - images_base
+  - images_others
+  - cleanup
