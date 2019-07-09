@@ -5,4 +5,7 @@ include:
 stages:
   - images_base
   - images_others
+  - clone
+  - build
+  - test
   - cleanup
