@@ -70,6 +70,11 @@ clean images:
   <<: *build_template
   stage: others
 
+base:jessie:
+  <<: *build_base
+  variables:
+    EXTRA_BUILD_ARGS: "--ulimit nofile=1024:1024"
+
 base:stretch:
   <<: *build_base
 
@@ -120,6 +125,11 @@ blhc:unstable:
   variables:
       ALIASES: 'blhc:latest'
 
+lintian:jessie:
+  <<: *build_others
+  variables:
+    EXTRA_BUILD_ARGS: "--ulimit nofile=1024:1024"
+
 lintian:stretch:
   <<: *build_others
 
@@ -147,6 +157,11 @@ gbp:unstable:
   <<: *build_others
   variables:
       ALIASES: 'gbp:latest'
+
+dockerbuilder:jessie:
+  <<: *build_others
+  variables:
+    EXTRA_BUILD_ARGS: "--ulimit nofile=1024:1024"
 
 dockerbuilder:stretch:
   <<: *build_others
