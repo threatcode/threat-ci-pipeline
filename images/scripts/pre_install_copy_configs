@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if [ "$PIUPARTS_TEST" = install -o "$PIUPARTS_TEST" = 'upgrade' -a "$PIUPARTS_PHASE" = 'upgrade' ]; then
+    if [ -d /etc-target ]; then
+        needs_aptupdate=
+        cd /etc-target
+        for f in $(find -mindepth 1); do
+            if [ -d "$f" ]; then
+                mkdir -vp "/etc/$f"
+            else
+                cp -av "$f" "/etc/$f"
+                if echo "$f" | grep -q 'sources.list' ; then
+                    needs_aptupdate=1
+                fi
+            fi
+	done
+        if [ -n "$needs_aptupdate" ]; then
+            apt-get update
+        fi
+    fi
+fi

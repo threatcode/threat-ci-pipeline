@@ -1,0 +1,28 @@
+#!/bin/bash
+
+echo " -> Starting installing the build-deps"
+
+mk-build-deps debian/control
+
+FILENAME=$(echo *-build-deps*.deb)
+PKGNAME=$(dpkg-deb -f ${FILENAME} Package)
+
+dpkg --force-depends --force-conflicts -i $FILENAME
+
+aptitude -y --without-recommends \
+	-o "Dpkg::Options::=--force-confold" \
+	-o "APT::Install-Recommends=false" \
+	-o "Aptitude::ProblemResolver::StepScore=100" \
+	-o "Aptitude::ProblemResolver::SolutionCost=safety, priority, non-default-versions" \
+	-o "Aptitude::ProblemResolver::Hints::KeepDummy=reject $PKGNAME :UNINST" \
+	-o "Aptitude::ProblemResolver::Keep-All-Level=55000" \
+	-o "Aptitude::ProblemResolver::Remove-Essential-Level=maximum" \
+	install $PKGNAME
+
+rm $FILENAME
+
+if ! dpkg -l $PKGNAME 2>/dev/null | grep -q ^ii; then
+	echo "Aptitude couldn't satisfy the build dependencies"
+	exit 1
+fi
+echo " -> Finished installing the build-deps"

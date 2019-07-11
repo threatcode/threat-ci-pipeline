@@ -1,0 +1,3 @@
+tmpfs /sys/fs/cgroup tmpfs rw,relatime,seclabel
+cgroup /sys/fs/cgroup/cpuset cgroup rw,relatime,cpuset,x-mount.mkdir
+cgroup /sys/fs/cgroup/devices cgroup rw,relatime,devices,x-mount.mkdir

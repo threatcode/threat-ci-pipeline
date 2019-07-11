@@ -1,0 +1,17 @@
+ARG CI_REGISTRY_IMAGE
+ARG RELEASE
+ARG STAGING_TAG
+FROM $CI_REGISTRY_IMAGE/base:${RELEASE}${STAGING_TAG}
+
+RUN apt-get update && \
+    eatmydata apt-get install -y \
+        dnsmasq-base debci libvirt-clients libvirt-daemon-system autopkgtest lxc wget && \
+    rm -rf /var/lib/apt && \
+    rm /usr/sbin/policy-rc.d && \
+    ln -s /bin/true /usr/sbin/policy-rc.d
+
+COPY files/autopkgtest/lxc-net /etc/default/lxc-net
+COPY files/autopkgtest/default.conf /etc/lxc/default.conf
+COPY files/autopkgtest/fstab /etc/fstab
+
+RUN useradd --gid 100 -m salsa-ci

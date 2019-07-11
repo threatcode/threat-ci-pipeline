@@ -1,0 +1,8 @@
+ARG CI_REGISTRY_IMAGE
+ARG RELEASE
+ARG STAGING_TAG
+FROM $CI_REGISTRY_IMAGE/base:${RELEASE}${STAGING_TAG}
+
+RUN apt-get update && eatmydata apt-get install -y \
+    python3 python3-yaml python3-gitlab python3-yaml openssh-client git \
+    && rm -rf /var/lib/apt

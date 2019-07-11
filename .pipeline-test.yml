@@ -1,0 +1,18 @@
+include:
+ - salsa-ci.yml
+ - pipeline-jobs.yml
+
+clone:
+    stage: clone
+    image: debian:unstable
+    before_script:
+        - echo "I need to skip before_script"
+    artifacts:
+      paths:
+          - repo_test
+    script:
+        - apt-get update && apt-get install git -y
+        - git clone https://salsa.debian.org/salsa-ci-team/dummypackage repo_test
+
+before_script:
+    - cd repo_test
