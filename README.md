@@ -22,7 +22,9 @@ Our [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) definition is focus
 
 ## What does this _pipeline_ provide for my project/package?
 
-The [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) builds your package(s) and runs multiple checks on them after every push to Salsa. This provides you with instant feedback about any problems the changes you made without the need to do a push to the archive, speeding up your development cycle and improving the quality of packages uploaded to Debian.
+The [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) builds your package(s) and runs multiple checks on them after every push to Salsa. 
+
+This provides you with instant feedback about any problems the changes you made may have created or solved, without the need to do a push to the archive, speeding up your development cycle and improving the quality of packages uploaded to Debian.
 
 While the pipeline is a Work-In-Progess project, it will always try to replicate the tests run by Debian QA.
 The services we got working are the following:
