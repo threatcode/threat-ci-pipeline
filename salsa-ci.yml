@@ -6,6 +6,14 @@ variables:
   RELEASE: 'unstable'
   SALSA_CI_COMPONENTS: 'main'
   SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/images'
+  SALSA_CI_IMAGES_AUTOPKGTEST: ${SALSA_CI_IMAGES}/autopkgtest
+  SALSA_CI_IMAGES_BASE: ${SALSA_CI_IMAGES}/base:${RELEASE}
+  SALSA_CI_IMAGES_BLHC: ${SALSA_CI_IMAGES}/blhc:latest
+  SALSA_CI_IMAGES_DOCKERBUILDER: $SALSA_CI_IMAGES/dockerbuilder:${RELEASE}
+  SALSA_CI_IMAGES_GBP: ${SALSA_CI_IMAGES}/gbp:latest
+  SALSA_CI_IMAGES_LINTIAN: ${SALSA_CI_IMAGES}/lintian:${RELEASE}
+  SALSA_CI_IMAGES_PIUPARTS: ${SALSA_CI_IMAGES}/piuparts:latest
+  SALSA_CI_IMAGES_REPROTEST: ${SALSA_CI_IMAGES}/reprotest:latest
 
 stages:
   - build
@@ -27,7 +35,7 @@ stages:
 
 .build-definition: &build-definition
   stage: build
-  image: $SALSA_CI_IMAGES/gbp
+  image: $SALSA_CI_IMAGES_GBP
   services:
     - docker:dind
   cache:
@@ -46,7 +54,7 @@ stages:
       if [ -z "${DB_BUILD_ARCH}" -o "${DB_BUILD_ARCH}" = "full" ]; then DB_BUILD_PARAM="--build=full"; DB_BUILD_ARCH="full"; elif [ "${DB_BUILD_ARCH}" = "any" ] && egrep -q "^Architecture: (any|.*${LOCAL_ARCH})" debian/control; then DB_BUILD_PARAM="--build=any"; elif [ "${DB_BUILD_ARCH}" = "all" ] && grep -q "^Architecture: all" debian/control; then DB_BUILD_PARAM="--build=all"; else exit 0; fi
     - |
       if [ "${RELEASE}" = 'jessie' -a "${DB_BUILD_ARCH}" = 'full' ]; then DB_BUILD_PARAM=''; elif [ "${RELEASE}" = 'jessie' -a "${DB_BUILD_ARCH}" != 'full' ]; then exit 0; fi
-    - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES}/dockerbuilder:${RELEASE} ${DB_BUILD_PARAM}"
+    - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}"
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
 
 .build-package: &build-package
@@ -73,7 +81,7 @@ stages:
 
 .test-autopkgtest: &test-autopkgtest
   stage: test
-  image: $SALSA_CI_IMAGES/autopkgtest
+  image: $SALSA_CI_IMAGES_AUTOPKGTEST
   script:
     - wget --progress=dot:giga https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc/-/jobs/artifacts/master/raw/artifacts/lxc.tar?job=${RELEASE} -O lxc.tar
     - mkdir ${SCI_LXC_PATH} && tar xf lxc.tar -C ${SCI_LXC_PATH}
@@ -92,7 +100,7 @@ stages:
 
 .test-blhc: &test-blhc
   stage: test
-  image: $SALSA_CI_IMAGES/blhc
+  image: $SALSA_CI_IMAGES_BLHC
   script:
     - blhc --debian --line-numbers --color ${WORKING_DIR}/*.build || [ $? -eq 1 ]
   variables:
@@ -100,10 +108,10 @@ stages:
 
 .test-lintian: &test-lintian
   stage: test
-  image: $SALSA_CI_IMAGES/lintian:${RELEASE}
+  image: $SALSA_CI_IMAGES_LINTIAN
   script:
     - lintian ${WORKING_DIR}/*.changes | tee lintian.output
-    - cat lintian.output | /root/go/bin/lintian2junit > ${WORKING_DIR}/lintian.xml
+    - lintian2junit.py --lintian-file lintian.output > ${WORKING_DIR}/lintian.xml
   variables:
       GIT_STRATEGY: none
   artifacts:
@@ -112,7 +120,7 @@ stages:
 
 .test-reprotest: &test-reprotest
   stage: test
-  image: $SALSA_CI_IMAGES/reprotest
+  image: $SALSA_CI_IMAGES_REPROTEST
   artifacts:
     name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
     paths:
@@ -132,12 +140,12 @@ stages:
 
 .test-piuparts: &test-piuparts
   stage: test
-  image: $SALSA_CI_IMAGES/piuparts
+  image: $SALSA_CI_IMAGES_PIUPARTS
   services:
     - docker:dind
   script:
     - CHROOT_PATH="/tmp/debian-chroot"
-    - CONTAINER_ID=$(docker run --rm -d "registry.salsa.debian.org/salsa-ci-team/images/base:$RELEASE" sleep infinity)
+    - CONTAINER_ID=$(docker run --rm -d "${SALSA_CI_IMAGES_BASE}" sleep infinity)
     - docker exec ${CONTAINER_ID} bash -c "apt-get update && apt-get install eatmydata -y"
     - mkdir -p ${CHROOT_PATH}
     - docker export ${CONTAINER_ID} | tar -C ${CHROOT_PATH} -xf -

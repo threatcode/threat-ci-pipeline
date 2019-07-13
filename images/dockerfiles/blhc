@@ -1,0 +1,7 @@
+ARG CI_REGISTRY_IMAGE
+ARG RELEASE
+ARG STAGING_TAG
+FROM $CI_REGISTRY_IMAGE/base:${RELEASE}${STAGING_TAG}
+
+RUN apt-get update && eatmydata apt-get install blhc -y && rm -rf /var/lib/apt
+

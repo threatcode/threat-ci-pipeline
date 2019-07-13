@@ -1,27 +1,48 @@
 # Debian pipeline for Developers
 
-Gitlab integrates very well the continuous integration (CI) with the repository, so since Debian has migrated to Gitlab we can have CI in our repositories easily. Actually, we can have the same services that Debian QA offers today but before uploading a release to the archive. The main idea is having a faster feedback when you are working in a package, it is not intended to replace Debian QA. Debian QA services are the answer if you want to know if your package is reproducible or if piuparts is passing ok, etc.
-
-We started looking for the services that Debian QA is offering today and tried to reach the same point but inside Gitlab CI. The services we got working until now, are the following:
-
- * Building the package from the source (only gbp is supported for now)
- * Lintian check
- * Reproducible build (Using reprotest)
- * piuparts
- * Autopkgtest
- * Buildd Log Scanner
-
-Those services are enabled by something we called `salsa-pipeline` and it'll be shared for all Gitlab projects who adopt it. Having the same pipeline on GCI ensure that every package accomplishes the minimum quality to be in the archive and if we improve or add a new service the project will get the benefit instantaneously.
+Build and test on reproducible environments on every push.
 
 
-## Using Salsa-Pipeline
+## Table of contents
+* [Introduction](#introduction)
+* [What does this pipeline gives to my project?](#what-does-this-pipeline-gives-to-my-project)
+* [Basic Use](#basic-use)
+* [Advanced Use](#advanced-use)
+* [Support](#support)
 
-The `salsa-ci.yml` template only delivers the jobs definitions. Including only this file, no job will be added to the pipeline.
-On the other hand, `pipeline-jobs.yml` includes all the jobs' implementations.
 
-To use the Salsa Pipeline, you first have to change the project's setting to make it point to the config file we're going to create later.
+## Introduction
+
+The Salca CI Team work aims to improve the Debian packaging lifecycle providing [Continuous Integration](https://about.gitlab.com/product/continuous-integration/) fully compatible with Debian packaging.
+
+On current lifecycle, all the building and testing performed by Debian QA is run asynchronusly and takes a long time to have feedback.
+What is more important, you can only access it after pushing a release to the archive. 
+
+Our [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) definition is focused on speeding up this process and help developers to have the fastest feedback.
+
+
+## What does this _pipeline_ gives to my project?
+
+The pipeline is a Work-In-Progess project, but it will always try to replicate the tests run by Debian QA.
+The services we got working are the following:
+
+ * Building the package from the source (only gbp is supported)
+ * [Lintian](https://github.com/Debian/lintian)
+ * Reproducible build using [Reprotest](https://reproducible-builds.org/tools)
+ * [Piuparts](https://piuparts.debian.org)
+ * [Autopkgtest](https://salsa.debian.org/ci-team/autopkgtest/raw/master/doc/README.package-tests.rst)
+ * [Buildd Log Scanner](https://qa.debian.org/bls/)
+
+Those services are enabled by something we called `salsa-pipeline` and it'll be shared for all Salsa projects who adopt it. 
+Having this on Gitlab CI ensures that every package accomplishes the minimum quality to be in the archive and if we improve or add a new service the project will get the benefit instantaneously.
+
+
+## Basic Use
+
+To use the Salsa Pipeline, the first thing to do is to change the project's setting to make it point to the config file we're going to create later.
 This can be done on `Settings` -> `CI/CD` (on the expanded menu, don't click on the CI / CD rocket) -> `General Pipelines` -> `Custom CI config path`.
-On Debian projects, you would normally want to put this file under the `debian/` folder. For example `debian/salsa-ci.yml`.
+
+> :warning: **Note:** On Debian projects, you would normally want to put this file under the `debian/` folder. For example `debian/salsa-ci.yml`.
 
 The second step is to create and commit the file on the path set before with the following content:
 
@@ -32,7 +53,22 @@ include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 ```
 
-By default, everything will run against the `'unstable'` suite. Changing the suite is as easy as setting a `RELEASE`.
+
+## Advanced Use
+
+Following the basic instructions will allow you to add all the building and testing stages as provided by the salsa-ci-team.
+However, customization of the scripts is feasible.
+
+
+The [`salsa-ci.yml`](https://salsa.debian.org/salsa-ci-team/pipeline/blob/master/salsa-ci.yml) template delivers the jobs definitions. 
+Including only this file, no job will be added to the pipeline.
+On the other hand, [`pipeline-jobs.yml`](https://salsa.debian.org/salsa-ci-team/pipeline/blob/master/pipeline-jobs.yml) includes all the jobs' instances.
+
+
+### Changing the Debian Release
+
+By default, everything will run on the `'unstable'` suite. 
+Changing the release is as easy as setting a `RELEASE` variable.
 
 ```yaml
 ---
@@ -41,19 +77,68 @@ include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 
 variables:
-  RELEASE: 'unstable'
+  RELEASE: 'buster'
 ```
 
-### Including only the jobs' definition
+The supported releases are: 
+* jessie
+* stretch
+* stretch-backports
+* buster
+* stable
+* testing
+* unstable
+* experimental
 
-The `salsa-ci.yml` file provides the definition of build and test jobs.
-It you want to use this tools to build and test your project, but you want to explicitly define which jobs to run, you can do as follows:
+
+### Building with non-free dependencies
+By default, only `main` repositories are used.
+If your package has dependencies or build-dependencies in the `contrib` or `non-free` components (archive areas), set `SALSA_CI_COMPONENTS` to indicate this:
 
 ```yaml
+---
+include: 
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+    RELEASE: 'stretch'
+    SALSA_CI_COMPONENTS: 'main contrib non-free'
+```
+
+This is currently used for `piuparts`, but is likely to be used for
+other stages in future.
+
+
+### Skipping a job
+There are many ways to skip a certain job.
+An easy and simple solution is using an undefined variable to limit the job execution using the [`only`](https://docs.gitlab.com/ce/ci/yaml/#onlyvariablesexceptvariables) keyword.
+
+```yaml
+---
+include: 
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+piuparts:
+  only:
+    variables:
+      - $UNDEFINED_VAR_DISABLES_THIS
+```
+
+> :warning: **Note:** The job name **must** match with the one on [`pipeline-jobs.yml`](https://salsa.debian.org/salsa-ci-team/pipeline/blob/master/pipeline-jobs.yml).
+
+
+### Only running selected jobs
+
+If you want to use the definitions provided by the Salsa CI Team, but you want to explicitly define which jobs to run, you might want to declare your YAML as follows:
+
+```yaml
+---
 include: https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
 
 variables:
-  RELEASE: 'unstable'
+  RELEASE: 'experimental'
 
 build:
   extends: .build-package
@@ -72,12 +157,13 @@ blhc:
 
 piuparts:
   extends: .test-piuparts
-
 ```
 
-On the previous example, the package is built on Debian unstable and tested on all five tests.
-You can choose to run only some of the jobs.
-Anyway, we **firmly recommend NOT to do it**.
+On the previous example, the package is built on Debian experimental and checked through on all tests currently provided.
+You can choose to run only some of the jobs by deleting any of the definitions above.
+
+As new changes are expected to happen from time to time, we **firmly recommend NOT to do define all jobs manually**.
+Please consider if [skipping jobs](#skipping-a-job) meets your needs instead.
 
 ### Testing build of arch=any and arch=all packages
 
@@ -101,52 +187,21 @@ test-build-all:
 
 Note: These additional build jobs don't work with `RELEASE: 'jessie'` and are skipped in that case.
 
-### Building
-The Debian release can be specified declaring the variable `RELEASE` on any of the images availables.
- - experimental
- - unstable
- - buster
- - stretch-backports
- - stretch
- - jessie
+### Running reprotest with diffoscope
+Reprotest stage can be run with [diffoscope](https://try.diffoscope.org/), which is an useful tool that helps identifying reproducibility issues.
+Large projects won't pass on low resources runners as the ones available right now. 
 
-This release is also going to be used for some stages like lintian.
-By default, `unstable` is used.
-
-To change the `RELEASE`, define this after including the yaml:
-```yaml
-variables:
-    RELEASE: 'stretch'
-```
-Replace `stretch` with any of the releases listed previously.
-
-If your package has dependencies or build-dependencies in the `contrib`
-or `non-free` components (archive areas), set `SALSA_CI_COMPONENTS` to
-indicate this:
+To enable diffoscope, extending the reprotest job from `test-reprotest-diffoscope` is needed.
 
 ```yaml
-variables:
-    RELEASE: 'stretch'
-    SALSA_CI_COMPONENTS: 'main contrib non-free'
-```
-
-This is currently used for `piuparts`, but is likely to be used for
-other stages in future.
-
-### Testing
-5 different tests are available to be used:
- - [test-autopkgtest](https://salsa.debian.org/ci-team/autopkgtest/raw/master/doc/README.package-tests.rst)
- - [test-lintian](https://github.com/Debian/lintian)
- - [test-reprotest](https://reproducible-builds.org/tools)
-   - Reprotest stage can be run with diffoscope, which is an useful tool that helps identifying reproducibility issues. Large projects won't pass on low resources runners as the ones available right now. To use it, just extend from `test-reprotest-diffoscope`
-```yaml
-include: https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+---
+include: 
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 
 reprotest:
   extends: .test-reprotest-diffoscope
-````
- - [test-piuparts](https://piuparts.debian.org)
- - [test-blhc](https://qa.debian.org/bls/)
+```
 
 ## Support
-\#salsaci on OFTC or open an issue here.
+Write us on \#salsaci @ OFTC or open an [issue here](https://salsa.debian.org/salsa-ci-team/pipeline/issues) :)

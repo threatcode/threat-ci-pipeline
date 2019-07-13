@@ -1,0 +1,19 @@
+ARG CI_REGISTRY_IMAGE
+ARG RELEASE
+ARG STAGING_TAG
+FROM $CI_REGISTRY_IMAGE/base:${RELEASE}${STAGING_TAG}
+
+RUN apt-get update && eatmydata apt-get install --no-install-recommends -y \
+    git-buildpackage \
+    docker.io \
+    pristine-tar \
+    curl \
+    && rm -rf /var/lib/apt
+
+# Just for backward compatibility, because current pipeline does gbp pull for no reasons... Remove it after merge
+RUN apt-get update && eatmydata apt-get install ca-certificates fakeroot --no-install-recommends -y && rm -rf /var/lib/apt
+
+COPY ./scripts/docker-build.sh /usr/local/bin/
+
+# Support for docker:dind
+ENV DOCKER_HOST=tcp://docker:2375
