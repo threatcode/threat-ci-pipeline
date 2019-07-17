@@ -13,17 +13,20 @@ Build and test on reproducible environments on every push.
 
 ## Introduction
 
-The Salca CI Team work aims to improve the Debian packaging lifecycle providing [Continuous Integration](https://about.gitlab.com/product/continuous-integration/) fully compatible with Debian packaging.
+The Salca CI Team work aims to improve the Debian packaging lifecycle by providing [Continuous Integration](https://about.gitlab.com/product/continuous-integration/) fully compatible with Debian packaging.
 
-On current lifecycle, all the building and testing performed by Debian QA is run asynchronusly and takes a long time to have feedback.
-What is more important, you can only access it after pushing a release to the archive. 
+Currently all the building and testing performed by Debian QA is run asynchronusly and takes a long time to give feedback because it is only accessable after pushing a release to the archive.
 
-Our [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) definition is focused on speeding up this process and help developers to have the fastest feedback.
+Our [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) definition is focused on speeding up this process by giving developers faster feedback.
 
 
-## What does this _pipeline_ gives to my project?
+## What does this _pipeline_ provide for my project/package?
 
-The pipeline is a Work-In-Progess project, but it will always try to replicate the tests run by Debian QA.
+The [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) builds your package(s) and runs multiple checks on them after every push to Salsa. 
+
+This provides you with instant feedback about any problems the changes you made may have created or solved, without the need to do a push to the archive, speeding up your development cycle and improving the quality of packages uploaded to Debian.
+
+While the pipeline is a Work-In-Progess project, it will always try to replicate the tests run by Debian QA.
 The services we got working are the following:
 
  * Building the package from the source (only gbp is supported)
@@ -33,13 +36,13 @@ The services we got working are the following:
  * [Autopkgtest](https://salsa.debian.org/ci-team/autopkgtest/raw/master/doc/README.package-tests.rst)
  * [Buildd Log Scanner](https://qa.debian.org/bls/)
 
-Those services are enabled by something we called `salsa-pipeline` and it'll be shared for all Salsa projects who adopt it. 
+Those services are enabled by something we called `salsa-pipeline` and it will be shared for all Salsa projects who adopt it. 
 Having this on Gitlab CI ensures that every package accomplishes the minimum quality to be in the archive and if we improve or add a new service the project will get the benefit instantaneously.
 
 
 ## Basic Use
 
-To use the Salsa Pipeline, the first thing to do is to change the project's setting to make it point to the config file we're going to create later.
+To use the Salsa Pipeline, the first thing to do is to change the project's setting to make it point to the config file we are going to create later.
 This can be done on `Settings` -> `CI/CD` (on the expanded menu, don't click on the CI / CD rocket) -> `General Pipelines` -> `Custom CI config path`.
 
 > :warning: **Note:** On Debian projects, you would normally want to put this file under the `debian/` folder. For example `debian/salsa-ci.yml`.
@@ -57,7 +60,7 @@ include:
 ## Advanced Use
 
 Following the basic instructions will allow you to add all the building and testing stages as provided by the salsa-ci-team.
-However, customization of the scripts is feasible.
+However, customization of the scripts is possible.
 
 
 The [`salsa-ci.yml`](https://salsa.debian.org/salsa-ci-team/pipeline/blob/master/salsa-ci.yml) template delivers the jobs definitions. 
@@ -80,7 +83,7 @@ variables:
   RELEASE: 'buster'
 ```
 
-The supported releases are: 
+The following releases are currently supported: 
 * jessie
 * stretch
 * stretch-backports
@@ -131,7 +134,7 @@ piuparts:
 
 ### Only running selected jobs
 
-If you want to use the definitions provided by the Salsa CI Team, but you want to explicitly define which jobs to run, you might want to declare your YAML as follows:
+If you want to use the definitions provided by the Salsa CI Team, but want to explicitly define which jobs to run, you might want to declare your YAML as follows:
 
 ```yaml
 ---
@@ -168,7 +171,7 @@ Please consider if [skipping jobs](#skipping-a-job) meets your needs instead.
 
 ### Running reprotest with diffoscope
 Reprotest stage can be run with [diffoscope](https://try.diffoscope.org/), which is an useful tool that helps identifying reproducibility issues.
-Large projects won't pass on low resources runners as the ones available right now. 
+Large projects will not pass on low resources runners as the ones available right now. 
 
 To enable diffoscope, extending the reprotest job from `test-reprotest-diffoscope` is needed.
 
