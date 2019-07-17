@@ -8,6 +8,18 @@ include:
  - salsa-ci.yml
  - pipeline-jobs.yml
 
+check license + contributor:
+    stage: contributions
+    image: ${SALSA_CI_IMAGES_BASE}
+    dependencies: []
+    before_script:
+        - apt-get update && apt-get install -y licensecheck
+    script:
+        # check files without any license
+        - bash -c "exit $(licensecheck -r . | grep -Ev '(images/files)|(images/patches)|(README.md)|(CONTRIBUTORS)' | grep UNKNOWN | wc -l)"
+        # check email is in the list of contributors
+        - grep ${GITLAB_USER_EMAIL} CONTRIBUTORS
+
 clone:
     stage: clone
     image: debian:unstable
