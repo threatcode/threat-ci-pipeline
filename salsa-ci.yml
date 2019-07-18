@@ -53,14 +53,14 @@ stages:
     - >
        if [ -z "${DB_BUILD_ARCH}" -o "${DB_BUILD_ARCH}" = "full" ]; 
          then DB_BUILD_PARAM="--build=full"; DB_BUILD_ARCH="full"; 
-        elif [ "${DB_BUILD_ARCH}" = "any" ] && egrep -q "^Architecture: (any|.*[^\!]${LOCAL_ARCH})" debian/control; 
+        elif [ "${DB_BUILD_ARCH}" = "any" ] && egrep -q "^Architecture:.*(any|[^\!]${LOCAL_ARCH})" debian/control; 
          then DB_BUILD_PARAM="--build=any"; 
         elif [ "${DB_BUILD_ARCH}" = "all" ] && grep -q "^Architecture: all" debian/control; 
          then DB_BUILD_PARAM="--build=all"; 
         else
          echo "###########################################";
-         echo "### No binary package of type ${DB_BUILD_ARCH} found";
-         echo "### Stopping test-build-${DB_BUILD_ARCH}";
+         echo "### No binary package of type ${DB_BUILD_ARCH} or ${LOCAL_ARCH} found";
+         echo "### Stopping test-build-${DB_BUILD_ARCH} test.";
          echo "###########################################";
          exit 0; 
        fi
