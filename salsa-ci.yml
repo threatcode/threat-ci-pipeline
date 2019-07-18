@@ -73,9 +73,14 @@ stages:
          then DB_BUILD_PARAM="--build=all"; 
         else
          echo "###########################################";
-         echo "### No binary package of type ${DB_BUILD_ARCH} or ${LOCAL_ARCH} found";
+         if [ "${DB_BUILD_ARCH}" = "any" ]; then
+           echo "### No binary package of type ${DB_BUILD_ARCH} or ${LOCAL_ARCH} found";
+         else
+           echo "### No binary package of type ${DB_BUILD_ARCH} found";
+         fi;
          echo "### Stopping test-build-${DB_BUILD_ARCH} test.";
          echo "###########################################";
+         mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR};
          exit 0; 
        fi
     - >
@@ -87,6 +92,7 @@ stages:
          echo "### Jessie does not support test-build-all";
          echo "### and test-build-any, stopping test.";
          echo "###########################################";
+         mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR};
          exit 0;
        fi
     - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}"
