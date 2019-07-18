@@ -71,14 +71,23 @@ stages:
          then DB_BUILD_PARAM="--build=any"; 
         elif [ "${DB_BUILD_ARCH}" = "all" ] && grep -q "^Architecture: all" debian/control; 
          then DB_BUILD_PARAM="--build=all"; 
-        else 
+        else
+         echo "###########################################";
+         echo "### No binary package of type ${DB_BUILD_ARCH} found";
+         echo "### Stopping test-build-${DB_BUILD_ARCH}";
+         echo "###########################################";
          exit 0; 
        fi
     - >
        if [ "${RELEASE}" = 'jessie' -a "${DB_BUILD_ARCH}" = 'full' ]; 
         then DB_BUILD_PARAM=''; 
        elif [ "${RELEASE}" = 'jessie' -a "${DB_BUILD_ARCH}" != 'full' ]; 
-        then exit 0; 
+        then
+         echo "###########################################";
+         echo "### Jessie does not support test-build-all";
+         echo "### and test-build-any, stopping test.";
+         echo "###########################################";
+         exit 0;
        fi
     - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}"
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
