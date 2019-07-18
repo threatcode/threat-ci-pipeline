@@ -124,6 +124,7 @@ include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 
 piuparts:
+  extends: .test-piuparts
   only:
     variables:
       - $UNDEFINED_VAR_DISABLES_THIS
