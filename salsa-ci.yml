@@ -106,7 +106,8 @@ stages:
   artifacts:
     name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
     paths:
-      - $WORKING_DIR
+      - $WORKING_DIR/reprotest
+      - $WORKING_DIR/reprotest.log
     when: always
   variables:
     REPROTEST_EXTRA_ARGS: '--no-diffoscope'
