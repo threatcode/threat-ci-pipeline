@@ -20,6 +20,7 @@ variables:
   SALSA_CI_IMAGES_LINTIAN: ${SALSA_CI_IMAGES}/lintian:${RELEASE}
   SALSA_CI_IMAGES_PIUPARTS: ${SALSA_CI_IMAGES}/piuparts:latest
   SALSA_CI_IMAGES_REPROTEST: ${SALSA_CI_IMAGES}/reprotest:latest
+  SALSA_CI_AUTOPKGTEST_LXC: https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc
 
 stages:
   - build
@@ -66,9 +67,9 @@ stages:
   stage: test
   image: $SALSA_CI_IMAGES_AUTOPKGTEST
   script:
-    - wget --progress=dot:giga https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc/-/jobs/artifacts/master/raw/artifacts/lxc.tar?job=${RELEASE} -O lxc.tar
+    - wget --progress=dot:giga ${SALSA_CI_AUTOPKGTEST_LXC}/-/jobs/artifacts/master/raw/artifacts/lxc.tar?job=${RELEASE} -O lxc.tar
     - mkdir ${SCI_LXC_PATH} && tar xf lxc.tar -C ${SCI_LXC_PATH}
-    - sed -i "s@salsa-ci-team/autopkgtest-lxc@${CI_PROJECT_PATH}@" ${SCI_LXC_PATH}/autopkgtest-${RELEASE}-amd64/config
+    - sed -i "/lxc.rootfs.path/ s@dir:.*/lxc/@dir:${SCI_LXC_PATH}/@" ${SCI_LXC_PATH}/autopkgtest-${RELEASE}-amd64/config
     - |
         cat >/etc/lxc/lxc.conf <<EOT
         lxc.lxcpath=${SCI_LXC_PATH}
