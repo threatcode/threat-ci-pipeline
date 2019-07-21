@@ -9,7 +9,9 @@ variables:
   DEBEMAIL: "<salsa-pipeline@debian.org>"
   DEBIAN_FRONTEND: noninteractive
   WORKING_DIR: $CI_PROJECT_DIR/debian/output
+  VENDOR: 'debian'
   RELEASE: 'unstable'
+  SALSA_CI_MIRROR: 'http://deb.debian.org/debian'
   SALSA_CI_COMPONENTS: 'main'
   SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/images'
   SALSA_CI_IMAGES_AUTOPKGTEST: ${SALSA_CI_IMAGES}/autopkgtest
@@ -20,6 +22,8 @@ variables:
   SALSA_CI_IMAGES_LINTIAN: ${SALSA_CI_IMAGES}/lintian:${RELEASE}
   SALSA_CI_IMAGES_PIUPARTS: ${SALSA_CI_IMAGES}/piuparts:latest
   SALSA_CI_IMAGES_REPROTEST: ${SALSA_CI_IMAGES}/reprotest:latest
+  SALSA_CI_AUTOPKGTEST_LXC: https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc
+  SALSA_CI_PIUPARTS_ARGS: ''
 
 stages:
   - build
@@ -66,9 +70,9 @@ stages:
   stage: test
   image: $SALSA_CI_IMAGES_AUTOPKGTEST
   script:
-    - wget --progress=dot:giga https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc/-/jobs/artifacts/master/raw/artifacts/lxc.tar?job=${RELEASE} -O lxc.tar
+    - wget --progress=dot:giga ${SALSA_CI_AUTOPKGTEST_LXC}/-/jobs/artifacts/master/raw/artifacts/lxc.tar?job=${RELEASE} -O lxc.tar
     - mkdir ${SCI_LXC_PATH} && tar xf lxc.tar -C ${SCI_LXC_PATH}
-    - sed -i "s@salsa-ci-team/autopkgtest-lxc@${CI_PROJECT_PATH}@" ${SCI_LXC_PATH}/autopkgtest-${RELEASE}-amd64/config
+    - sed -i "/lxc.rootfs.path/ s@dir:.*/lxc/@dir:${SCI_LXC_PATH}/@" ${SCI_LXC_PATH}/autopkgtest-${RELEASE}-amd64/config
     - |
         cat >/etc/lxc/lxc.conf <<EOT
         lxc.lxcpath=${SCI_LXC_PATH}
@@ -141,12 +145,15 @@ stages:
     - cp -aTLv /srv/local-apt-repository ${CHROOT_PATH}/srv/local-apt-repository
     - cp -aTLv /var/lib/local-apt-repository/ ${CHROOT_PATH}/var/lib/local-apt-repository/
     - sed  '/127.0.0.1/s/localhost/pipeline.salsa.debian.org localhost/' /etc/hosts > ${CHROOT_PATH}/etc/hosts
-    - PIUPARTS_DISTRIBUTION_ARG=''
-    - '[ "$RELEASE" = unstable -o "$RELEASE" = experimental -o "$RELEASE" = testing ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE/updates"'
-    - '[ "${RELEASE/-backports/}" = "$RELEASE" ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE"'
+    - PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE"
+    - |
+        if [ "$VENDOR" = "debian" ]; then \
+            [ "$RELEASE" = unstable -o "$RELEASE" = experimental -o "$RELEASE" = testing ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE/updates"; \
+            [ "${RELEASE/-backports/}" = "$RELEASE" ] || PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE"; \
+        fi
     - |
         for PACKAGE in $(ls ${WORKING_DIR}/*.deb); do
-            piuparts --mirror "http://deb.debian.org/debian ${SALSA_CI_COMPONENTS}" --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PIUPARTS_DISTRIBUTION_ARG} ${PACKAGE}
+            piuparts --mirror "${SALSA_CI_MIRROR} ${SALSA_CI_COMPONENTS}" ${SALSA_CI_PIUPARTS_ARGS} --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PIUPARTS_DISTRIBUTION_ARG} ${PACKAGE}
         done
   variables:
       GIT_STRATEGY: none
