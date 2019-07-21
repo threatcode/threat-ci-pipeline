@@ -6,6 +6,7 @@
 
 include:
  - .images-ci.yml
+ - .images-debian.yml
  - .pipeline-test.yml
 
 stages:

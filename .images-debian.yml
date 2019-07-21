@@ -1,0 +1,121 @@
+# Copyright salsa-ci-team and others
+# SPDX-License-Identifier: FSFAP
+# Copying and distribution of this file, with or without modification, are
+# permitted in any medium without royalty provided the copyright notice and
+# this notice are preserved. This file is offered as-is, without any warranty.
+
+base:jessie:
+  extends: .build_base
+  variables:
+    EXTRA_BUILD_ARGS: "--ulimit nofile=1024:1024"
+
+base:stretch:
+  extends: .build_base
+
+base:stretch-backports:
+  extends: .build_base
+
+base:buster:
+  extends: .build_base
+
+base:stable:
+  extends: .build_base
+
+base:unstable:
+  extends: .build_base
+  variables:
+      ALIASES: 'base:latest'
+
+base:experimental:
+  extends: .build_base
+
+base:testing:
+  extends: .build_base
+
+piuparts:unstable:
+  extends: .build_others
+  variables:
+      ALIASES: 'piuparts:latest'
+
+reprotest:unstable:
+  extends: .build_others
+  variables:
+      ALIASES: 'reprotest:latest'
+
+# Image for the pipeline runner
+# salsa.debian.org/salsa-ci-team/pipeline
+pipeline:unstable:
+  extends: .build_others
+  variables:
+      ALIASES: 'pipeline:latest'
+
+autopkgtest:unstable:
+  extends: .build_others
+  variables:
+      ALIASES: 'autopkgtest:latest'
+
+blhc:unstable:
+  extends: .build_others
+  variables:
+      ALIASES: 'blhc:latest'
+
+lintian:jessie:
+  extends: .build_others
+  variables:
+    EXTRA_BUILD_ARGS: "--ulimit nofile=1024:1024"
+
+lintian:stretch:
+  extends: .build_others
+
+lintian:stretch-backports:
+  extends: .build_others
+
+lintian:buster:
+  extends: .build_others
+
+lintian:stable:
+  extends: .build_others
+
+lintian:unstable:
+  extends: .build_others
+  variables:
+      ALIASES: 'lintian:latest'
+
+lintian:experimental:
+  extends: .build_others
+
+lintian:testing:
+  extends: .build_others
+
+gbp:unstable:
+  extends: .build_others
+  variables:
+      ALIASES: 'gbp:latest'
+
+dockerbuilder:jessie:
+  extends: .build_others
+  variables:
+    EXTRA_BUILD_ARGS: "--ulimit nofile=1024:1024"
+
+dockerbuilder:stretch:
+  extends: .build_others
+
+dockerbuilder:stretch-backports:
+  extends: .build_others
+
+dockerbuilder:buster:
+  extends: .build_others
+
+dockerbuilder:stable:
+  extends: .build_others
+
+dockerbuilder:unstable:
+  extends: .build_others
+  variables:
+      ALIASES: 'dockerbuilder:latest'
+
+dockerbuilder:experimental:
+  extends: .build_others
+
+dockerbuilder:testing:
+  extends: .build_others
