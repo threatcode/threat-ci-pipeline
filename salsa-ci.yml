@@ -166,3 +166,14 @@ stages:
         done
   variables:
       GIT_STRATEGY: none
+
+.test-rc-bugs: &test-rc-bugs
+  stage: test
+  image: $SALSA_CI_IMAGES_BASE
+  script:
+    - apt update
+    - apt install -fy python3-debian python3-debianbts python3-junit.xml
+    - check_rc_bugs.py -o ${WORKING_DIR}/rc_bugs.xml --changes-file ${WORKING_DIR}/*.changes
+  artifacts:
+    reports:
+      junit: ${WORKING_DIR}/rc_bugs.xml
