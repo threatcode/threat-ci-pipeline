@@ -24,6 +24,7 @@ variables:
   SALSA_CI_IMAGES_REPROTEST: ${SALSA_CI_IMAGES}/reprotest:latest
   SALSA_CI_AUTOPKGTEST_LXC: https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc
   SALSA_CI_PIUPARTS_ARGS: ''
+  DOCKER_TLS_CERTDIR: ""
 
 stages:
   - build
