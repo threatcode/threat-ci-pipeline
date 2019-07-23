@@ -1,6 +1,35 @@
+# Copyright salsa-ci-team and others
+# SPDX-License-Identifier: FSFAP
+# Copying and distribution of this file, with or without modification, are
+# permitted in any medium without royalty provided the copyright notice and
+# this notice are preserved. This file is offered as-is, without any warranty.
+
 include:
  - salsa-ci.yml
  - pipeline-jobs.yml
+
+check license + contributor:
+    stage: contributions
+    image: ${SALSA_CI_IMAGES_BASE}
+    dependencies: []
+    before_script:
+        - apt-get update && apt-get install -y licensecheck
+    script:
+        - PROBLEMS=0
+        # check files without any license
+        - BAD_FILES=$(licensecheck -r . | grep -Ev '(images/files)|(images/patches)|(README.md)|(CONTRIBUTORS)' | grep UNKNOWN) || true
+        - |
+            [ -z "$BAD_FILES" ] || \
+            (echo "ERROR: Missing license statement in the following files:"; \
+             echo "$BAD_FILES"; exit 1) || \
+            PROBLEMS=$(($PROBLEMS + 1))
+        # check email or name is in the list of contributors
+        - |
+            grep -q "${GITLAB_USER_EMAIL}" CONTRIBUTORS || \
+            grep -q "${GITLAB_USER_NAME}" CONTRIBUTORS || \
+            (echo "ERROR: ${GITLAB_USER_NAME} <${GITLAB_USER_EMAIL}> missing in the CONTRIBUTORS file"; exit 1) || \
+            PROBLEMS=$(($PROBLEMS + 1))
+        - exit $PROBLEMS
 
 clone:
     stage: clone
