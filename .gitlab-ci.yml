@@ -8,6 +8,9 @@ include:
  - .images-ci.yml
  - .pipeline-test.yml
 
+variables:
+  DOCKER_TLS_CERTDIR: ""
+
 stages:
   - images_base
   - images_others
