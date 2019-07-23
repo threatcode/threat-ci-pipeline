@@ -114,8 +114,7 @@ other stages in future.
 
 
 ### Skipping a job
-There are many ways to skip a certain job.
-An easy and simple solution is using an undefined variable to limit the job execution using the [`only`](https://docs.gitlab.com/ce/ci/yaml/#onlyvariablesexceptvariables) keyword.
+There are many ways to skip a certain job. The recommended way is to set to 1 (or "yes" or "true") the `SALSA_CI_DISABLE_*` variables that have been created for this purpose.
 
 ```yaml
 ---
@@ -123,14 +122,15 @@ include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 
-piuparts:
-  extends: .test-piuparts
-  only:
-    variables:
-      - $UNDEFINED_VAR_DISABLES_THIS
+# This sample disables all default tests, only disable those that you
+# don't want
+variables:
+  SALSA_CI_DISABLE_AUTOPKGTEST: 1
+  SALSA_CI_DISABLE_BLHC: 1
+  SALSA_CI_DISABLE_LINTIAN: 1
+  SALSA_CI_DISABLE_PIUPARTS: 1
+  SALSA_CI_DISABLE_REPROTEST: 1
 ```
-
-> :warning: **Note:** The job name **must** match with the one on [`pipeline-jobs.yml`](https://salsa.debian.org/salsa-ci-team/pipeline/blob/master/pipeline-jobs.yml).
 
 
 ### Only running selected jobs
