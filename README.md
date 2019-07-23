@@ -174,7 +174,7 @@ Please consider if [skipping jobs](#skipping-a-job) meets your needs instead.
 Reprotest stage can be run with [diffoscope](https://try.diffoscope.org/), which is an useful tool that helps identifying reproducibility issues.
 Large projects will not pass on low resources runners as the ones available right now. 
 
-To enable diffoscope, extending the reprotest job from `test-reprotest-diffoscope` is needed.
+To enable diffoscope, setting `SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE` to 1 (or 'yes' or 'true') is needed.
 
 ```yaml
 ---
@@ -182,8 +182,8 @@ include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 
-reprotest:
-  extends: .test-reprotest-diffoscope
+variables:
+  SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE: 1
 ```
 
 ## Support
