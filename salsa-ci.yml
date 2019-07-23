@@ -57,18 +57,9 @@ stages:
     CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
     DB_BUILD_ARCH: ''
   script:
-    - apt-get update
     - mkdir -p ${CCACHE_WORK_DIR}
     - mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
     - gbp pull --ignore-branch --pristine-tar --track-missing
-    - |
-      mkdir -p ${WORKING_DIR}
-      # Check if we can obtain the orig from the git branches
-      if ! gbp export-orig --pristine-tar --tarball-dir=${WORKING_DIR}; then
-        # Fallback using origtargz
-        origtargz -dt
-        mv ../*.orig.* ${WORKING_DIR}
-      fi
     - LOCAL_ARCH=`dpkg --print-architecture`
     - >
        if [ -z "${DB_BUILD_ARCH}" -o "${DB_BUILD_ARCH}" = "full" ]; 
