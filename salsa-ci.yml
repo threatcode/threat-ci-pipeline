@@ -45,6 +45,21 @@ stages:
   artifacts:
     <<: *artifacts
 
+.build-before-script: &build-before-script |
+   mkdir -p ${CCACHE_WORK_DIR}
+   mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
+   gbp pull --ignore-branch --pristine-tar --track-missing
+
+.build-script: &build-script |
+   # Check if we can obtain the orig from the git branches
+   if ! gbp export-orig --pristine-tar --tarball-dir=${WORKING_DIR}; then
+     # Fallback using origtargz
+     origtargz -dt
+     mv ../*.orig.* ${WORKING_DIR}
+     gbp_args="--git-overlay"
+   fi
+   gbp buildpackage --git-ignore-branch --git-ignore-new --git-no-create-orig $gbp_args --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}"
+
 .build-definition: &build-definition
   stage: build
   image: $SALSA_CI_IMAGES_GBP
@@ -56,52 +71,10 @@ stages:
   variables:
     CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
     CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
-    DB_BUILD_ARCH: ''
+    DB_BUILD_PARAM: ''
   script:
-    - mkdir -p ${WORKING_DIR} ${CCACHE_WORK_DIR}
-    - mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
-    - gbp pull --ignore-branch --pristine-tar --track-missing
-    - |
-      # Check if we can obtain the orig from the git branches
-      if ! gbp export-orig --pristine-tar --tarball-dir=${WORKING_DIR}; then
-        # Fallback using origtargz
-        origtargz -dt
-        mv ../*.orig.* ${WORKING_DIR}
-        gbp_args="--git-overlay"
-      fi
-    - LOCAL_ARCH=`dpkg --print-architecture`
-    - >
-       if [ -z "${DB_BUILD_ARCH}" -o "${DB_BUILD_ARCH}" = "full" ]; 
-         then DB_BUILD_PARAM="--build=full"; DB_BUILD_ARCH="full"; 
-        elif [ "${DB_BUILD_ARCH}" = "any" ] && egrep -q "^Architecture:.*(any|[^\!]${LOCAL_ARCH})" debian/control; 
-         then DB_BUILD_PARAM="--build=any"; 
-        elif [ "${DB_BUILD_ARCH}" = "all" ] && grep -q "^Architecture: all" debian/control; 
-         then DB_BUILD_PARAM="--build=all"; 
-        else
-         echo "###########################################";
-         if [ "${DB_BUILD_ARCH}" = "any" ]; then
-           echo "### No binary package of type ${DB_BUILD_ARCH} or ${LOCAL_ARCH} found";
-         else
-           echo "### No binary package of type ${DB_BUILD_ARCH} found";
-         fi;
-         echo "### Stopping test-build-${DB_BUILD_ARCH} test.";
-         echo "###########################################";
-         mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR};
-         exit 0; 
-       fi
-    - >
-       if [ "${RELEASE}" = 'jessie' -a "${DB_BUILD_ARCH}" = 'full' ]; 
-        then DB_BUILD_PARAM=''; 
-       elif [ "${RELEASE}" = 'jessie' -a "${DB_BUILD_ARCH}" != 'full' ]; 
-        then
-         echo "###########################################";
-         echo "### Jessie does not support test-build-all";
-         echo "### and test-build-any, stopping test.";
-         echo "###########################################";
-         mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR};
-         exit 0;
-       fi
-    - gbp buildpackage --git-ignore-branch --git-ignore-new --git-no-create-orig $gbp_args --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}"
+    - *build-before-script
+    - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
 
 .build-package: &build-package
@@ -115,7 +88,28 @@ stages:
   variables:
      CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
      CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
-     DB_BUILD_ARCH: 'any'
+     DB_BUILD_PARAM: ''
+  script:
+    - *build-before-script
+    - LOCAL_ARCH=`dpkg --print-architecture`
+    - |
+        if egrep -q "^Architecture:.*(any|[^\!]${LOCAL_ARCH})" debian/control; then
+            DB_BUILD_PARAM="--build=any"
+        else
+            echo "###########################################"
+            echo "### No binary package of type any or ${LOCAL_ARCH} found"
+            echo "### Stopping test-build-any test."
+            echo "###########################################"
+            mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+            exit 0
+        fi
+    - *build-script
+    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+  except:
+    variables:
+      - $SKIP_TEST_BUILD_PACKAGE_ANY == 'yes'
+      - $RELEASE == 'jessie'
+
 
 .test-build-package-all: &test-build-package-all
   <<: *build-definition
@@ -124,7 +118,27 @@ stages:
   variables:
      CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
      CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
-     DB_BUILD_ARCH: 'all'
+     DB_BUILD_PARAM: ''
+  script:
+    - *build-before-script
+    - LOCAL_ARCH=`dpkg --print-architecture`
+    - |
+        if grep -q "^Architecture: all" debian/control; then
+            DB_BUILD_PARAM="--build=all"
+        else
+            echo "###########################################"
+            echo "### No binary package of type all found"
+            echo "### Stopping test-build-all test."
+            echo "###########################################"
+            mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+            exit 0;
+        fi
+    - *build-script
+    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+  except:
+    variables:
+      - $SKIP_TEST_BUILD_PACKAGE_ALL == 'yes'
+      - $RELEASE == 'jessie'
 
 .test-autopkgtest: &test-autopkgtest
   stage: test
