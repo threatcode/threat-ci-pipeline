@@ -280,8 +280,9 @@ while ($control = shift) {
         }
         my $args = '';
         my $arch = 'all';
-        my ($build_deps,      $build_dep,      $build_dep_arch, $build_indep);
-        my ($build_conflicts, $build_conflict, $conflict_arch,  $conflict_indep);
+        my ($build_deps, $build_dep, $build_dep_arch, $build_indep);
+        my ($build_conflicts, $build_conflict, $conflict_arch,
+            $conflict_indep);
 
         if (exists $ctrl->{'Build-Depends'}) {
             $build_dep = $ctrl->{'Build-Depends'};
@@ -291,9 +292,9 @@ while ($control = shift) {
         if (exists $ctrl->{'Build-Depends-Arch'}) {
             $build_dep_arch = $ctrl->{'Build-Depends-Arch'};
             $build_dep_arch =~ s/\n/ /g;
-	    $build_dep  .= ', ' if $build_dep_arch;
-	    $build_dep  .= $build_dep_arch;
-            $build_deps .= ', ' if $build_dep_arch;
+            $build_dep  .= ', ' if $build_dep;
+            $build_dep  .= $build_dep_arch;
+            $build_deps .= ', ' if $build_deps;
             $build_deps .= $build_dep_arch;
         }
         if (exists $ctrl->{'Build-Depends-Indep'}) {
@@ -310,9 +311,9 @@ while ($control = shift) {
         if (exists $ctrl->{'Build-Conflicts-Arch'}) {
             $conflict_arch = $ctrl->{'Build-Conflicts-Arch'};
             $conflict_arch =~ s/\n/ /g;
-            $build_conflict  .= ', ' if $conflict_arch;
+            $build_conflict  .= ', ' if $build_conflict;
             $build_conflict  .= $conflict_arch;
-            $build_conflicts .= ', ' if $conflict_arch;
+            $build_conflicts .= ', ' if $build_conflicts;
             $build_conflicts .= $conflict_arch;
         }
         if (exists $ctrl->{'Build-Conflicts-Indep'}) {
@@ -448,7 +449,7 @@ if ($opt_install) {
 
 sub version {
     print <<"EOF";
-This is $progname, from the Debian devscripts package, version 2.19.6
+This is $progname, from the Debian devscripts package, version 2.19.7
 Copyright (C) 2008 Vincent Fourmond
 
 This program comes with ABSOLUTELY NO WARRANTY.
