@@ -9,6 +9,10 @@ ARG RELEASE
 ARG STAGING_TAG
 FROM $CI_REGISTRY_IMAGE/base:${RELEASE}${STAGING_TAG}
 
+# Add deb-src entries
+RUN \
+    sed -n '/^deb\s/s//deb-src /p' /etc/apt/sources.list > /etc/apt/sources.list.d/deb-src.list
+
 RUN apt-get update && eatmydata apt-get install --no-install-recommends -y \
     git-buildpackage \
     docker.io \
