@@ -13,7 +13,7 @@ variables:
   RELEASE: 'unstable'
   SALSA_CI_MIRROR: 'http://deb.debian.org/debian'
   SALSA_CI_COMPONENTS: 'main'
-  SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/images'
+  SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/pipeline'
   SALSA_CI_IMAGES_AUTOPKGTEST: ${SALSA_CI_IMAGES}/autopkgtest
   SALSA_CI_IMAGES_BASE: ${SALSA_CI_IMAGES}/base:${RELEASE}
   SALSA_CI_IMAGES_BLHC: ${SALSA_CI_IMAGES}/blhc:latest
