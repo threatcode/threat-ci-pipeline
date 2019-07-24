@@ -13,7 +13,7 @@ variables:
   RELEASE: 'unstable'
   SALSA_CI_MIRROR: 'http://deb.debian.org/debian'
   SALSA_CI_COMPONENTS: 'main'
-  SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/images'
+  SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/pipeline'
   SALSA_CI_IMAGES_AUTOPKGTEST: ${SALSA_CI_IMAGES}/autopkgtest
   SALSA_CI_IMAGES_BASE: ${SALSA_CI_IMAGES}/base:${RELEASE}
   SALSA_CI_IMAGES_BLHC: ${SALSA_CI_IMAGES}/blhc:latest
@@ -58,9 +58,17 @@ stages:
     CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
     DB_BUILD_ARCH: ''
   script:
-    - mkdir -p ${CCACHE_WORK_DIR}
+    - mkdir -p ${WORKING_DIR} ${CCACHE_WORK_DIR}
     - mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
     - gbp pull --ignore-branch --pristine-tar --track-missing
+    - |
+      # Check if we can obtain the orig from the git branches
+      if ! gbp export-orig --pristine-tar --tarball-dir=${WORKING_DIR}; then
+        # Fallback using origtargz
+        origtargz -dt
+        mv ../*.orig.* ${WORKING_DIR}
+        gbp_args="--git-overlay"
+      fi
     - LOCAL_ARCH=`dpkg --print-architecture`
     - >
        if [ -z "${DB_BUILD_ARCH}" -o "${DB_BUILD_ARCH}" = "full" ]; 
@@ -93,7 +101,7 @@ stages:
          mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR};
          exit 0;
        fi
-    - gbp buildpackage --git-ignore-branch --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}"
+    - gbp buildpackage --git-ignore-branch --git-ignore-new --git-no-create-orig $gbp_args --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}"
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
 
 .build-package: &build-package
