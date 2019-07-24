@@ -46,7 +46,7 @@ stages:
     <<: *artifacts
 
 .build-before-script: &build-before-script |
-   mkdir -p ${CCACHE_WORK_DIR}
+   mkdir -p ${WORKING_DIR} ${CCACHE_WORK_DIR}
    mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
    gbp pull --ignore-branch --pristine-tar --track-missing
 
