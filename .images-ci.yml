@@ -6,8 +6,6 @@
 
 .should_build_images: &should_build_images
   only:
-    refs:
-      - master
     changes:
       - images/**/*
       - .images-*.yml
