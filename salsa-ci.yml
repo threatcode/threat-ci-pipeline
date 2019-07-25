@@ -100,6 +100,9 @@ stages:
             echo "### No binary package of type any or ${LOCAL_ARCH} found"
             echo "### Stopping test-build-any test."
             echo "###########################################"
+            echo "You should disable this job as following:"
+            echo "variables:"
+            echo "  SKIP_TEST_BUILD_PACKAGE_ANY: 'yes'"
             mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
             exit 0
         fi
@@ -130,6 +133,9 @@ stages:
             echo "### No binary package of type all found"
             echo "### Stopping test-build-all test."
             echo "###########################################"
+            echo "You should disable this job as following:"
+            echo "variables:"
+            echo "  SKIP_TEST_BUILD_PACKAGE_ALL: 'yes'"
             mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
             exit 0;
         fi
