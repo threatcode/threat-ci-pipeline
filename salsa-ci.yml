@@ -79,6 +79,9 @@ stages:
 .test-autopkgtest: &test-autopkgtest
   stage: test
   image: $SALSA_CI_IMAGES_AUTOPKGTEST
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_AUTOPKGTEST =~ /^(1|yes|true)$/
   script:
     - wget --progress=dot:giga ${SALSA_CI_AUTOPKGTEST_LXC}/-/jobs/artifacts/master/raw/artifacts/lxc.tar?job=${RELEASE} -O lxc.tar
     - mkdir ${SCI_LXC_PATH} && tar xf lxc.tar -C ${SCI_LXC_PATH}
@@ -98,6 +101,9 @@ stages:
 .test-blhc: &test-blhc
   stage: test
   image: $SALSA_CI_IMAGES_BLHC
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_BLHC =~ /^(1|yes|true)$/
   script:
     - blhc --debian --line-numbers --color ${WORKING_DIR}/*.build || [ $? -eq 1 ]
   variables:
@@ -106,6 +112,9 @@ stages:
 .test-lintian: &test-lintian
   stage: test
   image: $SALSA_CI_IMAGES_LINTIAN
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_LINTIAN =~ /^(1|yes|true)$/
   script:
     - lintian ${WORKING_DIR}/*.changes | tee lintian.output
     - lintian2junit.py --lintian-file lintian.output > ${WORKING_DIR}/lintian.xml
@@ -118,27 +127,38 @@ stages:
 .test-reprotest: &test-reprotest
   stage: test
   image: $SALSA_CI_IMAGES_REPROTEST
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_REPROTEST =~ /^(1|yes|true)$/
   artifacts:
     name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
     paths:
       - $WORKING_DIR/reprotest
       - $WORKING_DIR/reprotest.log
     when: always
-  variables:
-    REPROTEST_EXTRA_ARGS: '--no-diffoscope'
   script:
     - apt-get update
     - eatmydata apt-get build-dep -y .
+    - |
+        if echo "${SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE}" | grep -q -E '^(1|yes|true)$'; then
+            REPROTEST_EXTRA_ARGS=""
+        else
+            REPROTEST_EXTRA_ARGS="--no-diffoscope"
+        fi
     - eatmydata reprotest --min-cpus $(nproc --all) --store-dir ${WORKING_DIR}/reprotest --verbosity=2 ${REPROTEST_EXTRA_ARGS} . -- null |& tee "${WORKING_DIR}/reprotest.log"
 
+# Only for compat with the old way of enabling diffoscope
 .test-reprotest-diffoscope: &test-reprotest-diffoscope
   <<: *test-reprotest
   variables:
-    REPROTEST_EXTRA_ARGS: ''
+    SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE: '1'
 
 .test-piuparts: &test-piuparts
   stage: test
   image: $SALSA_CI_IMAGES_PIUPARTS
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_PIUPARTS =~ /^(1|yes|true)$/
   services:
     - docker:dind
   script:
