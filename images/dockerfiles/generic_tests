@@ -16,4 +16,4 @@ RUN \
     eatmydata apt-get install -y python3-debian python3-debianbts python3-junit.xml; \
     :
 
-COPY images/scripts/check_rc_bugs.py /usr/local/bin
+COPY scripts/check_rc_bugs.py /usr/local/bin
