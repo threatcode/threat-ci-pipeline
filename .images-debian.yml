@@ -123,28 +123,7 @@ dockerbuilder:experimental:
 dockerbuilder:testing:
   extends: .build_others
 
-tests:jessie:
-  extends: .build_others
-
-tests:stretch:
-  extends: .build_others
-
-tests:stretch-backports:
-  extends: .build_others
-
-tests:buster:
-  extends: .build_others
-
-tests:stable:
-  extends: .build_others
-
-tests:unstable:
+generic_tests:unstable:
   extends: .build_others
   variables:
-      ALIASES: 'tests:latest'
-
-tests:experimental:
-  extends: .build_others
-
-tests:testing:
-  extends: .build_others
+      ALIASES: 'generic_tests:latest'
