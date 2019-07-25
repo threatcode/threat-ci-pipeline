@@ -7,7 +7,7 @@
 
 echo " -> Starting installing the build-deps"
 
-mk-build-deps debian/control
+/usr/local/bin/mk-ci-build-deps debian/control
 
 FILENAME=$(echo *-build-deps*.deb)
 PKGNAME=$(dpkg-deb -f ${FILENAME} Package)
