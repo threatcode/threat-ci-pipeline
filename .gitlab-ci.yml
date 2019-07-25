@@ -11,12 +11,14 @@ include:
 
 variables:
   DOCKER_TLS_CERTDIR: ""
+  SALSA_CI_DISABLE_APTLY: "false"
 
 stages:
   - images_base
   - images_others
   - clone
   - build
+  - publish
   - test
   - cleanup
   - contributions

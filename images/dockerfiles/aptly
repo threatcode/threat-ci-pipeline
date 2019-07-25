@@ -14,5 +14,9 @@ set -eux; \
 apt-get update --quiet; \
 eatmydata apt-get install --no-install-recommends --yes \
     aptly \
+    gettext-base \
+    rng-tools \
     ; \
 rm -rf /var/lib/apt
+
+COPY files/aptly/index.html.template /etc/aptly/index.html.template
