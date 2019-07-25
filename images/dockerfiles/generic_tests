@@ -1,0 +1,19 @@
+# Copyright salsa-ci-team and others
+# SPDX-License-Identifier: FSFAP
+# Copying and distribution of this file, with or without modification, are
+# permitted in any medium without royalty provided the copyright notice and
+# this notice are preserved. This file is offered as-is, without any warranty.
+
+ARG CI_REGISTRY_IMAGE
+ARG RELEASE
+ARG STAGING_TAG
+FROM $CI_REGISTRY_IMAGE/base:${RELEASE}${STAGING_TAG}
+
+# install dependencies for check rc bugs
+RUN \
+    set -eux; \
+    apt-get update; \
+    eatmydata apt-get install -y python3-debian python3-debianbts python3-junit.xml; \
+    :
+
+COPY images/scripts/check_rc_bugs.py /usr/local/bin

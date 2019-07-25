@@ -16,6 +16,7 @@ variables:
   SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/pipeline'
   SALSA_CI_IMAGES_AUTOPKGTEST: ${SALSA_CI_IMAGES}/autopkgtest
   SALSA_CI_IMAGES_BASE: ${SALSA_CI_IMAGES}/base:${RELEASE}
+  SALSA_CI_IMAGES_GENERIC_TESTS: ${SALSA_CI_IMAGES}/generic_tests:latest
   SALSA_CI_IMAGES_BLHC: ${SALSA_CI_IMAGES}/blhc:latest
   SALSA_CI_IMAGES_DOCKERBUILDER: $SALSA_CI_IMAGES/dockerbuilder:${RELEASE}
   SALSA_CI_IMAGES_GBP: ${SALSA_CI_IMAGES}/gbp:latest
@@ -164,5 +165,16 @@ stages:
         for PACKAGE in $(ls ${WORKING_DIR}/*.deb); do
             piuparts --mirror "${SALSA_CI_MIRROR} ${SALSA_CI_COMPONENTS}" ${SALSA_CI_PIUPARTS_ARGS} --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PIUPARTS_DISTRIBUTION_ARG} ${PACKAGE}
         done
+  variables:
+      GIT_STRATEGY: none
+
+.test-rc-bugs: &test-rc-bugs
+  stage: test
+  image: $SALSA_CI_IMAGES_GENERIC_TESTS
+  script:
+    - check_rc_bugs.py -o ${WORKING_DIR}/rc_bugs.xml --changes-file ${WORKING_DIR}/*.changes
+  artifacts:
+    reports:
+      junit: ${WORKING_DIR}/rc_bugs.xml
   variables:
       GIT_STRATEGY: none
