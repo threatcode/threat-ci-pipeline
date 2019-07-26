@@ -16,6 +16,7 @@ variables:
   SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/pipeline'
   SALSA_CI_IMAGES_AUTOPKGTEST: ${SALSA_CI_IMAGES}/autopkgtest
   SALSA_CI_IMAGES_BASE: ${SALSA_CI_IMAGES}/base:${RELEASE}
+  SALSA_CI_IMAGES_GENERIC_TESTS: ${SALSA_CI_IMAGES}/generic_tests:latest
   SALSA_CI_IMAGES_BLHC: ${SALSA_CI_IMAGES}/blhc:latest
   SALSA_CI_IMAGES_DOCKERBUILDER: $SALSA_CI_IMAGES/dockerbuilder:${RELEASE}
   SALSA_CI_IMAGES_GBP: ${SALSA_CI_IMAGES}/gbp:latest
@@ -52,7 +53,7 @@ stages:
 
 .build-script: &build-script |
    # Check if we can obtain the orig from the git branches
-   if ! gbp export-orig --pristine-tar --tarball-dir=${WORKING_DIR}; then
+   if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
      # Fallback using origtargz
      origtargz -dt
      mv ../*.orig.* ${WORKING_DIR}
@@ -149,6 +150,9 @@ stages:
 .test-autopkgtest: &test-autopkgtest
   stage: test
   image: $SALSA_CI_IMAGES_AUTOPKGTEST
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_AUTOPKGTEST =~ /^(1|yes|true)$/
   script:
     - wget --progress=dot:giga ${SALSA_CI_AUTOPKGTEST_LXC}/-/jobs/artifacts/master/raw/artifacts/lxc.tar?job=${RELEASE} -O lxc.tar
     - mkdir ${SCI_LXC_PATH} && tar xf lxc.tar -C ${SCI_LXC_PATH}
@@ -168,6 +172,9 @@ stages:
 .test-blhc: &test-blhc
   stage: test
   image: $SALSA_CI_IMAGES_BLHC
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_BLHC =~ /^(1|yes|true)$/
   script:
     - blhc --debian --line-numbers --color ${WORKING_DIR}/*.build || [ $? -eq 1 ]
   variables:
@@ -176,6 +183,9 @@ stages:
 .test-lintian: &test-lintian
   stage: test
   image: $SALSA_CI_IMAGES_LINTIAN
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_LINTIAN =~ /^(1|yes|true)$/
   script:
     - lintian ${WORKING_DIR}/*.changes | tee lintian.output
     - lintian2junit.py --lintian-file lintian.output > ${WORKING_DIR}/lintian.xml
@@ -188,27 +198,38 @@ stages:
 .test-reprotest: &test-reprotest
   stage: test
   image: $SALSA_CI_IMAGES_REPROTEST
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_REPROTEST =~ /^(1|yes|true)$/
   artifacts:
     name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
     paths:
       - $WORKING_DIR/reprotest
       - $WORKING_DIR/reprotest.log
     when: always
-  variables:
-    REPROTEST_EXTRA_ARGS: '--no-diffoscope'
   script:
     - apt-get update
     - eatmydata apt-get build-dep -y .
+    - |
+        if echo "${SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE}" | grep -q -E '^(1|yes|true)$'; then
+            REPROTEST_EXTRA_ARGS=""
+        else
+            REPROTEST_EXTRA_ARGS="--no-diffoscope"
+        fi
     - eatmydata reprotest --min-cpus $(nproc --all) --store-dir ${WORKING_DIR}/reprotest --verbosity=2 ${REPROTEST_EXTRA_ARGS} . -- null |& tee "${WORKING_DIR}/reprotest.log"
 
+# Only for compat with the old way of enabling diffoscope
 .test-reprotest-diffoscope: &test-reprotest-diffoscope
   <<: *test-reprotest
   variables:
-    REPROTEST_EXTRA_ARGS: ''
+    SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE: '1'
 
 .test-piuparts: &test-piuparts
   stage: test
   image: $SALSA_CI_IMAGES_PIUPARTS
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_PIUPARTS =~ /^(1|yes|true)$/
   services:
     - docker:dind
   script:
@@ -235,5 +256,16 @@ stages:
         for PACKAGE in $(ls ${WORKING_DIR}/*.deb); do
             piuparts --mirror "${SALSA_CI_MIRROR} ${SALSA_CI_COMPONENTS}" ${SALSA_CI_PIUPARTS_ARGS} --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PIUPARTS_DISTRIBUTION_ARG} ${PACKAGE}
         done
+  variables:
+      GIT_STRATEGY: none
+
+.test-rc-bugs: &test-rc-bugs
+  stage: test
+  image: $SALSA_CI_IMAGES_GENERIC_TESTS
+  script:
+    - check_rc_bugs.py -o ${WORKING_DIR}/rc_bugs.xml --changes-file ${WORKING_DIR}/*.changes
+  artifacts:
+    reports:
+      junit: ${WORKING_DIR}/rc_bugs.xml
   variables:
       GIT_STRATEGY: none

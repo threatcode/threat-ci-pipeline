@@ -122,3 +122,8 @@ dockerbuilder:experimental:
 
 dockerbuilder:testing:
   extends: .build_others
+
+generic_tests:unstable:
+  extends: .build_others
+  variables:
+      ALIASES: 'generic_tests:latest'

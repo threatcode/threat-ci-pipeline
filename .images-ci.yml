@@ -6,8 +6,6 @@
 
 .should_build_images: &should_build_images
   only:
-    refs:
-      - master
     changes:
       - images/**/*
       - .images-*.yml
@@ -21,9 +19,11 @@
     - cd ${CI_PROJECT_DIR}/images
   script:
     - NAME="${NAME:-$CI_JOB_NAME}"
-    - |
-        IMAGE=$(echo $NAME | awk -F: '{ print $1 }'); \
-        RELEASE=$(echo $NAME | awk -F: '{ print $2 }');
+    - IMAGE=$(echo $NAME | awk -F':' '{ print $1 }')
+    - RELEASE=$(echo $NAME | awk -F':' '{ print $2 }')
+    - VENDOR=${VENDOR:-debian}
+    - BASE_IMAGE_NAME=${BASE_IMAGE_NAME:-${VENDOR}}
+    - BASE_IMAGE_RELEASE=${BASE_IMAGE_RELEASE:-${RELEASE}}
     - |
         if [ "${CI_COMMIT_REF_NAME}" != "master" ]; then
             STAGING_TAG=_${CI_COMMIT_SHORT_SHA}
@@ -32,7 +32,10 @@
     - |
         docker build --pull -t $CI_REGISTRY_IMAGE/$NAME \
             --build-arg CI_REGISTRY_IMAGE=$CI_REGISTRY_IMAGE \
+            --build-arg VENDOR=$VENDOR \
             --build-arg RELEASE=$RELEASE \
+            --build-arg BASE_IMAGE_NAME=$BASE_IMAGE_NAME \
+            --build-arg BASE_IMAGE_RELEASE=$BASE_IMAGE_RELEASE \
             --build-arg STAGING_TAG=$STAGING_TAG \
             -f dockerfiles/$IMAGE .
     - |
