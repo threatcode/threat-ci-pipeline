@@ -21,6 +21,9 @@ base:stretch-backports:
 base:buster:
   extends: .build_base
 
+base:buster-backports:
+  extends: .build_base
+
 base:stable:
   extends: .build_base
 
