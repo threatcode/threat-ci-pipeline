@@ -1,0 +1,67 @@
+# Copyright salsa-ci-team and others
+# SPDX-License-Identifier: FSFAP
+# Copying and distribution of this file, with or without modification, are
+# permitted in any medium without royalty provided the copyright notice and
+# this notice are preserved. This file is offered as-is, without any warranty.
+
+.kali_base_image_variables: &kali_base_image_variables
+  variables:
+      VENDOR: kali
+      BASE_IMAGE_NAME: debian
+      BASE_IMAGE_RELEASE: testing
+
+base:kali-rolling:
+  extends: .build_base
+  <<: *kali_base_image_variables
+
+base:kali-dev:
+  extends: .build_base
+  <<: *kali_base_image_variables
+
+base:kali-experimental:
+  extends: .build_base
+  <<: *kali_base_image_variables
+
+piuparts:kali-rolling:
+  extends: .build_others
+  variables:
+      ALIASES: 'piuparts:latest'
+
+reprotest:kali-rolling:
+  extends: .build_others
+  variables:
+      ALIASES: 'reprotest:latest'
+
+autopkgtest:kali-rolling:
+  extends: .build_others
+  variables:
+      ALIASES: 'autopkgtest:latest'
+
+blhc:kali-rolling:
+  extends: .build_others
+  variables:
+      ALIASES: 'blhc:latest'
+
+lintian:kali-rolling:
+  extends: .build_others
+
+lintian:kali-dev:
+  extends: .build_others
+  variables:
+      ALIASES: 'lintian:latest lintian:kali-experimental'
+
+gbp:kali-dev:
+  extends: .build_others
+  variables:
+      ALIASES: 'gbp:latest'
+
+dockerbuilder:kali-rolling:
+  extends: .build_others
+
+dockerbuilder:kali-dev:
+  extends: .build_others
+  variables:
+      ALIASES: 'dockerbuilder:latest'
+
+dockerbuilder:kali-experimental:
+  extends: .build_others

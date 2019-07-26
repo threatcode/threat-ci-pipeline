@@ -4,13 +4,15 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
+ARG BASE_IMAGE_NAME
+ARG BASE_IMAGE_RELEASE
+FROM $BASE_IMAGE_NAME:$BASE_IMAGE_RELEASE
+
+ARG VENDOR
 ARG RELEASE
-FROM debian:$RELEASE
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN echo "Acquire::Retries 5;" > /etc/apt/apt.conf.d/salsa-ci
+COPY files/base/initialize /initialize
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    eatmydata \
-    && rm -rf /var/lib/apt
+RUN /initialize $VENDOR $RELEASE && rm -f /initialize
