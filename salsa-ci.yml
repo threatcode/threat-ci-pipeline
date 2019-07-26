@@ -27,6 +27,7 @@ variables:
   SALSA_CI_PIUPARTS_ARGS: ''
   DOCKER_TLS_CERTDIR: ""
   SALSA_CI_DISABLE_MISSING_BREAKS: 1
+  SALSA_CI_DISABLE_RC_BUGS: 1
 
 stages:
   - build
@@ -191,6 +192,9 @@ stages:
 .test-rc-bugs: &test-rc-bugs
   stage: test
   image: $SALSA_CI_IMAGES_GENERIC_TESTS
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_RC_BUGS =~ /^(1|yes|true)$/
   script:
     - check_rc_bugs.py -o ${WORKING_DIR}/rc_bugs.xml --changes-file ${WORKING_DIR}/*.changes
   artifacts:
