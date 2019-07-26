@@ -24,3 +24,6 @@ piuparts:
 
 missing-breaks:
     extends: .test-missing-breaks
+
+rc-bugs:
+    extends: .test-rc-bugs
