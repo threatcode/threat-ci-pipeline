@@ -100,9 +100,9 @@ stages:
             echo "### No binary package of type any or ${LOCAL_ARCH} found"
             echo "### Stopping test-build-any test."
             echo "###########################################"
-            echo "You should disable this job as following:"
+            echo "You should disable this job via:"
             echo "variables:"
-            echo "  SKIP_TEST_BUILD_PACKAGE_ANY: 'yes'"
+            echo "  SALSA_CI_SKIP_TEST_BUILD_PACKAGE_ANY: 'yes'"
             mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
             exit 0
         fi
@@ -110,7 +110,7 @@ stages:
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   except:
     variables:
-      - $SKIP_TEST_BUILD_PACKAGE_ANY == 'yes'
+      - $SALSA_CI_SKIP_TEST_BUILD_PACKAGE_ANY == 'yes'
       - $RELEASE == 'jessie'
 
 
@@ -133,9 +133,9 @@ stages:
             echo "### No binary package of type all found"
             echo "### Stopping test-build-all test."
             echo "###########################################"
-            echo "You should disable this job as following:"
+            echo "You should disable this job via:"
             echo "variables:"
-            echo "  SKIP_TEST_BUILD_PACKAGE_ALL: 'yes'"
+            echo "  SALSA_CI_SKIP_TEST_BUILD_PACKAGE_ALL: 'yes'"
             mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
             exit 0;
         fi
@@ -143,7 +143,7 @@ stages:
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   except:
     variables:
-      - $SKIP_TEST_BUILD_PACKAGE_ALL == 'yes'
+      - $SALSA_CI_SKIP_TEST_BUILD_PACKAGE_ALL == 'yes'
       - $RELEASE == 'jessie'
 
 .test-autopkgtest: &test-autopkgtest
