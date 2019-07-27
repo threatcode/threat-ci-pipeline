@@ -21,3 +21,6 @@ blhc:
 
 piuparts:
     extends: .test-piuparts
+
+missing-breaks:
+    extends: .test-missing-breaks
