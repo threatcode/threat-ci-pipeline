@@ -8,7 +8,7 @@ build:
     extends: .build-package
 
 reprotest:
-    extends: .test-reprotest
+    extends: .test-reprotest-no-diffoscope
 
 lintian:
     extends: .test-lintian
