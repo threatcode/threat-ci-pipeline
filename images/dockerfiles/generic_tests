@@ -8,12 +8,31 @@ ARG CI_REGISTRY_IMAGE
 ARG RELEASE
 ARG STAGING_TAG
 FROM $CI_REGISTRY_IMAGE/base:${RELEASE}${STAGING_TAG}
+# This needs to be redeclared after FROM for it to affect subsequent
+# commands
+ARG RELEASE
 
 # install dependencies for check rc bugs
 RUN \
     set -eux; \
-    apt-get update; \
-    eatmydata apt-get install -y python3-debian python3-debianbts python3-junit.xml; \
+    if [ "${RELEASE#jessie}" == "$RELEASE" ]; then \
+        apt-get update; \
+        eatmydata apt-get -y install python3-debianbts python3-junit.xml; \
+    fi; \
     :
 
-COPY scripts/check_rc_bugs.py /usr/local/bin
+# install dependencies for check for missing replaces
+RUN \
+    set -eux; \
+    apt-get update; \
+    eatmydata apt-get install -y apt-file python3-debian; \
+    if [ "${RELEASE#jessie}" != "$RELEASE" ]; then \
+        eatmydata apt-get -y install python3-pip; \
+        pip3 install junit-xml; \
+    else \
+        eatmydata apt-get -y install python3-junit.xml; \
+    fi; \
+    :
+
+COPY scripts/check_rc_bugs.py /usr/local/bin/
+COPY scripts/check_for_missing_breaks_replaces.py /usr/local/bin/

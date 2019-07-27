@@ -14,7 +14,7 @@ test-build-all:
     extends: .test-build-package-all
 
 reprotest:
-    extends: .test-reprotest
+    extends: .test-reprotest-no-diffoscope
 
 lintian:
     extends: .test-lintian
@@ -27,3 +27,6 @@ blhc:
 
 piuparts:
     extends: .test-piuparts
+
+missing-breaks:
+    extends: .test-missing-breaks
