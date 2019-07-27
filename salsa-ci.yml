@@ -139,19 +139,18 @@ stages:
   script:
     - apt-get update
     - eatmydata apt-get build-dep -y .
-    - |
-        if echo "${SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE}" | grep -q -E '^(1|yes|true)$'; then
-            REPROTEST_EXTRA_ARGS=""
-        else
-            REPROTEST_EXTRA_ARGS="--no-diffoscope"
-        fi
-    - eatmydata reprotest --min-cpus $(nproc --all) --store-dir ${WORKING_DIR}/reprotest --verbosity=2 ${REPROTEST_EXTRA_ARGS} . -- null |& tee "${WORKING_DIR}/reprotest.log"
+    - eatmydata reprotest --min-cpus $(nproc --all) --store-dir ${WORKING_DIR}/reprotest --verbosity=2 ${SALSA_CI_REPROTEST_EXTRA_ARGS} ${REPROTEST_DIFFOSCOPE} . -- null |& tee "${WORKING_DIR}/reprotest.log"
 
 # Only for compat with the old way of enabling diffoscope
+.test-reprotest-no-diffoscope: &test-reprotest-no-diffoscope
+  <<: *test-reprotest
+  variables:
+    REPROTEST_DIFFOSCOPE: "--no-diffoscope"
+
 .test-reprotest-diffoscope: &test-reprotest-diffoscope
   <<: *test-reprotest
   variables:
-    SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE: '1'
+    REPROTEST_DIFFOSCOPE: ""
 
 .test-piuparts: &test-piuparts
   stage: test
