@@ -26,6 +26,7 @@ variables:
   SALSA_CI_AUTOPKGTEST_LXC: https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc
   SALSA_CI_PIUPARTS_ARGS: ''
   DOCKER_TLS_CERTDIR: ""
+  SALSA_CI_DISABLE_MISSING_BREAKS: 1
 
 stages:
   - build
@@ -201,6 +202,9 @@ stages:
 .test-missing-breaks: &test-missing-breaks
   stage: test
   image: $SALSA_CI_IMAGES_GENERIC_TESTS
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_MISSING_BREAKS =~ /^(1|yes|true)$/
   script:
     - apt-get update
     - check_for_missing_breaks_replaces.py -o ${WORKING_DIR}/missing_breaks.xml --changes-file ${WORKING_DIR}/*.changes
