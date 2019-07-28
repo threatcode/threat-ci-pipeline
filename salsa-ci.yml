@@ -104,7 +104,7 @@ stages:
             echo "###########################################"
             echo "You should disable this job via:"
             echo "variables:"
-            echo "  SALSA_CI_SKIP_TEST_BUILD_PACKAGE_ANY: 'yes'"
+            echo "  SALSA_CI_DISABLE_BUILD_PACKAGE_ANY: '1'"
             mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
             exit 0
         fi
@@ -112,7 +112,7 @@ stages:
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   except:
     variables:
-      - $SALSA_CI_SKIP_TEST_BUILD_PACKAGE_ANY =~ /^(1|yes|true)$/
+      - $SALSA_CI_DISABLE_BUILD_PACKAGE_ANY =~ /^(1|yes|true)$/
       - $RELEASE == 'jessie'
 
 
@@ -137,7 +137,7 @@ stages:
             echo "###########################################"
             echo "You should disable this job via:"
             echo "variables:"
-            echo "  SALSA_CI_SKIP_TEST_BUILD_PACKAGE_ALL: 'yes'"
+            echo "  SALSA_CI_DISABLE_BUILD_PACKAGE_ALL: '1'"
             mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
             exit 0;
         fi
@@ -145,7 +145,7 @@ stages:
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   except:
     variables:
-      - $SALSA_CI_SKIP_TEST_BUILD_PACKAGE_ALL =~ /^(1|yes|true)$/
+      - $SALSA_CI_DISABLE_BUILD_PACKAGE_ALL =~ /^(1|yes|true)$/
       - $RELEASE == 'jessie'
 
 .test-autopkgtest: &test-autopkgtest

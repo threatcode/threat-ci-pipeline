@@ -130,6 +130,8 @@ variables:
   SALSA_CI_DISABLE_LINTIAN: 1
   SALSA_CI_DISABLE_PIUPARTS: 1
   SALSA_CI_DISABLE_REPROTEST: 1
+  SALSA_CI_DISABLE_BUILD_PACKAGE_ALL: 1
+  SALSA_CI_DISABLE_BUILD_PACKAGE_ANY: 1
 ```
 
 
@@ -146,6 +148,12 @@ variables:
 
 build:
   extends: .build-package
+
+test-build-any:
+  extends: .test-build-package-any
+
+test-build-all:
+  extends: .test-build-package-all
 
 reprotest:
   extends: .test-reprotest
