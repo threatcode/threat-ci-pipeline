@@ -54,7 +54,7 @@ stages:
 
 .build-script: &build-script |
    # Check if we can obtain the orig from the git branches
-   if ! gbp export-orig --pristine-tar --tarball-dir=${WORKING_DIR}; then
+   if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
      # Fallback using origtargz
      origtargz -dt
      mv ../*.orig.* ${WORKING_DIR}

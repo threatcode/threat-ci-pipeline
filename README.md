@@ -177,6 +177,27 @@ You can choose to run only some of the jobs by deleting any of the definitions a
 As new changes are expected to happen from time to time, we **firmly recommend NOT to do define all jobs manually**.
 Please consider if [skipping jobs](#skipping-a-job) meets your needs instead.
 
+### Testing build of arch=any and arch=all packages
+
+If your package contains binary packages for `all` or `any`, you may want to test if those can be build in isolation from the full build normally done.
+
+This verifies the Debian buildds can build your package correctly when building for other architectures that the one you uploaded in or in case a binNMU is needed or you want to do source-only uploads.
+
+The default `pipeline-jobs.yml` does this automatically based on the contents of `debian/control`, but if you manually define the jobs to run, you also need to include the `test-build-any` and `test-build-all` jobs manually as well:
+
+```yaml
+test-build-any:
+  extends: .test-build-package-any
+
+test-build-all:
+  extends: .test-build-package-all
+```
+
+`.test-build-package-any` runs `dpkg-buildpackage` with the option `--build=any` and will only build arch-specific packages.
+
+`.test-build-package-all` does the opposite and runs `dpkg-buildpackage` with the option `--build=all` building only arch-indep packages.
+
+Note: These additional build jobs don't work with `RELEASE: 'jessie'` and are skipped in that case.
 
 ### Testing build of arch=any and arch=all packages
 
