@@ -141,7 +141,9 @@ stages:
   script:
     - apt-get update
     - eatmydata apt-get build-dep -y .
-    - eatmydata reprotest --min-cpus $(nproc --all) --store-dir ${WORKING_DIR}/reprotest --verbosity=2 ${SALSA_CI_REPROTEST_EXTRA_ARGS} ${REPROTEST_DIFFOSCOPE} . -- null |& tee "${WORKING_DIR}/reprotest.log"
+    - eatmydata reprotest --min-cpus $(nproc --all) --store-dir ${WORKING_DIR}/reprotest --verbosity=2 ${SALSA_CI_REPROTEST_EXTRA_ARGS} ${REPROTEST_DIFFOSCOPE} ${WORKING_DIR}/*.dsc -- null |& tee "${WORKING_DIR}/reprotest.log"
+  variables:
+      GIT_STRATEGY: none
 
 # Only for compat with the old way of enabling diffoscope
 .test-reprotest-no-diffoscope: &test-reprotest-no-diffoscope
