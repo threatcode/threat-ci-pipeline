@@ -15,7 +15,7 @@ ARG RELEASE
 # install dependencies for check rc bugs
 RUN \
     set -eux; \
-    if [ "${RELEASE#jessie}" == "$RELEASE" ]; then \
+    if [ "${RELEASE#jessie}" = "$RELEASE" ]; then \
         apt-get update; \
         eatmydata apt-get -y install python3-debianbts python3-junit.xml; \
     fi; \
