@@ -48,6 +48,21 @@ stages:
   artifacts:
     <<: *artifacts
 
+.build-before-script: &build-before-script |
+   mkdir -p ${WORKING_DIR} ${CCACHE_WORK_DIR}
+   mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
+   gbp pull --ignore-branch --pristine-tar --track-missing
+
+.build-script: &build-script |
+   # Check if we can obtain the orig from the git branches
+   if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
+     # Fallback using origtargz
+     origtargz -dt
+     mv ../*.orig.* ${WORKING_DIR}
+     gbp_args="--git-overlay"
+   fi
+   gbp buildpackage --git-ignore-branch --git-ignore-new --git-no-create-orig $gbp_args --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}"
+
 .build-definition: &build-definition
   stage: build
   image: $SALSA_CI_IMAGES_GBP
@@ -59,24 +74,80 @@ stages:
   variables:
     CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
     CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
+    DB_BUILD_PARAM: ''
   script:
-    - mkdir -p ${WORKING_DIR} ${CCACHE_WORK_DIR}
-    - mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
-    - gbp pull --ignore-branch --pristine-tar --track-missing
-    - |
-      # Check if we can obtain the orig from the git branches
-      if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
-        # Fallback using origtargz
-        origtargz -dt
-        mv ../*.orig.* ${WORKING_DIR}
-        gbp_args="--git-overlay"
-      fi
-      gbp buildpackage --git-ignore-branch --git-ignore-new --git-no-create-orig $gbp_args --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER}"
+    - *build-before-script
+    - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
 
 .build-package: &build-package
   <<: *build-definition
   <<: *artifacts-default-expire
+
+.test-build-package-any: &test-build-package-any
+  <<: *build-definition
+  stage: test
+  dependencies: []
+  variables:
+     CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
+     CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
+     DB_BUILD_PARAM: ''
+  script:
+    - *build-before-script
+    - LOCAL_ARCH=`dpkg --print-architecture`
+    - |
+        if egrep -q "^Architecture:.*(any|[^\!]${LOCAL_ARCH})" debian/control; then
+            DB_BUILD_PARAM="--build=any"
+        else
+            echo "###########################################"
+            echo "### No binary package of type any or ${LOCAL_ARCH} found"
+            echo "### Stopping test-build-any test."
+            echo "###########################################"
+            echo "You should disable this job via:"
+            echo "variables:"
+            echo "  SALSA_CI_DISABLE_BUILD_PACKAGE_ANY: '1'"
+            mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+            exit 0
+        fi
+    - *build-script
+    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_BUILD_PACKAGE_ANY =~ /^(1|yes|true)$/
+      - $RELEASE == 'jessie'
+
+
+.test-build-package-all: &test-build-package-all
+  <<: *build-definition
+  stage: test
+  dependencies: []
+  variables:
+     CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
+     CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
+     DB_BUILD_PARAM: ''
+  script:
+    - *build-before-script
+    - LOCAL_ARCH=`dpkg --print-architecture`
+    - |
+        if grep -q "^Architecture: all" debian/control; then
+            DB_BUILD_PARAM="--build=all"
+        else
+            echo "###########################################"
+            echo "### No binary package of type all found"
+            echo "### Stopping test-build-all test."
+            echo "###########################################"
+            echo "You should disable this job via:"
+            echo "variables:"
+            echo "  SALSA_CI_DISABLE_BUILD_PACKAGE_ALL: '1'"
+            mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+            exit 0;
+        fi
+    - *build-script
+    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_BUILD_PACKAGE_ALL =~ /^(1|yes|true)$/
+      - $RELEASE == 'jessie'
 
 .test-autopkgtest: &test-autopkgtest
   stage: test
