@@ -14,5 +14,6 @@ ARG RELEASE
 ENV DEBIAN_FRONTEND noninteractive
 
 COPY files/base/initialize /initialize
+COPY ./scripts/add_extra_repository.sh /usr/local/bin/
 
 RUN /initialize $VENDOR $RELEASE && rm -f /initialize

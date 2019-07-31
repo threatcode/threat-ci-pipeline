@@ -51,6 +51,7 @@ stages:
 .build-before-script: &build-before-script |
    mkdir -p ${WORKING_DIR} ${CCACHE_WORK_DIR}
    mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
+   add_extra_repository.sh -v -e "${EXTRA_REPOSITORY}" -k "${EXTRA_REPOSITORY_KEY}" -u
    gbp pull --ignore-branch --pristine-tar --track-missing
 
 .build-script: &build-script |
@@ -163,6 +164,8 @@ stages:
         cat >/etc/lxc/lxc.conf <<EOT
         lxc.lxcpath=${SCI_LXC_PATH}
         EOT
+    - add_extra_repository.sh -v -e "${EXTRA_REPOSITORY}" -k "${EXTRA_REPOSITORY_KEY}"
+        -t "${SCI_LXC_PATH}/autopkgtest-${RELEASE}-amd64/rootfs/etc"
     - umount -R /sys/fs/cgroup && mount -a
     - /etc/init.d/lxc-net start
     - /etc/init.d/lxc start
@@ -210,6 +213,7 @@ stages:
       - $WORKING_DIR/reprotest.log
     when: always
   script:
+    - add_extra_repository.sh -v -e "${EXTRA_REPOSITORY}" -k "${EXTRA_REPOSITORY_KEY}" -u
     - apt-get update
     - eatmydata apt-get build-dep -y .
     - eatmydata reprotest --min-cpus $(nproc --all) --store-dir ${WORKING_DIR}/reprotest --verbosity=2 ${SALSA_CI_REPROTEST_EXTRA_ARGS} ${REPROTEST_DIFFOSCOPE} ${WORKING_DIR}/*.dsc -- null |& tee "${WORKING_DIR}/reprotest.log"
@@ -248,6 +252,8 @@ stages:
     - cp -aTLv /etc/apt/preferences.d  ${CHROOT_PATH}/etc-target/apt/preferences.d
     - cp -aTLv /srv/local-apt-repository ${CHROOT_PATH}/srv/local-apt-repository
     - cp -aTLv /var/lib/local-apt-repository/ ${CHROOT_PATH}/var/lib/local-apt-repository/
+    - add_extra_repository.sh -v -e "${EXTRA_REPOSITORY}" -k "${EXTRA_REPOSITORY_KEY}"
+        -t "${CHROOT_PATH}/etc-target"
     - sed  '/127.0.0.1/s/localhost/pipeline.salsa.debian.org localhost/' /etc/hosts > ${CHROOT_PATH}/etc/hosts
     - PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE"
     - |
