@@ -18,7 +18,7 @@ apt-get update; \
 printf 'Package: lintian\nPin: release a=%s\nPin-Priority: 900\n' "$RELEASE" \
   | tee /etc/apt/preferences.d/salsa-ci; \
 eatmydata apt-get -y install git lintian; \
-if [ "${RELEASE#jessie}" != "$RELEASE" ]; then \
+if [ -z "$(apt-cache search --names-only ^python3-junit\\.xml\$)" ]; then \
     eatmydata apt-get -y install python3-pip; \
     pip3 install junit-xml; \
 else \
