@@ -24,6 +24,12 @@ base:buster:
 base:buster-backports:
   extends: .build_base
 
+base:bullseye:
+  extends: .build_base
+
+base:bullseye-backports:
+  extends: .build_base
+
 base:stable:
   extends: .build_base
 
@@ -79,6 +85,9 @@ lintian:stretch-backports:
 lintian:buster:
   extends: .build_others
 
+lintian:bullseye:
+  extends: .build_others
+
 lintian:stable:
   extends: .build_others
 
@@ -112,6 +121,9 @@ dockerbuilder:stretch-backports:
 dockerbuilder:buster:
   extends: .build_others
 
+dockerbuilder:bullseye:
+  extends: .build_others
+
 dockerbuilder:stable:
   extends: .build_others
 
@@ -141,6 +153,12 @@ generic_tests:buster:
   extends: .build_others
 
 generic_tests:buster-backports:
+  extends: .build_others
+
+generic_tests:bullseye:
+  extends: .build_others
+
+generic_tests:bullseye-backports:
   extends: .build_others
 
 generic_tests:stable:
