@@ -30,46 +30,28 @@ base:bullseye:
 base:bullseye-backports:
   extends: .build_base
 
-base:stable:
+base:sid:
   extends: .build_base
-
-base:unstable:
-  extends: .build_base
-  variables:
-      ALIASES: 'latest'
 
 base:experimental:
   extends: .build_base
 
-base:testing:
-  extends: .build_base
-
-piuparts:unstable:
+piuparts:sid:
   extends: .build_others
-  variables:
-      ALIASES: 'latest'
 
-reprotest:unstable:
+reprotest:sid:
   extends: .build_others
-  variables:
-      ALIASES: 'latest'
 
 # Image for the pipeline runner
 # salsa.debian.org/salsa-ci-team/pipeline
-pipeline:unstable:
+pipeline:sid:
   extends: .build_others
-  variables:
-      ALIASES: 'latest'
 
-autopkgtest:unstable:
+autopkgtest:sid:
   extends: .build_others
-  variables:
-      ALIASES: 'latest'
 
-blhc:unstable:
+blhc:sid:
   extends: .build_others
-  variables:
-      ALIASES: 'latest'
 
 lintian:jessie:
   extends: .build_others
@@ -88,24 +70,14 @@ lintian:buster:
 lintian:bullseye:
   extends: .build_others
 
-lintian:stable:
+lintian:sid:
   extends: .build_others
-
-lintian:unstable:
-  extends: .build_others
-  variables:
-      ALIASES: 'latest'
 
 lintian:experimental:
   extends: .build_others
 
-lintian:testing:
+gbp:sid:
   extends: .build_others
-
-gbp:unstable:
-  extends: .build_others
-  variables:
-      ALIASES: 'latest'
 
 dockerbuilder:jessie:
   extends: .build_others
@@ -124,18 +96,10 @@ dockerbuilder:buster:
 dockerbuilder:bullseye:
   extends: .build_others
 
-dockerbuilder:stable:
+dockerbuilder:sid:
   extends: .build_others
-
-dockerbuilder:unstable:
-  extends: .build_others
-  variables:
-      ALIASES: 'latest'
 
 dockerbuilder:experimental:
-  extends: .build_others
-
-dockerbuilder:testing:
   extends: .build_others
 
 generic_tests:jessie:
@@ -161,16 +125,10 @@ generic_tests:bullseye:
 generic_tests:bullseye-backports:
   extends: .build_others
 
-generic_tests:stable:
-  extends: .build_others
-
-generic_tests:unstable:
+generic_tests:sid:
   extends: .build_others
   variables:
       ALIASES: 'latest'
 
 generic_tests:experimental:
-  extends: .build_others
-
-generic_tests:testing:
   extends: .build_others

@@ -40,6 +40,10 @@
             -f dockerfiles/$NAME .
     - |
         docker push $CI_REGISTRY_IMAGE/$IMAGE
+        if [ "$VENDOR" = "debian" ]; then
+            ALIASES=$(wget -O - http://deb.debian.org/debian/dists/$BASE_IMAGE_RELEASE/Release | grep ^Suite: | awk '{ print $2 }')
+            test "$ALIASES" != 'unstable' || ALIASES="${ALIASES} latest"
+        fi
         for alias in $ALIASES; do
             docker tag $CI_REGISTRY_IMAGE/$IMAGE $CI_REGISTRY_IMAGE/$NAME:$alias${STAGING_TAG}
             docker push $CI_REGISTRY_IMAGE/$NAME:$alias${STAGING_TAG}
