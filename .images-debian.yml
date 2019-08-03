@@ -36,7 +36,7 @@ base:stable:
 base:unstable:
   extends: .build_base
   variables:
-      ALIASES: 'base:latest'
+      ALIASES: 'latest'
 
 base:experimental:
   extends: .build_base
@@ -47,29 +47,29 @@ base:testing:
 piuparts:unstable:
   extends: .build_others
   variables:
-      ALIASES: 'piuparts:latest'
+      ALIASES: 'latest'
 
 reprotest:unstable:
   extends: .build_others
   variables:
-      ALIASES: 'reprotest:latest'
+      ALIASES: 'latest'
 
 # Image for the pipeline runner
 # salsa.debian.org/salsa-ci-team/pipeline
 pipeline:unstable:
   extends: .build_others
   variables:
-      ALIASES: 'pipeline:latest'
+      ALIASES: 'latest'
 
 autopkgtest:unstable:
   extends: .build_others
   variables:
-      ALIASES: 'autopkgtest:latest'
+      ALIASES: 'latest'
 
 blhc:unstable:
   extends: .build_others
   variables:
-      ALIASES: 'blhc:latest'
+      ALIASES: 'latest'
 
 lintian:jessie:
   extends: .build_others
@@ -94,7 +94,7 @@ lintian:stable:
 lintian:unstable:
   extends: .build_others
   variables:
-      ALIASES: 'lintian:latest'
+      ALIASES: 'latest'
 
 lintian:experimental:
   extends: .build_others
@@ -105,7 +105,7 @@ lintian:testing:
 gbp:unstable:
   extends: .build_others
   variables:
-      ALIASES: 'gbp:latest'
+      ALIASES: 'latest'
 
 dockerbuilder:jessie:
   extends: .build_others
@@ -130,7 +130,7 @@ dockerbuilder:stable:
 dockerbuilder:unstable:
   extends: .build_others
   variables:
-      ALIASES: 'dockerbuilder:latest'
+      ALIASES: 'latest'
 
 dockerbuilder:experimental:
   extends: .build_others
@@ -167,7 +167,7 @@ generic_tests:stable:
 generic_tests:unstable:
   extends: .build_others
   variables:
-      ALIASES: 'generic_tests:latest'
+      ALIASES: 'latest'
 
 generic_tests:experimental:
   extends: .build_others

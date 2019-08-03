@@ -25,22 +25,22 @@ base:kali-experimental:
 piuparts:kali-rolling:
   extends: .build_others
   variables:
-      ALIASES: 'piuparts:latest'
+      ALIASES: 'latest'
 
 reprotest:kali-rolling:
   extends: .build_others
   variables:
-      ALIASES: 'reprotest:latest'
+      ALIASES: 'latest'
 
 autopkgtest:kali-rolling:
   extends: .build_others
   variables:
-      ALIASES: 'autopkgtest:latest'
+      ALIASES: 'latest'
 
 blhc:kali-rolling:
   extends: .build_others
   variables:
-      ALIASES: 'blhc:latest'
+      ALIASES: 'latest'
 
 lintian:kali-rolling:
   extends: .build_others
@@ -48,12 +48,12 @@ lintian:kali-rolling:
 lintian:kali-dev:
   extends: .build_others
   variables:
-      ALIASES: 'lintian:latest lintian:kali-experimental'
+      ALIASES: 'latest kali-experimental'
 
 gbp:kali-dev:
   extends: .build_others
   variables:
-      ALIASES: 'gbp:latest'
+      ALIASES: 'latest'
 
 dockerbuilder:kali-rolling:
   extends: .build_others
@@ -61,7 +61,7 @@ dockerbuilder:kali-rolling:
 dockerbuilder:kali-dev:
   extends: .build_others
   variables:
-      ALIASES: 'dockerbuilder:latest'
+      ALIASES: 'latest'
 
 dockerbuilder:kali-experimental:
   extends: .build_others

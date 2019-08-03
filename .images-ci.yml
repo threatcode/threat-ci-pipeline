@@ -41,8 +41,8 @@
     - |
         docker push $CI_REGISTRY_IMAGE/$IMAGE
         for alias in $ALIASES; do
-          docker tag $CI_REGISTRY_IMAGE/$IMAGE $CI_REGISTRY_IMAGE/$alias${STAGING_TAG}
-          docker push $CI_REGISTRY_IMAGE/$alias${STAGING_TAG}
+            docker tag $CI_REGISTRY_IMAGE/$IMAGE $CI_REGISTRY_IMAGE/$NAME:$alias${STAGING_TAG}
+            docker push $CI_REGISTRY_IMAGE/$NAME:$alias${STAGING_TAG}
         done
   <<: *should_build_images
 
