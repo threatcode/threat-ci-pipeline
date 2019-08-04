@@ -211,7 +211,7 @@ stages:
     when: always
   script:
     - apt-get update
-    - eatmydata apt-get build-dep -y .
+    - eatmydata apt-get build-dep -y ${WORKING_DIR}/*.dsc
     - eatmydata reprotest --min-cpus $(nproc --all) --store-dir ${WORKING_DIR}/reprotest --verbosity=2 ${SALSA_CI_REPROTEST_EXTRA_ARGS} ${REPROTEST_DIFFOSCOPE} ${WORKING_DIR}/*.dsc -- null |& tee "${WORKING_DIR}/reprotest.log"
   variables:
       GIT_STRATEGY: none
