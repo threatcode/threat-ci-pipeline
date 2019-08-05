@@ -15,7 +15,7 @@ Build and test on reproducible environments on every push.
 
 The Salca CI Team work aims to improve the Debian packaging lifecycle by providing [Continuous Integration](https://about.gitlab.com/product/continuous-integration/) fully compatible with Debian packaging.
 
-Currently all the building and testing performed by Debian QA is run asynchronusly and takes a long time to give feedback because it is only accessable after pushing a release to the archive.
+Currently all the building and testing performed by Debian QA is run asynchronusly and takes a long time to give feedback because it is only accessible after pushing a release to the archive.
 
 Our [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) definition is focused on speeding up this process by giving developers faster feedback.
 
