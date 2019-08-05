@@ -134,6 +134,26 @@ variables:
   SALSA_CI_DISABLE_BUILD_PACKAGE_ANY: 1
 ```
 
+### Adding your private repositories to the builds
+
+The variables `EXTRA_REPOSITORY` and `EXTRA_REPOSITORY_KEY` can be
+used to add private apt repositories to the sources.list, to be
+used by the build and tests, and (optionally) the signing key for the
+repositories in armor format. These variables are of
+[type file](https://docs.gitlab.com/ce/ci/variables/#variable-types),
+which ease the multiline handling, but have the disadvantage that they can't
+be set on the gitlab-ci.yml file.
+
+### Setting variables on pipeline creation
+
+You can set these and other similar variables when launching a new pipeline in different ways:
+ * Using the web interface under CI/CD, Run Pipeline, and setting the
+desired variables.
+ * Using the [gitlab API](https://docs.gitlab.com/ce/api/). For example,  check the script
+[salsa_drive_build.py](https://salsa.debian.org/maxy/qt-kde-ci/blob/tooling/salsa_drive_build.py),
+in particular the function
+[launch_pipelines](https://salsa.debian.org/maxy/qt-kde-ci/blob/tooling/salsa_drive_build.py#L538).
+ * Setting them as part of a pipeline triggered build.
 
 ### Only running selected jobs
 
