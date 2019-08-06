@@ -18,31 +18,35 @@
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
     - cd ${CI_PROJECT_DIR}/images
   script:
-    - NAME="${NAME:-$CI_JOB_NAME}"
-    - IMAGE=$(echo $NAME | awk -F':' '{ print $1 }')
-    - RELEASE=$(echo $NAME | awk -F':' '{ print $2 }')
+    - IMAGE="${IMAGE:-$CI_JOB_NAME}"
+    - NAME=$(echo $IMAGE | awk -F':' '{ print $1 }')
+    - RELEASE=$(echo $IMAGE | awk -F':' '{ print $2 }')
     - VENDOR=${VENDOR:-debian}
     - BASE_IMAGE_NAME=${BASE_IMAGE_NAME:-${VENDOR}}
     - BASE_IMAGE_RELEASE=${BASE_IMAGE_RELEASE:-${RELEASE}}
     - |
         if [ "${CI_COMMIT_REF_NAME}" != "master" ]; then
             STAGING_TAG=_${CI_COMMIT_SHORT_SHA}
-            NAME=${NAME}${STAGING_TAG}
+            IMAGE=${IMAGE}${STAGING_TAG}
         fi
     - |
-        docker build --pull -t $CI_REGISTRY_IMAGE/$NAME \
+        docker build --pull -t $CI_REGISTRY_IMAGE/$IMAGE \
             --build-arg CI_REGISTRY_IMAGE=$CI_REGISTRY_IMAGE \
             --build-arg VENDOR=$VENDOR \
             --build-arg RELEASE=$RELEASE \
             --build-arg BASE_IMAGE_NAME=$BASE_IMAGE_NAME \
             --build-arg BASE_IMAGE_RELEASE=$BASE_IMAGE_RELEASE \
             --build-arg STAGING_TAG=$STAGING_TAG \
-            -f dockerfiles/$IMAGE .
+            -f dockerfiles/$NAME .
     - |
-        docker push $CI_REGISTRY_IMAGE/$NAME
+        docker push $CI_REGISTRY_IMAGE/$IMAGE
+        if [ "$VENDOR" = "debian" ]; then
+            ALIASES=$(wget -O - http://deb.debian.org/debian/dists/$BASE_IMAGE_RELEASE/Release | grep ^Suite: | awk '{ print $2 }')
+            test "$ALIASES" != 'unstable' || ALIASES="${ALIASES} latest"
+        fi
         for alias in $ALIASES; do
-          docker tag $CI_REGISTRY_IMAGE/$NAME $CI_REGISTRY_IMAGE/$alias${STAGING_TAG}
-          docker push $CI_REGISTRY_IMAGE/$alias${STAGING_TAG}
+            docker tag $CI_REGISTRY_IMAGE/$IMAGE $CI_REGISTRY_IMAGE/$NAME:$alias${STAGING_TAG}
+            docker push $CI_REGISTRY_IMAGE/$NAME:$alias${STAGING_TAG}
         done
   <<: *should_build_images
 

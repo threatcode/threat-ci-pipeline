@@ -88,6 +88,7 @@ The following releases are currently supported:
 * stretch
 * stretch-backports
 * buster
+* bullseye
 * stable
 * testing
 * unstable
