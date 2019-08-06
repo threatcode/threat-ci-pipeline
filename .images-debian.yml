@@ -127,8 +127,6 @@ generic_tests:bullseye-backports:
 
 generic_tests:sid:
   extends: .build_others
-  variables:
-      ALIASES: 'latest'
 
 generic_tests:experimental:
   extends: .build_others
