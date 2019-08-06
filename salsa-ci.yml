@@ -189,8 +189,9 @@ stages:
     variables:
       - $SALSA_CI_DISABLE_LINTIAN =~ /^(1|yes|true)$/
   script:
-    - lintian --display-info --pedantic ${WORKING_DIR}/*.changes | tee lintian.output
+    - lintian --display-info --pedantic ${WORKING_DIR}/*.changes | tee lintian.output || ECODE=$?
     - lintian2junit.py --lintian-file lintian.output > ${WORKING_DIR}/lintian.xml
+    - exit ${ECODE-0}
   variables:
       GIT_STRATEGY: none
   artifacts:
