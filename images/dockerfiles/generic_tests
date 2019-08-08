@@ -15,8 +15,8 @@ ARG RELEASE
 # install dependencies for check rc bugs
 RUN \
     set -eux; \
-    if [ "${RELEASE#jessie}" = "$RELEASE" ]; then \
-        apt-get update; \
+    apt-get update; \
+    if [ -n "$(apt-cache search --names-only ^python3-junit\\.xml\$)" ]; then \
         eatmydata apt-get -y install python3-debianbts python3-junit.xml; \
     fi; \
     :
@@ -26,7 +26,7 @@ RUN \
     set -eux; \
     apt-get update; \
     eatmydata apt-get install -y apt-file python3-debian; \
-    if [ "${RELEASE#jessie}" != "$RELEASE" ]; then \
+    if [ -z "$(apt-cache search --names-only ^python3-junit\\.xml\$)" ]; then \
         eatmydata apt-get -y install python3-pip; \
         pip3 install junit-xml; \
     else \
