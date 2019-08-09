@@ -130,3 +130,6 @@ generic_tests:sid:
 
 generic_tests:experimental:
   extends: .build_others
+
+aptly:sid:
+  extends: .build_others

@@ -33,3 +33,6 @@ missing-breaks:
 
 rc-bugs:
     extends: .test-rc-bugs
+
+aptly:
+    extends: .publish-aptly

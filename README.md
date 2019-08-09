@@ -126,6 +126,7 @@ include:
 # This sample disables all default tests, only disable those that you
 # don't want
 variables:
+  SALSA_CI_DISABLE_APTLY: 1
   SALSA_CI_DISABLE_AUTOPKGTEST: 1
   SALSA_CI_DISABLE_BLHC: 1
   SALSA_CI_DISABLE_LINTIAN: 1
@@ -170,6 +171,9 @@ blhc:
 
 piuparts:
   extends: .test-piuparts
+
+aptly:
+  extends: .publish-aptly
 ```
 
 On the previous example, the package is built on Debian experimental and checked through on all tests currently provided.
@@ -216,6 +220,25 @@ include:
 variables:
   SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE: 1
 ```
+
+### Using automatically built apt repository
+The [Aptly](https://www.aptly.info/) task runs in the publish stage and will save published apt repository files as its artifacts, so downstream CI tasks may access built binary/source packages directly through artifacts url via apt.
+
+To find the url manually, click `Browse` (in the `Job artifacts` pane) -> `aptly` -> `index.html`. In brief it takes:
+
+```bash
+$ export BASE_URL=${CI_PAGES_URL%/*}/-/${CI_PROJECT_NAME}/-/jobs/${CI_JOB_ID}/artifacts/aptly
+$ sudo wget ${BASE_URL}/public-key.asc | sudo apt-key add -
+$ echo | sudo tee /etc/apt/sources.list.d/job-${CI_JOB_ID}.list <<EOF
+deb ${BASE_URL} ${RELEASE} main
+# deb-src ${BASE_URL} ${RELEASE} main
+EOF
+$ sudo apt-get update
+```
+
+This is currently disabled by default. Set `SALSA_CI_DISABLE_APTLY` to anything other than 1, 'yes' or 'true' to enable it.
+
+To specify repository signing key, export the gpg key/passphrase as CI / CD [Variables](https://salsa.debian.org/help/ci/variables/README#variables) `SALSA_CI_APTLY_GPG_KEY` and `SALSA_CI_APTLY_GPG_PASSPHASE`. Otherwise, an automatically generated one will be used.
 
 ## Support
 Write us on \#salsaci @ OFTC or open an [issue here](https://salsa.debian.org/salsa-ci-team/pipeline/issues) :)

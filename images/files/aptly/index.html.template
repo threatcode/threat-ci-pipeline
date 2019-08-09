@@ -1,0 +1,18 @@
+<html>
+<head><title>apt source for ${CI_PROJECT_PATH}</title></head>
+<body>
+<ul>
+<li>branch <a href="${CI_PROJECT_URL}/commits/${CI_COMMIT_REF_NAME}">${CI_COMMIT_REF_NAME}</a></li>
+<li>commit <a href="${CI_PROJECT_URL}/commit/${CI_COMMIT_SHA}">${CI_COMMIT_SHA}</a></li>
+<li>pipeline <a href="${CI_PIPELINE_URL}">${CI_PIPELINE_URL}</a></li>
+<li>job <a href="${CI_JOB_URL}">${CI_JOB_URL}</a></li>
+</ul><br/>
+<pre>$ wget -O - <a href="${REPO_PUBKEY_URL}">${REPO_PUBKEY_URL}</a> | sudo apt-key add -
+$ echo | sudo tee /etc/apt/sources.list.d/job-${CI_JOB_ID}.list &lt;&lt;EOF
+deb <a href="${REPO_URL}">${REPO_URL}</a> ${RELEASE} main
+# deb-src <a href="${REPO_URL}">${REPO_URL}</a> ${RELEASE} main
+EOF</pre><br/>
+<a href="${CI_JOB_URL}/artifacts/browse">Browse all files</a>
+</body>
+</html>
+
