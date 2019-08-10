@@ -23,9 +23,9 @@
     - eval "BASE_IMAGE=${BASE_IMAGE}"
     - |
         if [ "${CI_COMMIT_REF_NAME}" != "master" ]; then
-            STAGING_TAG=_${CI_COMMIT_SHORT_SHA}
+            STAGING_TAG=${CI_PIPELINE_ID}-
         fi
-        IMAGE=${NAME}:${RELEASE}${STAGING_TAG}
+        IMAGE=${NAME}:${STAGING_TAG}${RELEASE}
     - |
         docker build --pull -t $CI_REGISTRY_IMAGE/$IMAGE \
             --build-arg VENDOR=$VENDOR \
@@ -39,8 +39,8 @@
             test "$ALIASES" != 'unstable' || ALIASES="${ALIASES} latest"
         fi
         for alias in $ALIASES; do
-            docker tag $CI_REGISTRY_IMAGE/$IMAGE $CI_REGISTRY_IMAGE/$NAME:$alias${STAGING_TAG}
-            docker push $CI_REGISTRY_IMAGE/$NAME:$alias${STAGING_TAG}
+            docker tag ${CI_REGISTRY_IMAGE}/${IMAGE} ${CI_REGISTRY_IMAGE}/${NAME}:${STAGING_TAG}${alias}
+            docker push ${CI_REGISTRY_IMAGE}/${NAME}:${STAGING_TAG}${alias}
         done
   <<: *should_build_images
 
@@ -57,7 +57,7 @@ clean images:
             curl -X POST \
              -F "token=$GARBAGE_COLLECTOR_TRIGGER_TOKEN" \
              -F "ref=$REF_NAME" \
-             -F "variables[GIT_SHA]=${CI_COMMIT_SHORT_SHA}" \
+             -F "variables[IMAGES_PIPELINE_ID]=${CI_PIPELINE_ID}" \
              -F "variables[IMAGES_PROJECT_ID]=${CI_PROJECT_ID}" \
              ${SALSA_CI_TRIGGER_CLEANUP_URL} ; \
         else \
@@ -78,4 +78,4 @@ clean images:
   <<: *build_template
   stage: images_others
   variables:
-    BASE_IMAGE: ${CI_REGISTRY_IMAGE}/base:$${RELEASE}_${CI_COMMIT_SHORT_SHA}
+    BASE_IMAGE: ${CI_REGISTRY_IMAGE}/base:${CI_PIPELINE_ID}-$${RELEASE}
