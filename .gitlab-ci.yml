@@ -11,9 +11,20 @@ include:
 
 variables:
   DOCKER_TLS_CERTDIR: ""
+  SALSA_CI_IMAGES_APTLY: ${CI_REGISTRY_IMAGE}/aptly:${CI_PIPELINE_ID}-latest
+  SALSA_CI_IMAGES_AUTOPKGTEST: ${CI_REGISTRY_IMAGE}/autopkgtest:${CI_PIPELINE_ID}-latest
+  SALSA_CI_IMAGES_BASE: ${CI_REGISTRY_IMAGE}/base:${CI_PIPELINE_ID}-${RELEASE}
+  SALSA_CI_IMAGES_GENERIC_TESTS: ${CI_REGISTRY_IMAGE}/generic_tests:${CI_PIPELINE_ID}-${RELEASE}
+  SALSA_CI_IMAGES_BLHC: ${CI_REGISTRY_IMAGE}/blhc:${CI_PIPELINE_ID}-latest
+  SALSA_CI_IMAGES_DOCKERBUILDER: ${CI_REGISTRY_IMAGE}/dockerbuilder:${CI_PIPELINE_ID}-${RELEASE}
+  SALSA_CI_IMAGES_GBP: ${CI_REGISTRY_IMAGE}/gbp:${CI_PIPELINE_ID}-latest
+  SALSA_CI_IMAGES_LINTIAN: ${CI_REGISTRY_IMAGE}/lintian:${CI_PIPELINE_ID}-${RELEASE}
+  SALSA_CI_IMAGES_PIUPARTS: ${CI_REGISTRY_IMAGE}/piuparts:${CI_PIPELINE_ID}-latest
+  SALSA_CI_IMAGES_REPROTEST: ${CI_REGISTRY_IMAGE}/reprotest:${CI_PIPELINE_ID}-latest
   SALSA_CI_DISABLE_APTLY: "false"
 
 stages:
+  - prerequisites
   - images_base
   - images_others
   - build
@@ -21,3 +32,4 @@ stages:
   - test
   - cleanup
   - contributions
+  - deploy
