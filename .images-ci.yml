@@ -20,8 +20,7 @@
   script:
     - NAME=$(echo ${CI_JOB_NAME} | awk -F':' '{ print $1 }')
     - RELEASE=$(echo ${CI_JOB_NAME} | awk -F':' '{ print $2 }')
-    - BASE_IMAGE_NAME=${BASE_IMAGE_NAME:-${VENDOR}}
-    - BASE_IMAGE_RELEASE=${BASE_IMAGE_RELEASE:-${RELEASE}}
+    - eval "BASE_IMAGE=${BASE_IMAGE}"
     - |
         if [ "${CI_COMMIT_REF_NAME}" != "master" ]; then
             STAGING_TAG=_${CI_COMMIT_SHORT_SHA}
@@ -29,12 +28,9 @@
         IMAGE=${NAME}:${RELEASE}${STAGING_TAG}
     - |
         docker build --pull -t $CI_REGISTRY_IMAGE/$IMAGE \
-            --build-arg CI_REGISTRY_IMAGE=$CI_REGISTRY_IMAGE \
             --build-arg VENDOR=$VENDOR \
             --build-arg RELEASE=$RELEASE \
-            --build-arg BASE_IMAGE_NAME=$BASE_IMAGE_NAME \
-            --build-arg BASE_IMAGE_RELEASE=$BASE_IMAGE_RELEASE \
-            --build-arg STAGING_TAG=$STAGING_TAG \
+            --build-arg BASE_IMAGE=${BASE_IMAGE} \
             -f dockerfiles/$NAME .
     - |
         docker push $CI_REGISTRY_IMAGE/$IMAGE
@@ -75,7 +71,11 @@ clean images:
 .build_base: &build_base
   <<: *build_template
   stage: images_base
+  variables:
+    BASE_IMAGE: $${VENDOR}:$${RELEASE}
 
 .build_others: &build_others
   <<: *build_template
   stage: images_others
+  variables:
+    BASE_IMAGE: ${CI_REGISTRY_IMAGE}/base:$${RELEASE}_${CI_COMMIT_SHORT_SHA}
