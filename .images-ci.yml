@@ -39,7 +39,7 @@
     - |
         docker push $CI_REGISTRY_IMAGE/$IMAGE
         if [ "$VENDOR" = "debian" ]; then
-            ALIASES=$(wget -O - http://deb.debian.org/debian/dists/${RELEASE}/Release | grep ^Suite: | awk '{ print $2 }')
+            ALIASES=$(wget -O - http://deb.debian.org/debian/dists/${RELEASE}/Release | awk "/^Suite:/ { if (\$2 !~ /${RELEASE}/) print \$2 }")
             test "$ALIASES" != 'unstable' || ALIASES="${ALIASES} latest"
         fi
         for alias in $ALIASES; do
