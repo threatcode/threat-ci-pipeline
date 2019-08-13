@@ -16,7 +16,6 @@ variables:
 stages:
   - images_base
   - images_others
-  - clone
   - build
   - publish
   - test
