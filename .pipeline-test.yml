@@ -31,18 +31,6 @@ check license + contributor:
             PROBLEMS=$(($PROBLEMS + 1))
         - exit $PROBLEMS
 
-clone:
-    stage: clone
-    image: debian:unstable
-    before_script:
-        - echo "I need to skip before_script"
-    artifacts:
-      paths:
-          - repo_test
-    script:
-        - apt-get update && apt-get install git -y
-        - git clone https://salsa.debian.org/salsa-ci-team/dummypackage repo_test
-
 before_script:
     - test -d repo_test || ( apt-get update && apt-get install git -y; git clone https://salsa.debian.org/salsa-ci-team/dummypackage repo_test)
     - cd repo_test
