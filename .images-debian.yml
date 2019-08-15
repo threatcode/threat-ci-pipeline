@@ -61,8 +61,8 @@ lintian:jessie:
 lintian:stretch:
   extends: .build_others
 
-lintian:stretch-backports:
-  extends: .build_others
+# lintian:stretch-backports:
+#   extends: .build_others
 
 lintian:buster:
   extends: .build_others
@@ -87,8 +87,8 @@ dockerbuilder:jessie:
 dockerbuilder:stretch:
   extends: .build_others
 
-# dockerbuilder:stretch-backports:
-#  extends: .build_others
+dockerbuilder:stretch-backports:
+  extends: .build_others
 
 dockerbuilder:buster:
   extends: .build_others
