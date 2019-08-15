@@ -256,8 +256,8 @@ stages:
     - cp -aTLv /etc/apt/preferences.d  ${CHROOT_PATH}/etc-target/apt/preferences.d
     - cp -aTLv /srv/local-apt-repository ${CHROOT_PATH}/srv/local-apt-repository
     - cp -aTLv /var/lib/local-apt-repository/ ${CHROOT_PATH}/var/lib/local-apt-repository/
-    - add_extra_repository.sh -v -e "${EXTRA_REPOSITORY}" -k "${EXTRA_REPOSITORY_KEY}"
-        -t "${CHROOT_PATH}/etc-target"
+    # - add_extra_repository.sh -v -e "${EXTRA_REPOSITORY}" -k "${EXTRA_REPOSITORY_KEY}"
+    #    -t "${CHROOT_PATH}/etc-target"
     - sed  '/127.0.0.1/s/localhost/pipeline.salsa.debian.org localhost/' /etc/hosts > ${CHROOT_PATH}/etc/hosts
     - PIUPARTS_DISTRIBUTION_ARG="--distribution $RELEASE"
     - |
