@@ -50,6 +50,8 @@ set -x
 
 eval docker cp /etc/apt/sources.list.d/./ ${CONTAINER_ID}:/etc/apt/sources.list.d/
 
+eval docker cp /etc/apt/trusted.gpg.d/./ ${CONTAINER_ID}:/etc/apt/trusted.gpg.d/
+
 eval docker cp /etc/apt/preferences.d/./ ${CONTAINER_ID}:/etc/apt/preferences.d/
 
 eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} apt-get update
