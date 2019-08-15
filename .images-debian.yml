@@ -87,8 +87,8 @@ dockerbuilder:jessie:
 dockerbuilder:stretch:
   extends: .build_others
 
-dockerbuilder:stretch-backports:
-  extends: .build_others
+# dockerbuilder:stretch-backports:
+#  extends: .build_others
 
 dockerbuilder:buster:
   extends: .build_others
