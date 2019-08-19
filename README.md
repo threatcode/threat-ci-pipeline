@@ -136,6 +136,23 @@ variables:
   SALSA_CI_DISABLE_BUILD_PACKAGE_ANY: 1
 ```
 
+### Skipping the whole pipeline on push
+
+There may be reasons to skip the whole pipeline for a `git push`, for example when you are adding `salsa-ci.yml` to hundreds of repositories or doing other mass-changes.
+
+You can achieve this in two ways:
+
+You can insert `[ci skip]` or `[skip ci]`, using any capitalization, in the commit message. With this marker, GitLab will not run the pipeline when the commit is pushed.
+
+Alternatively, one can pass the `ci.skip` [Git push](https://git-scm.com/docs/git-push#Documentation/git-push.txt--oltoptiongt) option if using Git 2.10 or newer:
+
+```
+git push --push-option=ci.skip    # using git 2.10+
+git push -o ci.skip               # using git 2.18+
+```
+
+See also https://docs.gitlab.com/ee/ci/yaml/#skipping-jobs
+
 ### Adding your private repositories to the builds
 
 The variables `EXTRA_REPOSITORY` and `EXTRA_REPOSITORY_KEY` can be
