@@ -19,10 +19,10 @@ fi
 
 DOCKER_IMAGE_NAME=$1
 
-VOLUME_DIR=${CI_PROJECT_DIR:-${GBP_BUILD_DIR:-$(pwd)}}
+VOLUME_DIR=${CI_PROJECT_DIR:-$(pwd)}
 VOLUMES="-v ${VOLUME_DIR}/..:${VOLUME_DIR}/.."
 
-CONTAINER_ID=$(docker run -d --rm -w ${GBP_BUILD_DIR:-$(pwd)} ${VOLUMES} ${DOCKER_IMAGE_NAME} sleep infinity)
+CONTAINER_ID=$(docker run -d --rm -w ${VOLUME_DIR} ${VOLUMES} ${DOCKER_IMAGE_NAME} sleep infinity)
 
 cleanup() {
     docker rm -f ${CONTAINER_ID}
