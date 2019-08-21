@@ -91,30 +91,6 @@ deploy images:
     refs:
       - master
 
-clean images:
-  stage: cleanup
-  image: debian:unstable
-  before_script:
-    - apt-get update && apt-get install curl -y
-  variables:
-      REF_NAME: "master"
-  script:
-    - |
-        if [ -n "${SALSA_CI_TRIGGER_CLEANUP_URL}" ]; then \
-            curl -X POST \
-             -F "token=$GARBAGE_COLLECTOR_TRIGGER_TOKEN" \
-             -F "ref=$REF_NAME" \
-             -F "variables[IMAGES_PIPELINE_ID]=${CI_PIPELINE_ID}" \
-             -F "variables[IMAGES_PROJECT_ID]=${CI_PROJECT_ID}" \
-             ${SALSA_CI_TRIGGER_CLEANUP_URL} ; \
-        else \
-            echo "WARNING: No trigger URL configured."; \
-        fi
-  except:
-    - master
-  when: always
-  <<: *should_build_images
-
 .build_base: &build_base
   <<: *build_template
   stage: images_base

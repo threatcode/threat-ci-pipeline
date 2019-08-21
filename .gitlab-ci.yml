@@ -30,6 +30,5 @@ stages:
   - build
   - publish
   - test
-  - cleanup
   - contributions
   - deploy
