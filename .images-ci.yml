@@ -81,15 +81,14 @@ deploy images:
             echo "##### Pushing ${IMAGE} as ${RELEASE}${ALIASES:+ ${ALIASES}} in ${CI_REGISTRY_IMAGE}/${NAME} #####"
             for alias in ${RELEASE} ${ALIASES}; do
                 docker tag ${CI_REGISTRY_IMAGE}/${IMAGE} ${CI_REGISTRY_IMAGE}/${NAME}:${alias}
-                docker push ${CI_REGISTRY_IMAGE}/${NAME}:${alias}
+                if [ "${CI_COMMIT_REF_NAME}" = "master" ]; then
+                    docker push ${CI_REGISTRY_IMAGE}/${NAME}:${alias}
+                fi
             done
         done
   variables:
     GIT_STRATEGY: none
   <<: *should_build_images
-  only:
-    refs:
-      - master
 
 .build_base: &build_base
   <<: *build_template
