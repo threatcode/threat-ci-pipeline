@@ -92,10 +92,6 @@ stages:
   <<: *build-definition
   stage: test
   dependencies: []
-  variables:
-     CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
-     CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
-     DB_BUILD_PARAM: ''
   script:
     - *build-before-script
     - LOCAL_ARCH=`dpkg --print-architecture`
@@ -125,10 +121,6 @@ stages:
   <<: *build-definition
   stage: test
   dependencies: []
-  variables:
-     CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
-     CCACHE_WORK_DIR: ${WORKING_DIR}/.ccache
-     DB_BUILD_PARAM: ''
   script:
     - *build-before-script
     - LOCAL_ARCH=`dpkg --print-architecture`
