@@ -118,7 +118,8 @@ stages:
   except:
     variables:
       - $SALSA_CI_DISABLE_BUILD_PACKAGE_ANY =~ /^(1|yes|true)$/
-      - $RELEASE == 'jessie'
+      # dpkg-buildpackage in jessie doesn't have --build=all/any
+      - $RELEASE =~ /^jessie/ || $RELEASE =~ /^oldoldstable/
 
 
 .test-build-package-all: &test-build-package-all
@@ -151,7 +152,8 @@ stages:
   except:
     variables:
       - $SALSA_CI_DISABLE_BUILD_PACKAGE_ALL =~ /^(1|yes|true)$/
-      - $RELEASE == 'jessie'
+      # dpkg-buildpackage in jessie doesn't have --build=all/any
+      - $RELEASE =~ /^jessie/ || $RELEASE =~ /^oldoldstable/
 
 .test-autopkgtest: &test-autopkgtest
   stage: test
