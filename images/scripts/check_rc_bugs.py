@@ -42,6 +42,7 @@ def process_options():
         '-o', '--output', help='Output file',
         default='{}/check_rc_bugs.xml'.format(
             os.environ.get('EXPORT_DIR', '.')))
+    arg_parser.add_argument('-v', '--verbose', action='store_true')
     arg_parser.add_argument('--debug', action='store_true')
     args = arg_parser.parse_args()
 
@@ -55,7 +56,7 @@ def process_options():
 
 def get_changes_info(filename):
     if not filename:
-        logging.info('No changes file specified')
+        logging.warning('No changes file specified')
         sys.exit(1)
 
     with open(filename, encoding='utf-8') as fp:
@@ -87,7 +88,7 @@ def get_bug_nrs(source_name, binaries):
     return bug_nrs
 
 
-def generate_test_cases(bug_reports, closes, bug_nrs):
+def generate_test_cases(bug_reports, closes, bug_nrs, options):
     test_cases = []
 
     for bug in bug_reports:
@@ -110,7 +111,8 @@ def generate_test_cases(bug_reports, closes, bug_nrs):
         test_case.stdout = str(bug)
         msg = '{name}[{bug.bug_num}]/{bug.severity}{tags} {summary} {url}'.format(
             name=name, bug=bug, tags=tags_str, summary=summary, url=url)
-        logging.info(msg)
+        if options.verbose:
+            print(msg)
         if bug.severity in ('critical', 'grave', 'serious'):
             test_case.add_error_info(msg)
         else:
@@ -127,7 +129,7 @@ def main():
 
     bug_nrs = get_bug_nrs(source_name, binaries)
     bug_reports = debianbts.get_status(*bug_nrs)
-    test_cases = generate_test_cases(bug_reports, closes, bug_nrs)
+    test_cases = generate_test_cases(bug_reports, closes, bug_nrs, options)
     test_suite = TestSuite('Check_RC_BUGS', test_cases)
     with open(options.output, 'w', encoding='utf-8') as output_file:
         output_file.write(TestSuite.to_xml_string([test_suite]))
