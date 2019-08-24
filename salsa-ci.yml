@@ -284,7 +284,7 @@ stages:
     variables:
       - $SALSA_CI_DISABLE_RC_BUGS =~ /^(1|yes|true)$/
   script:
-    - check_rc_bugs.py -o ${WORKING_DIR}/rc_bugs.xml --changes-file ${WORKING_DIR}/*.changes
+    - check_rc_bugs.py -v -o ${WORKING_DIR}/rc_bugs.xml --changes-file ${WORKING_DIR}/*.changes
   artifacts:
     reports:
       junit: ${WORKING_DIR}/rc_bugs.xml
