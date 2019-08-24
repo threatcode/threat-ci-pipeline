@@ -55,10 +55,10 @@ stages:
    # Reported in https://salsa.debian.org/salsa-ci-team/pipeline/issues/104,
    # GitLab can only expand variables once. So at the beginning CCACHE_WORK_DIR
    # was assigned to `${WORKING_DIR}/.ccache`, and it will be expanded as
-   # `$CI_PROJECT_DIR/debian/output/.ccache`, so it creates an folder named
+   # `$CI_PROJECT_DIR/debian/output/.ccache`, so it creates a folder named
    # "\$CI_PROJECT_DIR", which is then saved as build cache. To allow smooth
    # transition, that wrongly named folder has to be removed:
-   rm -rf '$CCACHE_WORK_DIR' '${CCACHE_WORK_DIR}'
+   rm -rf '$CI_PROJECT_DIR'
 
    mkdir -p ${WORKING_DIR} ${CCACHE_WORK_DIR}
    mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
