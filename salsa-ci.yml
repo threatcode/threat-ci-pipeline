@@ -60,6 +60,9 @@ stages:
    # transition, that wrongly named folder has to be removed:
    rm -rf '$CI_PROJECT_DIR'
 
+   # salsa-ci-team/pipeline#107
+   rm -rf ${CI_PROJECT_DIR}/debian/output/.ccache
+
    mkdir -p ${WORKING_DIR} ${CCACHE_WORK_DIR}
    mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
    add_extra_repository.sh -v -e "${EXTRA_REPOSITORY}" -k "${EXTRA_REPOSITORY_KEY}" -u
@@ -83,10 +86,10 @@ stages:
     - docker:dind
   cache:
     paths:
-      - ${CCACHE_WORK_DIR}
+      - .ccache
   variables:
     CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
-    CCACHE_WORK_DIR: ${CI_PROJECT_DIR}/debian/output/.ccache
+    CCACHE_WORK_DIR: ${CI_PROJECT_DIR}/.ccache
     DB_BUILD_PARAM: ''
   script:
     - *build-before-script
