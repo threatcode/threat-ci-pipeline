@@ -1,3 +1,4 @@
+---
 # Copyright salsa-ci-team and others
 # SPDX-License-Identifier: FSFAP
 # Copying and distribution of this file, with or without modification, are
@@ -37,10 +38,10 @@ stages:
   - test
 
 .artifacts: &artifacts
-    name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
-    when: always
-    paths:
-        - ${WORKING_DIR}/
+  name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
+  when: always
+  paths:
+    - ${WORKING_DIR}/
 
 .artifacts-long-expire: &artifacts-long-expire
   artifacts:
@@ -177,8 +178,8 @@ stages:
     - /etc/init.d/lxc start
     - debci localtest $CI_PROJECT_DIR/debian/output/*.changes --suite ${RELEASE} || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
   variables:
-      GIT_STRATEGY: none
-      SCI_LXC_PATH: ${CI_PROJECT_DIR}/lxc
+    GIT_STRATEGY: none
+    SCI_LXC_PATH: ${CI_PROJECT_DIR}/lxc
 
 .test-blhc: &test-blhc
   stage: test
@@ -189,7 +190,7 @@ stages:
   script:
     - blhc --debian --line-numbers --color ${WORKING_DIR}/*.build || [ $? -eq 1 ]
   variables:
-      GIT_STRATEGY: none
+    GIT_STRATEGY: none
 
 .test-lintian: &test-lintian
   stage: test
@@ -202,7 +203,7 @@ stages:
     - lintian2junit.py --lintian-file lintian.output > ${WORKING_DIR}/lintian.xml
     - exit ${ECODE-0}
   variables:
-      GIT_STRATEGY: none
+    GIT_STRATEGY: none
   artifacts:
     reports:
       junit: ${WORKING_DIR}/lintian.xml
@@ -280,7 +281,7 @@ stages:
             piuparts --mirror "${SALSA_CI_MIRROR} ${SALSA_CI_COMPONENTS}" ${SALSA_CI_PIUPARTS_ARGS} --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PIUPARTS_DISTRIBUTION_ARG} ${PACKAGE}
         done
   variables:
-      GIT_STRATEGY: none
+    GIT_STRATEGY: none
 
 .test-rc-bugs: &test-rc-bugs
   stage: test
@@ -294,7 +295,7 @@ stages:
     reports:
       junit: ${WORKING_DIR}/rc_bugs.xml
   variables:
-      GIT_STRATEGY: none
+    GIT_STRATEGY: none
 
 .test-missing-breaks: &test-missing-breaks
   stage: test
@@ -309,7 +310,7 @@ stages:
     reports:
       junit: ${WORKING_DIR}/missing_breaks.xml
   variables:
-      GIT_STRATEGY: none
+    GIT_STRATEGY: none
 
 .publish-aptly: &publish-aptly
   stage: publish
