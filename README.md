@@ -241,7 +241,9 @@ test-build-all:
 
 Note: These additional build jobs don't work with `RELEASE: 'jessie'` and are skipped in that case.
 
-### Running reprotest with diffoscope
+### Customizing reprotest
+
+#### Running reprotest with diffoscope
 
 Reprotest stage can be run with [diffoscope](https://try.diffoscope.org/), which is an useful tool that helps identifying reproducibility issues.
 Large projects will not pass on low resources runners as the ones available right now.
@@ -256,6 +258,22 @@ include:
 
 variables:
   SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE: 1
+```
+
+#### Adding extra arguments to reprotest
+
+Sometimes it is desirable to disable some reprotest validations because the reproducibility issue comes inherently from the programming language being used, and not from the code being packaged. For example, some compilers embed the build path in the generated binaries.
+
+You can get this level of customization by adding extra `reprotest` parameters in the `SALSA_CI_REPROTEST_EXTRA_ARGS` variable.
+
+```yaml
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  SALSA_CI_REPROTEST_EXTRA_ARGS: --variations=-build_path
 ```
 
 ### Using automatically built apt repository
