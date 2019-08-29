@@ -100,6 +100,9 @@ stages:
 .build-package: &build-package
   <<: *build-definition
   <<: *artifacts-default-expire
+  except:
+    variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
 
 .test-build-package-any: &test-build-package-any
   <<: *build-definition
@@ -126,6 +129,7 @@ stages:
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   except:
     variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_BUILD_PACKAGE_ANY =~ /^(1|yes|true)$/
       # dpkg-buildpackage in jessie doesn't have --build=all/any
       - $RELEASE =~ /^jessie/ || $RELEASE =~ /^oldoldstable/
@@ -156,6 +160,7 @@ stages:
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   except:
     variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_BUILD_PACKAGE_ALL =~ /^(1|yes|true)$/
       # dpkg-buildpackage in jessie doesn't have --build=all/any
       - $RELEASE =~ /^jessie/ || $RELEASE =~ /^oldoldstable/
@@ -165,6 +170,7 @@ stages:
   image: $SALSA_CI_IMAGES_AUTOPKGTEST
   except:
     variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_AUTOPKGTEST =~ /^(1|yes|true)$/
   script:
     - wget --progress=dot:giga ${SALSA_CI_AUTOPKGTEST_LXC}/-/jobs/artifacts/master/raw/artifacts/lxc.tar?job=${RELEASE} -O lxc.tar
@@ -189,6 +195,7 @@ stages:
   image: $SALSA_CI_IMAGES_BLHC
   except:
     variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_BLHC =~ /^(1|yes|true)$/
   script:
     - blhc --debian --line-numbers --color ${SALSA_CI_BLHC_ARGS} ${WORKING_DIR}/*.build || [ $? -eq 1 ]
@@ -200,6 +207,7 @@ stages:
   image: $SALSA_CI_IMAGES_LINTIAN
   except:
     variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_LINTIAN =~ /^(1|yes|true)$/
   script:
     - lintian --display-info --pedantic ${WORKING_DIR}/*.changes | tee lintian.output || ECODE=$?
@@ -216,6 +224,7 @@ stages:
   image: $SALSA_CI_IMAGES_REPROTEST
   except:
     variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_REPROTEST =~ /^(1|yes|true)$/
   artifacts:
     name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
@@ -247,6 +256,7 @@ stages:
   image: $SALSA_CI_IMAGES_PIUPARTS
   except:
     variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_PIUPARTS =~ /^(1|yes|true)$/
   services:
     - docker:dind
@@ -286,6 +296,7 @@ stages:
   image: $SALSA_CI_IMAGES_GENERIC_TESTS
   except:
     variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_RC_BUGS =~ /^(1|yes|true)$/
   script:
     - check_rc_bugs.py -v -o ${WORKING_DIR}/rc_bugs.xml --changes-file ${WORKING_DIR}/*.changes
@@ -300,6 +311,7 @@ stages:
   image: $SALSA_CI_IMAGES_GENERIC_TESTS
   except:
     variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_MISSING_BREAKS =~ /^(1|yes|true)$/
   script:
     - apt-get update
@@ -319,6 +331,7 @@ stages:
     PUBKEY_FILENAME: 'public-key.asc'
   except:
     variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_APTLY =~ /^(1|yes|true)$/
   script:
     - export REPO_URL="${CI_PAGES_URL%/*}/-/${CI_PROJECT_NAME}/-/jobs/${CI_JOB_ID}/artifacts/${REPO_PATH}"
