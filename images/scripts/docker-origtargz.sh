@@ -49,7 +49,7 @@ eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} sed -n '/^deb\s/s//deb-src /p
 
 eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} apt-get update
 
-eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} apt-get install devscripts
+eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} apt-get install -y devscripts
 
 eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} origtargz -dt
 
