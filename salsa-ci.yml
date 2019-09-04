@@ -321,7 +321,7 @@ stages:
     variables:
       - $SALSA_CI_DISABLE_APTLY =~ /^(1|yes|true)$/
   script:
-    - export REPO_URL="${CI_PAGES_URL%/*}/-/${CI_PROJECT_NAME}/-/jobs/${CI_JOB_ID}/artifacts/${REPO_PATH}"
+    - export REPO_URL="${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/${REPO_PATH}"
     - export REPO_PUBKEY_URL="${REPO_URL}/${PUBKEY_FILENAME}"
     - aptly repo create -distribution ${RELEASE} -component main ${CI_PROJECT_NAME}
     - aptly repo add ${CI_PROJECT_NAME} "${WORKING_DIR}"
