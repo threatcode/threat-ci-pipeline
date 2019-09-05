@@ -14,7 +14,7 @@ test-build-all:
     extends: .test-build-package-all
 
 reprotest:
-    extends: .test-reprotest-no-diffoscope
+    extends: .test-reprotest
 
 lintian:
     extends: .test-lintian
