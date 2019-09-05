@@ -23,6 +23,7 @@ RUN apt-get update && eatmydata apt-get install --no-install-recommends -y \
 # Just for backward compatibility, because current pipeline does gbp pull for no reasons... Remove it after merge
 RUN apt-get update && eatmydata apt-get install ca-certificates fakeroot --no-install-recommends -y && rm -rf /var/lib/apt
 
+COPY ./scripts/docker-origtargz.sh /usr/local/bin/
 COPY ./scripts/docker-build.sh /usr/local/bin/
 
 # Support for docker:dind
