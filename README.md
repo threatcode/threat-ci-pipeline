@@ -136,6 +136,21 @@ variables:
   SALSA_CI_DISABLE_BUILD_PACKAGE_ANY: 1
 ```
 
+
+### Enabling the pipeline for tags
+By default, the pipeline is run only for commits, tags are ignored. To run the pipeline against tags as well, export the `SALSA_CI_ENABLE_PIPELINE_ON_TAGS` variable and set it to one of "1", "yes" or "true", like in the following example:
+
+```yaml
+---
+include: 
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  SALSA_CI_ENABLE_PIPELINE_ON_TAGS: 1
+```
+
+
 ### Skipping the whole pipeline on push
 
 There may be reasons to skip the whole pipeline for a `git push`, for example when you are adding `salsa-ci.yml` to hundreds of repositories or doing other mass-changes.
