@@ -226,14 +226,14 @@ stages:
     - eatmydata apt-get build-dep -y ${WORKING_DIR}/*.dsc
     - |
         if ! echo "${SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE}" | grep -q -E '^(1|yes|true)$'; then
-          SALSA_CI_REPROTEST_EXTRA_ARGS="${SALSA_CI_REPROTEST_EXTRA_ARGS} --no-diffoscope"
+          SALSA_CI_REPROTEST_ARGS="${SALSA_CI_REPROTEST_ARGS} --no-diffoscope"
         fi
     - |
         eatmydata reprotest \
           --min-cpus $(nproc --all) \
           --store-dir ${WORKING_DIR}/reprotest \
           --verbosity=2  \
-          ${SALSA_CI_REPROTEST_EXTRA_ARGS} \
+          ${SALSA_CI_REPROTEST_ARGS} \
           ${WORKING_DIR}/*.dsc -- null |& tee "${WORKING_DIR}/reprotest.log"
   variables:
     GIT_STRATEGY: none
