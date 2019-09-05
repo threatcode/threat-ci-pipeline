@@ -93,6 +93,9 @@ dockerbuilder:stretch-backports:
 dockerbuilder:buster:
   extends: .build_others
 
+dockerbuilder:buster-backports:
+  extends: .build_others
+
 dockerbuilder:bullseye:
   extends: .build_others
 
