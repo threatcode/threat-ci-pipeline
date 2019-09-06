@@ -4,63 +4,61 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
-.kali_base_image_variables: &kali_base_image_variables
+.build_kali_base:
+  extends: .build_base
   variables:
-      VENDOR: kali
-      BASE_IMAGE: "debian:testing"
+    VENDOR: kali
+    BASE_IMAGE: "debian:testing"
+
+.build_kali_others:
+  extends: .build_others
+  variables:
+    VENDOR: kali
 
 base:kali-rolling:
-  extends: .build_base
-  <<: *kali_base_image_variables
+  extends: .build_kali_base
 
 base:kali-dev:
-  extends: .build_base
-  <<: *kali_base_image_variables
+  extends: .build_kali_base
 
 base:kali-experimental:
-  extends: .build_base
-  <<: *kali_base_image_variables
+  extends: .build_kali_base
 
-piuparts:kali-rolling:
-  extends: .build_others
-  variables:
-      ALIASES: 'latest'
+piuparts:kali-dev:
+  extends: .build_kali_others
 
-reprotest:kali-rolling:
-  extends: .build_others
-  variables:
-      ALIASES: 'latest'
+reprotest:kali-dev:
+  extends: .build_kali_others
 
-autopkgtest:kali-rolling:
-  extends: .build_others
-  variables:
-      ALIASES: 'latest'
+autopkgtest:kali-dev:
+  extends: .build_kali_others
 
-blhc:kali-rolling:
-  extends: .build_others
-  variables:
-      ALIASES: 'latest'
+blhc:kali-dev:
+  extends: .build_kali_others
 
 lintian:kali-rolling:
-  extends: .build_others
+  extends: .build_kali_others
 
 lintian:kali-dev:
-  extends: .build_others
-  variables:
-      ALIASES: 'latest kali-experimental'
+  extends: .build_kali_others
 
 gbp:kali-dev:
-  extends: .build_others
-  variables:
-      ALIASES: 'latest'
+  extends: .build_kali_others
 
 dockerbuilder:kali-rolling:
-  extends: .build_others
+  extends: .build_kali_others
 
 dockerbuilder:kali-dev:
-  extends: .build_others
-  variables:
-      ALIASES: 'latest'
+  extends: .build_kali_others
 
 dockerbuilder:kali-experimental:
-  extends: .build_others
+  extends: .build_kali_others
+
+generic_tests:kali-rolling:
+  extends: .build_kali_others
+
+generic_tests:kali-dev:
+  extends: .build_kali_others
+
+aptly:kali-dev:
+  extends: .build_kali_others
