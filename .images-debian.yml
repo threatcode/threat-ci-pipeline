@@ -73,6 +73,9 @@ lintian:buster-backports:
 lintian:bullseye:
   extends: .build_others
 
+lintian:bullseye-backports:
+  extends: .build_others
+
 lintian:sid:
   extends: .build_others
 
@@ -100,6 +103,9 @@ dockerbuilder:buster-backports:
   extends: .build_others
 
 dockerbuilder:bullseye:
+  extends: .build_others
+
+dockerbuilder:bullseye-backports:
   extends: .build_others
 
 dockerbuilder:sid:
