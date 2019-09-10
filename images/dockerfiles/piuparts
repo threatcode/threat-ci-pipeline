@@ -4,10 +4,8 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
-ARG CI_REGISTRY_IMAGE
-ARG RELEASE
-ARG STAGING_TAG
-FROM $CI_REGISTRY_IMAGE/base:${RELEASE}${STAGING_TAG}
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
 
 RUN apt-get update && eatmydata apt-get install docker.io piuparts local-apt-repository --no-install-recommends -y && rm -rf /var/lib/apt
 

@@ -7,8 +7,7 @@
 .kali_base_image_variables: &kali_base_image_variables
   variables:
       VENDOR: kali
-      BASE_IMAGE_NAME: debian
-      BASE_IMAGE_RELEASE: testing
+      BASE_IMAGE: "debian:testing"
 
 base:kali-rolling:
   extends: .build_base

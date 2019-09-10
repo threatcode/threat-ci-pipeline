@@ -4,10 +4,8 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
-ARG CI_REGISTRY_IMAGE
-ARG RELEASE
-ARG STAGING_TAG
-FROM $CI_REGISTRY_IMAGE/base:${RELEASE}${STAGING_TAG}
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE}
 
 # Add deb-src entries
 RUN \
