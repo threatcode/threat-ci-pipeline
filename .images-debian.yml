@@ -67,6 +67,9 @@ lintian:stretch:
 lintian:buster:
   extends: .build_others
 
+lintian:buster-backports:
+  extends: .build_others
+
 lintian:bullseye:
   extends: .build_others
 
