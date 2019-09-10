@@ -298,7 +298,7 @@ The [Aptly](https://www.aptly.info/) task runs in the publish stage and will sav
 To find the url manually, click `Browse` (in the `Job artifacts` pane) -> `aptly` -> `index.html`. In brief it takes:
 
 ```bash
-$ export BASE_URL=${CI_PAGES_URL%/*}/-/${CI_PROJECT_NAME}/-/jobs/${CI_JOB_ID}/artifacts/aptly
+$ export BASE_URL=${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/${REPO_PATH}
 $ sudo wget ${BASE_URL}/public-key.asc | sudo apt-key add -
 $ echo | sudo tee /etc/apt/sources.list.d/job-${CI_JOB_ID}.list <<EOF
 deb ${BASE_URL} ${RELEASE} main
