@@ -13,7 +13,7 @@ ARG RELEASE
 RUN \
 set -eux; \
 apt-get update; \
-printf 'Package: lintian\nPin: release a=%s\nPin-Priority: 900\n' "$RELEASE" \
+printf 'Package: *\nPin: release a=%s\nPin-Priority: 900\n' "$RELEASE" \
   | tee /etc/apt/preferences.d/salsa-ci; \
 eatmydata apt-get -y install git lintian; \
 if [ -z "$(apt-cache search --names-only ^python3-junit\\.xml\$)" ]; then \
