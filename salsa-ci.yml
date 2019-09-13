@@ -79,7 +79,12 @@ stages:
      mv ../*.orig.* ${WORKING_DIR}
      gbp_args="--git-overlay"
    fi
-   gbp buildpackage --git-ignore-branch --git-ignore-new --git-no-create-orig $gbp_args --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}"
+   gbp buildpackage \
+        --git-ignore-branch \
+        --git-ignore-new \
+        --git-no-create-orig $gbp_args \
+        --git-export-dir=${WORKING_DIR} \
+        --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}" | filter-output
 
 .build-definition: &build-definition
   stage: build
@@ -247,7 +252,7 @@ stages:
           --store-dir ${WORKING_DIR}/reprotest \
           --verbosity=2  \
           ${SALSA_CI_REPROTEST_ARGS} \
-          ${WORKING_DIR}/*.dsc -- null |& tee "${WORKING_DIR}/reprotest.log"
+          ${WORKING_DIR}/*.dsc -- null |& tee "${WORKING_DIR}/reprotest.log" | filter-output
   variables:
     GIT_STRATEGY: none
 
