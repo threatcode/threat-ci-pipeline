@@ -73,10 +73,8 @@ stages:
 .build-script: &build-script |
    # Check if we can obtain the orig from the git branches
    if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
-     apt-get update
-     # Fallback using origtargz
-     origtargz -dt
-     mv ../*.orig.* ${WORKING_DIR}
+     # Fallback using origtargz in the corresponding $RELEASE
+     docker-origtargz.sh "${SALSA_CI_IMAGES_DOCKERBUILDER}"
      gbp_args="--git-overlay"
    fi
    gbp buildpackage --git-ignore-branch --git-ignore-new --git-no-create-orig $gbp_args --git-export-dir=${WORKING_DIR} --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}"
