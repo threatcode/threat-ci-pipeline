@@ -59,8 +59,7 @@ if [[ -n "${EXTRA_REPOSITORY}" ]]; then
         cp "${EXTRA_REPOSITORY_KEY}" \
             "${TARGET_ETC}"/apt/trusted.gpg.d/extra_repository.asc
     fi
-    if [[ "$UPDATE" -ne 0 ]]; then
-        apt-get update
-    fi
+    apt-get update
+    apt-get --assume-yes install ca-certificates
 fi
 
