@@ -1,0 +1,68 @@
+#! /usr/bin/python3
+# Copyright salsa-ci-team and others
+# SPDX-License-Identifier: FSFAP
+# Copying and distribution of this file, with or without modification, are
+# permitted in any medium without royalty provided the copyright notice and
+# this notice are preserved. This file is offered as-is, without any warranty.
+
+import sys
+import os
+import time
+
+DOT_EVERY_S = int(os.environ.get('DOT_EVERY_S', 60))
+# The maximum output in the salsa environment is 4MB, but we usually have some
+# output that is not covered by this script. Let's reserve 16kb for that.
+MAX_STDOUT_BYTES = int(os.environ.get('MAX_STDOUT_BYTES',
+                                      (4 * 1024 * 1024) - (16 * 1024)))
+HEAD_TAIL_PROPORTION = float(os.environ.get('HEAD_TAIL_PROPORTION', 0.8))
+OUTPUT_PATH = os.environ.get('WORKING_DIR', '.')
+OUTPUT_FILENAME = os.environ.get('OUTPUT_FILENAME', 'output.log')
+
+HEAD_BYTES = MAX_STDOUT_BYTES * HEAD_TAIL_PROPORTION
+
+byte_counter = 0
+bytes_shown = 0
+bytes_written = 0
+
+stdout_truncated = False
+last_time_dot = time.monotonic()
+
+output_filepath = os.path.join(OUTPUT_PATH, OUTPUT_FILENAME)
+
+separation_line = '#' * 120
+
+with open(output_filepath, 'w') as output_file:
+    for line in sys.stdin:
+        byte_counter += len(line)
+        output_file.write(line)
+        if byte_counter <= HEAD_BYTES:
+            sys.stdout.write(line)
+            bytes_shown = byte_counter
+            bytes_written = byte_counter
+        else:
+            if not stdout_truncated:
+                stdout_truncated = True
+                msg = ('{0}\n'
+                       '# WARNING stdout has been truncated\n'
+                       '{0}\n').format(separation_line)
+                print(msg, end='')
+                bytes_written += len(msg)
+            if (time.monotonic() - last_time_dot) >= DOT_EVERY_S:
+                last_time_dot = time.monotonic()
+                print('.', end='')
+                bytes_written += 1
+
+if stdout_truncated:
+    msg = ('\n'
+           '{0}\n'
+           '# WARNING showing the log tail bytes\n'
+           '{0}\n').format(separation_line)
+    print(msg, end='')
+    bytes_written += len(msg)
+    remaining = MAX_STDOUT_BYTES - bytes_written
+
+    print(f'{bytes_written} {bytes_shown} {byte_counter}', file=sys.stderr)
+    with open(output_filepath) as fh:
+        fh.seek(0, os.SEEK_END)
+        fh.seek(max(fh.tell() - remaining, bytes_shown, 0), os.SEEK_SET)
+        print(fh.read(), end='')

@@ -15,5 +15,8 @@ ENV DEBIAN_FRONTEND noninteractive
 COPY ./scripts/add_extra_repository.sh /usr/local/bin/
 RUN chmod 755 /usr/local/bin/add_extra_repository.sh
 
+COPY ./scripts/filter-output /usr/local/bin/
+RUN chmod 755 /usr/local/bin/filter-output
+
 COPY files/base/initialize /initialize
 RUN /initialize $VENDOR $RELEASE && rm -f /initialize
