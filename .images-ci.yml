@@ -41,9 +41,11 @@ image config:
                 --build-arg RELEASE=${RELEASE} \
                 --build-arg BASE_IMAGE=${BASE_IMAGE} \
                 -f dockerfiles/${NAME} .
-        else
-            docker pull ${CI_REGISTRY_IMAGE}/${NAME}:${RELEASE}
+        elif docker pull ${CI_REGISTRY_IMAGE}/${NAME}:${RELEASE}; then
             docker tag ${CI_REGISTRY_IMAGE}/${NAME}:${RELEASE} ${CI_REGISTRY_IMAGE}/${IMAGE}
+        else
+            docker pull registry.salsa.debian.org/salsa-ci-team/pipeline/${NAME}:${RELEASE}
+            docker tag registry.salsa.debian.org/salsa-ci-team/pipeline/${NAME}:${RELEASE} ${CI_REGISTRY_IMAGE}/${IMAGE}
         fi
     - |
         docker push $CI_REGISTRY_IMAGE/$IMAGE
