@@ -32,7 +32,11 @@ output_filepath = os.path.join(OUTPUT_PATH, OUTPUT_FILENAME)
 separation_line = '#' * 120
 
 with open(output_filepath, 'w') as output_file:
-    for line in sys.stdin:
+    for line in sys.stdin.buffer:
+        try:
+            line = line.decode('utf-8')
+        except UnicodeDecodeError:
+            line = line.decode('iso-8859-1')
         byte_counter += len(line)
         output_file.write(line)
         if byte_counter <= HEAD_BYTES:
