@@ -44,11 +44,6 @@ stages:
   paths:
     - ${WORKING_DIR}/
 
-.artifacts-long-expire: &artifacts-long-expire
-  artifacts:
-    expire_in: 180 day
-    <<: *artifacts
-
 .artifacts-default-expire: &artifacts-default-expire
   artifacts:
     <<: *artifacts
