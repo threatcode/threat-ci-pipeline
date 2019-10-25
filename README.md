@@ -138,6 +138,23 @@ variables:
 ```
 
 
+### Allow reprotest to fail
+Reproducible builds are important, but `reprotest`'s behavior can sometimes be a little heractic and fail randomly on packages that aren't totally reproducible (yet!).
+
+Without completely disabling `reprotest`, you can allow it to fail without failing the whole pipeline. That way, if `reprotest` fails, the pipeline will pass and show an orange warning telling you something went wrong.
+
+You can allow `reprotest` to fail by adding this variable in your gitlab-ci manifest:
+
+```
+include:
+ - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+ - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+reprotest:
+  allow_failure: true
+```
+
+
 ### Enabling the pipeline for tags
 By default, the pipeline is run only for commits, tags are ignored. To run the pipeline against tags as well, export the `SALSA_CI_ENABLE_PIPELINE_ON_TAGS` variable and set it to one of "1", "yes" or "true", like in the following example:
 
