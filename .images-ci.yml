@@ -4,11 +4,14 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
+.changes_images: &changes_images
+  changes:
+    - images/**/*
+    - .images-*.yml
+
 .should_build_images: &should_build_images
   only:
-    changes:
-      - images/**/*
-      - .images-*.yml
+    <<: *changes_images
 
 image config:
   stage: prerequisites
@@ -88,14 +91,16 @@ deploy images:
             echo "##### Pushing ${IMAGE} as ${RELEASE}${ALIASES:+ ${ALIASES}} in ${CI_REGISTRY_IMAGE}/${NAME} #####"
             for alias in ${RELEASE} ${ALIASES}; do
                 docker tag ${CI_REGISTRY_IMAGE}/${IMAGE} ${CI_REGISTRY_IMAGE}/${NAME}:${alias}
-                if [ "${CI_COMMIT_REF_NAME}" = "master" ]; then
-                    docker push ${CI_REGISTRY_IMAGE}/${NAME}:${alias}
-                fi
+                docker push ${CI_REGISTRY_IMAGE}/${NAME}:${alias}
             done
         done
   variables:
     GIT_STRATEGY: none
   <<: *should_build_images
+  only:
+    <<: *changes_images
+    refs:
+      - master
 
 .build_base: &build_base
   <<: *build_template
