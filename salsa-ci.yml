@@ -238,19 +238,15 @@ stages:
         if ! echo "${SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE}" | grep -q -E '^(1|yes|true)$'; then
           SALSA_CI_REPROTEST_ARGS="${SALSA_CI_REPROTEST_ARGS} --no-diffoscope"
         fi
-    - mkdir -p ${REPROTEST_CONTROL_BUILD_DIR}
-    - cp ${WORKING_DIR}/*.deb ${REPROTEST_CONTROL_BUILD_DIR}
     - |
         eatmydata reprotest \
           --min-cpus $(nproc --all) \
           --store-dir ${WORKING_DIR}/reprotest \
           --verbosity=2  \
-          --control-build ${REPROTEST_CONTROL_BUILD_DIR}/.. \
           ${SALSA_CI_REPROTEST_ARGS} \
           ${WORKING_DIR}/*.dsc -- null |& OUTPUT_FILENAME=reprotest.log filter-output
   variables:
     GIT_STRATEGY: none
-    REPROTEST_CONTROL_BUILD_DIR: ${WORKING_DIR}/reprotest-control-build/source-root
 
 # Only for compat with the old way of enabling diffoscope
 .test-reprotest-diffoscope: &test-reprotest-diffoscope
