@@ -1,0 +1,84 @@
+# Copyright salsa-ci-team and others
+# SPDX-License-Identifier: FSFAP
+# Copying and distribution of this file, with or without modification, are
+# permitted in any medium without royalty provided the copyright notice and
+# this notice are preserved. This file is offered as-is, without any warranty.
+
+.atomic-reprotest: &atomic-reprotest
+  extends: .test-reprotest
+  only:
+    variables:
+      - $SALSA_CI_ENABLE_ATOMIC_REPROTEST =~ /^(1|yes|true)$/
+  variables:
+    SALSA_CI_REPROTEST_EXTRA_ARGS: '--variations=-all --variations=${VARIATION}'
+
+reprotest-environment:
+  extends: .atomic-reprotest
+  variables:
+    VARIATION: 'environment'
+
+reprotest-build_path:
+  extends: .atomic-reprotest
+  variables:
+    VARIATION: 'build_path'
+
+reprotest-kernel:
+  extends: .atomic-reprotest
+  variables:
+    VARIATION: 'kernel'
+
+reprotest-aslr:
+  extends: .atomic-reprotest
+  variables:
+    VARIATION: 'aslr'
+
+reprotest-num_cpus:
+  extends: .atomic-reprotest
+  variables:
+    VARIATION: 'num_cpus'
+
+reprotest-time:
+  extends: .atomic-reprotest
+  variables:
+    VARIATION: 'time'
+
+reprotest-user_group:
+  extends: .atomic-reprotest
+  variables:
+    VARIATION: 'user_group'
+
+reprotest-fileordering:
+  extends: .atomic-reprotest
+  variables:
+    VARIATION: 'fileordering'
+
+reprotest-domain_host:
+  extends: .atomic-reprotest
+  variables:
+    VARIATION: 'domain_host'
+
+reprotest-home:
+  extends: .atomic-reprotest
+  variables:
+    VARIATION: 'home'
+
+reprotest-locales:
+  extends: .atomic-reprotest
+  variables:
+    VARIATION: 'locales'
+
+reprotest-exec_path:
+  extends: .atomic-reprotest
+  variables:
+    VARIATION: 'exec_path'
+
+reprotest-timezone:
+  extends: .atomic-reprotest
+  variables:
+    VARIATION: 'timezone'
+
+reprotest-umask:
+  extends: .atomic-reprotest
+  variables:
+    VARIATION: 'umask'
+
