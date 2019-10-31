@@ -29,28 +29,20 @@ cleanup() {
 }
 trap cleanup EXIT
 
-DEBIAN_VARENVS=""
-
-IFS=$'\n' && for varenv in $(env); do
-    if [[ $varenv == DEB* ]]; then
-        DEBIAN_VARENVS+=" -e \"${varenv}\""
-    fi
-done
-
 set -x
 
-eval docker cp /etc/apt/sources.list.d/./ ${CONTAINER_ID}:/etc/apt/sources.list.d/
+docker cp /etc/apt/sources.list.d/./ ${CONTAINER_ID}:/etc/apt/sources.list.d/
 
-eval docker cp /etc/apt/trusted.gpg.d/./ ${CONTAINER_ID}:/etc/apt/trusted.gpg.d/
+docker cp /etc/apt/trusted.gpg.d/./ ${CONTAINER_ID}:/etc/apt/trusted.gpg.d/
 
-eval docker cp /etc/apt/preferences.d/./ ${CONTAINER_ID}:/etc/apt/preferences.d/
+docker cp /etc/apt/preferences.d/./ ${CONTAINER_ID}:/etc/apt/preferences.d/
 
-eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} sed -n '/^deb\s/s//deb-src /p' /etc/apt/sources.list > /etc/apt/sources.list.d/deb-src.list
+docker exec ${CONTAINER_ID} sed -n '/^deb\s/s//deb-src /p' /etc/apt/sources.list > /etc/apt/sources.list.d/deb-src.list
 
-eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} apt-get update
+docker exec ${CONTAINER_ID} apt-get update
 
-eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} apt-get install -y devscripts
+docker exec ${CONTAINER_ID} apt-get install -y devscripts
 
-eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} origtargz -dt
+docker exec ${CONTAINER_ID} origtargz -dt
 
 mv ../*.orig.* ${WORKING_DIR}
