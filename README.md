@@ -309,6 +309,31 @@ variables:
   SALSA_CI_REPROTEST_ARGS: --variations=-build_path
 ```
 
+#### Breaking up the reprotest job into the different variations
+
+By default, reprotest applies all the known variations (`--variations=+all`,
+see the full list at
+[reprotest(1)](https://manpages.debian.org/buster/reprotest/reprotest.1.en.html)).
+One way to debug a failing reprotest job and find out what variations are
+producing unreproducibility issues is to run the variations independently.
+
+If you want to run multiple reprotest jobs, one for each variation, set the
+`SALSA_CI_ENABLE_ATOMIC_REPROTEST` variable to 1, 'yes' or 'true':
+
+```yaml
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  SALSA_CI_ENABLE_ATOMIC_REPROTEST: 1
+```
+
+You can also set the `SALSA_CI_ENABLE_ATOMIC_REPROTEST` variable when
+triggering the pipeline, without the need of creating a specific commit.
+
+
 ### Using automatically built apt repository
 The [Aptly](https://www.aptly.info/) task runs in the publish stage and will save published apt repository files as its artifacts, so downstream CI tasks may access built binary/source packages directly through artifacts url via apt.
 
@@ -327,6 +352,7 @@ $ sudo apt-get update
 This is currently disabled by default. Set `SALSA_CI_DISABLE_APTLY` to anything other than 1, 'yes' or 'true' to enable it.
 
 To specify repository signing key, export the gpg key/passphrase as CI / CD [Variables](https://salsa.debian.org/help/ci/variables/README#variables) `SALSA_CI_APTLY_GPG_KEY` and `SALSA_CI_APTLY_GPG_PASSPHASE`. Otherwise, an automatically generated one will be used.
+
 
 ## Support
 Write us on \#salsaci @ OFTC or open an [issue here](https://salsa.debian.org/salsa-ci-team/pipeline/issues) :)
