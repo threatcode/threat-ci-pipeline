@@ -342,13 +342,15 @@ stages:
     - aptly repo create -distribution ${RELEASE} -component main ${CI_PROJECT_NAME}
     - aptly repo add ${CI_PROJECT_NAME} "${WORKING_DIR}"
     - aptly repo show -with-packages ${CI_PROJECT_NAME}
+    # accept miss-spelled var for backwards-compatibility (see https://salsa.debian.org/salsa-ci-team/pipeline/issues/114)
+    - export SALSA_CI_APTLY_GPG_PASSPHRASE=${SALSA_CI_APTLY_GPG_PASSPHRASE="${SALSA_CI_APTLY_GPG_PASSPHASE}"}
     - |
         if [ -n "${SALSA_CI_APTLY_GPG_KEY}" ]; then \
             echo "${SALSA_CI_APTLY_GPG_KEY}" \
-                | gpg1 --import ${SALSA_CI_APTLY_GPG_PASSPHASE:+ --passphrase ${SALSA_CI_APTLY_GPG_PASSPHASE}}; \
+                | gpg1 --import ${SALSA_CI_APTLY_GPG_PASSPHRASE:+ --passphrase ${SALSA_CI_APTLY_GPG_PASSPHRASE}}; \
         else \
             rngd -r /dev/urandom; \
-            printf "Key-Type: RSA\nKey-Length: 2048\nName-Real: ${DEBFULLNAME}\nName-Email: ${DEBEMAIL}\nExpire-Date: 0\n${SALSA_CI_APTLY_GPG_PASSPHASE:+Passphrase: ${SALSA_CI_APTLY_GPG_PASSPHASE}\n}%commit" | \
+            printf "Key-Type: RSA\nKey-Length: 2048\nName-Real: ${DEBFULLNAME}\nName-Email: ${DEBEMAIL}\nExpire-Date: 0\n${SALSA_CI_APTLY_GPG_PASSPHRASE:+Passphrase: ${SALSA_CI_APTLY_GPG_PASSPHRASE}\n}%commit" | \
                 gpg1 --batch --gen-key; \
         fi
         gpg1 --export --armor > "${PUBKEY_FILENAME}"
@@ -359,7 +361,7 @@ stages:
         ARCHITECTURES=${ARCHITECTURES%,}; \
         aptly publish repo -batch \
             ${ARCHITECTURES:+ -architectures=${ARCHITECTURES}} \
-            ${SALSA_CI_APTLY_GPG_PASSPHASE:+ -passphrase=${SALSA_CI_APTLY_GPG_PASSPHASE}} \
+            ${SALSA_CI_APTLY_GPG_PASSPHRASE:+ -passphrase=${SALSA_CI_APTLY_GPG_PASSPHRASE}} \
             ${CI_PROJECT_NAME}
     - |
         mkdir -p "${CI_PROJECT_DIR}/${REPO_PATH}"
