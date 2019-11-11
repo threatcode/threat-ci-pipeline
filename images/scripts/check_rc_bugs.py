@@ -79,12 +79,9 @@ def merged_dupe(merged_bugs, current, bug_nrs):
 
 
 def get_bug_nrs(source_name, binaries):
-    base_selector = ('status', 'open')
-    source_selector = ('src', source_name) + base_selector
-    bug_nrs = set(debianbts.get_bugs(*source_selector))
+    bug_nrs = set(debianbts.get_bugs(src=source_name, status='open'))
     for binary in binaries:
-        binary_selector = ('package', binary)
-        bug_nrs.update(debianbts.get_bugs(*binary_selector))
+        bug_nrs.update(debianbts.get_bugs(package=binary, status='open'))
     return bug_nrs
 
 
@@ -128,7 +125,7 @@ def main():
     source_name, binaries, closes = get_changes_info(options.changes_file)
 
     bug_nrs = get_bug_nrs(source_name, binaries)
-    bug_reports = debianbts.get_status(*bug_nrs)
+    bug_reports = debianbts.get_status(bug_nrs)
     test_cases = generate_test_cases(bug_reports, closes, bug_nrs, options)
     test_suite = TestSuite('Check_RC_BUGS', test_cases)
     with open(options.output, 'w', encoding='utf-8') as output_file:
