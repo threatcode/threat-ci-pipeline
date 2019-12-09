@@ -81,6 +81,7 @@ lintian:sid:
 
 lintian:experimental:
   extends: .build_others
+  allow_failure: true
 
 gbp:sid:
   extends: .build_others
