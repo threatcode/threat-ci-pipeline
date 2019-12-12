@@ -113,7 +113,8 @@ stages:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
 
 .build-source-only: &build-source-only
-  <<: *build-definition
+  extends:
+    - .build-definition
   variables:
     DB_BUILD_PARAM: "-S"
   except:
@@ -121,7 +122,8 @@ stages:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
 
 .test-build-package-any: &test-build-package-any
-  <<: *build-definition
+  extends:
+    - .build-definition
   stage: test
   script:
     - *build-before-script
@@ -151,7 +153,8 @@ stages:
 
 
 .test-build-package-all: &test-build-package-all
-  <<: *build-definition
+  extends:
+    - .build-definition
   stage: test
   script:
     - *build-before-script
@@ -267,7 +270,8 @@ stages:
 
 # Only for compat with the old way of enabling diffoscope
 .test-reprotest-diffoscope: &test-reprotest-diffoscope
-  <<: *test-reprotest
+  extends:
+    - .test-reprotest
   variables:
     SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE: '1'
 
