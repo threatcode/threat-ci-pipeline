@@ -22,7 +22,7 @@ Our [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) definition is focus
 
 ## What does this _pipeline_ provide for my project/package?
 
-The [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) builds your package(s) and runs multiple checks on them after every push to Salsa. 
+The [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) builds your package(s) and runs multiple checks on them after every push to Salsa.
 
 This provides you with instant feedback about any problems the changes you made may have created or solved, without the need to do a push to the archive, speeding up your development cycle and improving the quality of packages uploaded to Debian.
 
@@ -36,7 +36,7 @@ The services we got working are the following:
  * [Autopkgtest](https://salsa.debian.org/ci-team/autopkgtest/raw/master/doc/README.package-tests.rst)
  * [Buildd Log Scanner](https://qa.debian.org/bls/)
 
-Those services are enabled by something we called `salsa-pipeline` and it will be shared for all Salsa projects who adopt it. 
+Those services are enabled by something we called `salsa-pipeline` and it will be shared for all Salsa projects who adopt it.
 Having this on Gitlab CI ensures that every package accomplishes the minimum quality to be in the archive and if we improve or add a new service the project will get the benefit instantaneously.
 
 
@@ -63,14 +63,14 @@ Following the basic instructions will allow you to add all the building and test
 However, customization of the scripts is possible.
 
 
-The [`salsa-ci.yml`](https://salsa.debian.org/salsa-ci-team/pipeline/blob/master/salsa-ci.yml) template delivers the jobs definitions. 
+The [`salsa-ci.yml`](https://salsa.debian.org/salsa-ci-team/pipeline/blob/master/salsa-ci.yml) template delivers the jobs definitions.
 Including only this file, no job will be added to the pipeline.
 On the other hand, [`pipeline-jobs.yml`](https://salsa.debian.org/salsa-ci-team/pipeline/blob/master/pipeline-jobs.yml) includes all the jobs' instances.
 
 
 ### Changing the Debian Release
 
-By default, everything will run on the `'unstable'` suite. 
+By default, everything will run on the `'unstable'` suite.
 Changing the release is as easy as setting a `RELEASE` variable.
 
 ```yaml
@@ -83,7 +83,7 @@ variables:
   RELEASE: 'buster'
 ```
 
-The following releases are currently supported: 
+The following releases are currently supported:
 * jessie
 * stretch
 * stretch-backports
@@ -102,7 +102,7 @@ If your package has dependencies or build-dependencies in the `contrib` or `non-
 
 ```yaml
 ---
-include: 
+include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 
@@ -120,7 +120,7 @@ There are many ways to skip a certain job. The recommended way is to set to 1 (o
 
 ```yaml
 ---
-include: 
+include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 
@@ -160,7 +160,7 @@ By default, the pipeline is run only for commits, tags are ignored. To run the p
 
 ```yaml
 ---
-include: 
+include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 
@@ -285,7 +285,7 @@ To enable diffoscope, setting `SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE` to 1 (or 'y
 
 ```yaml
 ---
-include: 
+include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 
