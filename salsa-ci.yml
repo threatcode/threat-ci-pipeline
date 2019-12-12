@@ -206,6 +206,8 @@ stages:
   variables:
     GIT_STRATEGY: none
     SCI_LXC_PATH: ${CI_PROJECT_DIR}/lxc
+  dependencies:
+    - build
 
 .test-blhc: &test-blhc
   stage: test
@@ -218,6 +220,8 @@ stages:
     - blhc --debian --line-numbers --color ${SALSA_CI_BLHC_ARGS} ${WORKING_DIR}/*.build || [ $? -eq 1 ]
   variables:
     GIT_STRATEGY: none
+  dependencies:
+    - build
 
 .test-lintian: &test-lintian
   stage: test
@@ -235,6 +239,8 @@ stages:
   artifacts:
     reports:
       junit: ${WORKING_DIR}/lintian.xml
+  dependencies:
+    - build
 
 .test-reprotest: &test-reprotest
   stage: test
@@ -267,6 +273,8 @@ stages:
           ${WORKING_DIR}/*.dsc -- null |& OUTPUT_FILENAME=reprotest.log filter-output
   variables:
     GIT_STRATEGY: none
+  dependencies:
+    - build
 
 # Only for compat with the old way of enabling diffoscope
 .test-reprotest-diffoscope: &test-reprotest-diffoscope
@@ -312,6 +320,8 @@ stages:
         done) | filter-output
   variables:
     GIT_STRATEGY: none
+  dependencies:
+    - build
 
 .test-rc-bugs: &test-rc-bugs
   stage: test
@@ -327,6 +337,8 @@ stages:
       junit: ${WORKING_DIR}/rc_bugs.xml
   variables:
     GIT_STRATEGY: none
+  dependencies:
+    - build
 
 .test-missing-breaks: &test-missing-breaks
   stage: test
@@ -343,6 +355,8 @@ stages:
       junit: ${WORKING_DIR}/missing_breaks.xml
   variables:
     GIT_STRATEGY: none
+  dependencies:
+    - build
 
 .publish-aptly: &publish-aptly
   stage: publish
@@ -390,3 +404,5 @@ stages:
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/${REPO_PATH}
+  dependencies:
+    - build
