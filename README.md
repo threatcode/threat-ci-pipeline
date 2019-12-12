@@ -353,6 +353,9 @@ This is currently disabled by default. Set `SALSA_CI_DISABLE_APTLY` to anything 
 
 To specify repository signing key, export the gpg key/passphrase as CI / CD [Variables](https://salsa.debian.org/help/ci/variables/README#variables) `SALSA_CI_APTLY_GPG_KEY` and `SALSA_CI_APTLY_GPG_PASSPHRASE`. Otherwise, an automatically generated one will be used.
 
+### Debian release bump
+By default, the build job will increase the release number using the +sci suffix.
+To disable this behavior set the `SALSA_CI_DISABLE_VERSION_BUMP` to 1, 'yes' or 'true'.
 
 ## Support
 Write us on \#salsaci @ OFTC or open an [issue here](https://salsa.debian.org/salsa-ci-team/pipeline/issues) :)
