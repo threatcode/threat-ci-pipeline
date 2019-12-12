@@ -10,6 +10,9 @@ include:
 build:
     extends: .build-package
 
+build source:
+    extends: .build-source-only
+
 test-build-any:
     extends: .test-build-package-any
 
