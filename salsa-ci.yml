@@ -7,7 +7,7 @@
 
 variables:
   DEBFULLNAME: "Salsa Pipeline"
-  DEBEMAIL: "<salsa-pipeline@debian.org>"
+  DEBEMAIL: "salsa-pipeline@debian.org"
   DEBIAN_FRONTEND: noninteractive
   WORKING_DIR: $CI_PROJECT_DIR/debian/output
   VENDOR: 'debian'
@@ -72,6 +72,14 @@ stages:
      docker-origtargz.sh "${SALSA_CI_IMAGES_DOCKERBUILDER}"
      gbp_args="--git-overlay"
    fi
+
+   if ! echo "$SALSA_CI_DISABLE_VERSION_BUMP" | grep -qE '^(1|yes|true)$'; then
+     dch --local +sci "Salsa CI build"
+     git config user.email "$DEBEMAIL"
+     git config user.name "$DEBFULLNAME"
+     git commit debian/changelog -m "Salsa CI Version bump"
+   fi
+
    gbp buildpackage \
         --git-ignore-branch \
         --git-ignore-new \
