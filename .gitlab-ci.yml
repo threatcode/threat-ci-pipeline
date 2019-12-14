@@ -14,7 +14,6 @@ variables:
 
 stages:
   - images
-  - testing
 
   # From the tested pipeline.
   - build

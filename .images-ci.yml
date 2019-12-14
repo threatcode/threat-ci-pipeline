@@ -22,7 +22,10 @@ clean images:
         done
   when: always
   except:
-    - master
+    refs:
+      - master
+    variables:
+      - $TEST_PIPELINE
 
 .build_template: &build_template
   stage: images
@@ -85,6 +88,9 @@ clean images:
           docker tag ${IMAGE_URL} ${ALIAS_IMAGE}
           docker push ${ALIAS_IMAGE}
         done
+  except:
+    variables:
+      - $TEST_PIPELINE
 
 .trigger_build: &trigger_build
   stage: images
