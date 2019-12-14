@@ -4,9 +4,6 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
-ARG BASE_IMAGE
-FROM ${BASE_IMAGE}
-
 # install dependencies for check rc bugs
 RUN \
     set -eux; \

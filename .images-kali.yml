@@ -4,61 +4,61 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
-.build_kali_base:
-  extends: .build_base
+include:
+ - .images-ci.yml
+
+variables:
+  VENDOR: kali
+  RELEASE: kali-dev
+  BASE_IMAGE: "debian:testing"
+
+
+.build_only_kali-dev: &build_only_kali-dev
+  extends: .build_template
+  only:
+    variables:
+      - $RELEASE == 'kali-dev'
+
+.build_except_kali-experimental: &build_except_kali-experimental
+  extends: .build_template
+  except:
+    variables:
+      - $RELEASE == 'kali-experimental'
+
+image:base:
+  extends: .build_template
+
+image:piuparts:
+  extends: .build_only_kali-dev
+
+image:reprotest:
+  extends: .build_only_kali-dev
+
+image:autopkgtest:
+  extends: .build_only_kali-dev
+
+image:blhc:
+  extends: .build_only_kali-dev
+
+image:lintian:
+  extends: .build_except_kali-experimental
+
+image:gbp:
+  extends: .build_only_kali-dev
+
+image:dockerbuilder:
+  extends: .build_template
+
+image:generic_tests:
+  extends: .build_except_kali-experimental
+
+image:aptly:
+  extends: .build_only_kali-dev
+
+#
+# Trigger build of other releases.
+#
+trigger other releases:
+  extends: .trigger_build
   variables:
-    VENDOR: kali
-    BASE_IMAGE: "debian:testing"
-
-.build_kali_others:
-  extends: .build_others
-  variables:
-    VENDOR: kali
-
-base:kali-rolling:
-  extends: .build_kali_base
-
-base:kali-dev:
-  extends: .build_kali_base
-
-base:kali-experimental:
-  extends: .build_kali_base
-
-piuparts:kali-dev:
-  extends: .build_kali_others
-
-reprotest:kali-dev:
-  extends: .build_kali_others
-
-autopkgtest:kali-dev:
-  extends: .build_kali_others
-
-blhc:kali-dev:
-  extends: .build_kali_others
-
-lintian:kali-rolling:
-  extends: .build_kali_others
-
-lintian:kali-dev:
-  extends: .build_kali_others
-
-gbp:kali-dev:
-  extends: .build_kali_others
-
-dockerbuilder:kali-rolling:
-  extends: .build_kali_others
-
-dockerbuilder:kali-dev:
-  extends: .build_kali_others
-
-dockerbuilder:kali-experimental:
-  extends: .build_kali_others
-
-generic_tests:kali-rolling:
-  extends: .build_kali_others
-
-generic_tests:kali-dev:
-  extends: .build_kali_others
-
-aptly:kali-dev:
-  extends: .build_kali_others
+    RELEASES_LIST: 'kali-experimental kali-rolling'

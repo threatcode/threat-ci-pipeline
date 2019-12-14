@@ -4,8 +4,14 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
-ARG BASE_IMAGE
-FROM ${BASE_IMAGE}
+RUN \
+set -eux; \
+apt-get update --quiet; \
+eatmydata apt-get install --no-install-recommends --yes \
+    aptly \
+    gettext-base \
+    rng-tools \
+    ; \
+rm -rf /var/lib/apt
 
-RUN apt-get update && eatmydata apt-get install blhc -y && rm -rf /var/lib/apt
-
+COPY files/aptly/index.html.template /etc/aptly/index.html.template
