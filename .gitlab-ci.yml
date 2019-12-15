@@ -21,4 +21,5 @@ stages:
   - test
   # End From the tested pipeline.
 
+  - deploy
   - clean

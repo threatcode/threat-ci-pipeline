@@ -93,7 +93,7 @@ clean images:
       - $TEST_PIPELINE
 
 .trigger_build: &trigger_build
-  stage: images
+  stage: deploy
   image: debian:unstable
   before_script:
     - apt-get update && apt-get install python3 python3-gitlab -y
