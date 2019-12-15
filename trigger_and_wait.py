@@ -95,11 +95,11 @@ def generate_staging_images_urls(registry_url, release, staging_tag ):
     }
 
 
-def create_variables_from_args(args):
+def create_variables_from_args(args, release):
     """Use args values to create the variables dict."""
     variables = {
         'IS_A_CHILD_PIPELINE': 'true',
-        'RELEASE': args.release,
+        'RELEASE': release,
     }
 
     # Split key=value variables from args.
@@ -114,8 +114,7 @@ def create_variables_from_args(args):
             logging.info('Running on default branch. Not including image urls.')
 
         else:
-            images = generate_staging_images_urls(args.registry_url, args.release,
-                                                  staging_tag=args.staging_tag)
+            images = generate_staging_images_urls(args.registry_url, release, staging_tag=args.staging_tag)
             variables.update(images)
 
     return variables
@@ -138,7 +137,7 @@ def arguments_parse():
 
     # To be used on salsa-ci-team/pipeline CI.
     parser.add_argument('--release', help='Release variable to use for Salsa CI Images.',
-                        default=RELEASE)
+                        default=[RELEASE,], nargs='+')
     parser.add_argument('--include-image-urls', help='Include the Salsa CI Images urls.',
                         action='store_true')
     parser.add_argument('--registry-url', help='Registry URL. '
@@ -163,16 +162,21 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging_level)
 
-    variables = create_variables_from_args(args)
+    triggered_pipelines = []
+    for release in args.release:
+        variables = create_variables_from_args(args, release)
 
-    pipeline_data = PipelineData(
-        args.gitlab_url,
-        args.project_id,
-        args.token,
-        args.reference,
-        variables,
-    )
+        pipeline_data = PipelineData(
+            args.gitlab_url,
+            args.project_id,
+            args.token,
+            args.reference,
+            variables,
+        )
 
-    trigger = PipelineTrigger(pipeline_data)
-    pipeline = trigger.trigger()
-    trigger.wait(pipeline)
+        trigger = PipelineTrigger(pipeline_data)
+        pipeline = trigger.trigger()
+        triggered_pipelines.append((trigger, pipeline))
+
+    for trigger, pipeline in triggered_pipelines:
+        trigger.wait(pipeline)

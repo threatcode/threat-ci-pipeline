@@ -94,17 +94,11 @@ clean images:
 
 .trigger_build: &trigger_build
   stage: images
+  image: debian:unstable
+  before_script:
+    - apt-get update && apt-get install python3 python3-gitlab -y
   script:
-    - apt-get update && apt-get install curl -y
-    - |
-        for RELEASE in $RELEASES_LIST; do
-          curl -X POST \
-               -F token=${CI_JOB_TOKEN} \
-               -F ref=${CI_COMMIT_REF_NAME} \
-               -F "variables[RELEASE]=${RELEASE}" \
-               -F "variables[IS_A_CHILD_PIPELINE]=true" \
-               https://${CI_SERVER_HOST}/api/v4/projects/${CI_PROJECT_ID}/trigger/pipeline
-        done
+    - ./trigger_and_wait.py --release $RELEASES_LIST
   except:
     variables:
       - $IS_A_CHILD_PIPELINE
