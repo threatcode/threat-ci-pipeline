@@ -74,7 +74,7 @@ stages:
    fi
 
    if ! echo "$SALSA_CI_DISABLE_VERSION_BUMP" | grep -qE '^(1|yes|true)$'; then
-     dch --local +salsaci "Salsa CI build"
+     sed -i -e '1 s/)/+salsaci)/' debian/changelog
      git config user.email "$DEBEMAIL"
      git config user.name "$DEBFULLNAME"
      git commit debian/changelog -m "Salsa CI Version bump"
