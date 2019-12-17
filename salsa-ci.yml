@@ -224,7 +224,6 @@ stages:
   artifacts:
     reports:
       junit: ${WORKING_DIR}/lintian.xml
-  allow_failure: true
 
 .test-reprotest: &test-reprotest
   stage: test
