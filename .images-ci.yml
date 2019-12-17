@@ -4,55 +4,74 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
-.changes_images: &changes_images
-  changes:
-    - images/**/*
-    - .images-*.yml
-
-.should_build_images: &should_build_images
-  only:
-    <<: *changes_images
-
-image config:
-  stage: prerequisites
-  image: debian
+clean images:
+  stage: clean
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    IMAGES_LIST: 'aptly autopkgtest base blhc gbp piuparts reprotest dockerbuilder lintian generic_tests'
+  before_script:
+    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+    - wget -O /usr/bin/reg https://github.com/genuinetools/reg/releases/download/v0.13.0/reg-linux-amd64
+    - chmod +x /usr/bin/reg
   script:
-    - mkdir -p "${CI_PROJECT_DIR}/docker/configs"
-    - touch "${CI_PROJECT_DIR}/docker/configs/should_build_images"
-  artifacts:
-    paths:
-      - ${CI_PROJECT_DIR}/docker/configs/should_build_images
-  <<: *should_build_images
+    - |
+        for IMAGE in $IMAGES_LIST; do
+          reg --registry ${CI_REGISTRY} rm ${CI_PROJECT_PATH}/${IMAGE}:${RELEASE}_${CI_COMMIT_REF_NAME} || true
+        done
+  when: always
+  except:
+    refs:
+      - master
+    variables:
+      - $TEST_PIPELINE
 
 .build_template: &build_template
+  stage: images
   image: docker:latest
   services:
     - docker:dind
   before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_JOB_TOKEN $CI_REGISTRY
-    - cd ${CI_PROJECT_DIR}/images
+    - docker login -u $CI_REGISTRY_USER -p $CI_BUILD_TOKEN $CI_REGISTRY
   script:
-    - NAME=$(echo ${CI_JOB_NAME} | awk -F':' '{ print $1 }')
-    - RELEASE=$(echo ${CI_JOB_NAME} | awk -F':' '{ print $2 }')
-    - STAGING_TAG=${CI_PIPELINE_ID}-
-    - IMAGE=staging:${STAGING_TAG}${NAME}-${RELEASE}
-    - eval "BASE_IMAGE=${BASE_IMAGE}"
+    - cd images
     - |
-        if [ -e "${CI_PROJECT_DIR}/docker/configs/should_build_images" ]; then
-            docker build --pull -t ${CI_REGISTRY_IMAGE}/${IMAGE} \
-                --build-arg VENDOR=${VENDOR} \
-                --build-arg RELEASE=${RELEASE} \
-                --build-arg BASE_IMAGE=${BASE_IMAGE} \
-                -f dockerfiles/${NAME} .
-        elif docker pull ${CI_REGISTRY_IMAGE}/${NAME}:${RELEASE}; then
-            docker tag ${CI_REGISTRY_IMAGE}/${NAME}:${RELEASE} ${CI_REGISTRY_IMAGE}/${IMAGE}
-        else
-            docker pull registry.salsa.debian.org/salsa-ci-team/pipeline/${NAME}:${RELEASE}
-            docker tag registry.salsa.debian.org/salsa-ci-team/pipeline/${NAME}:${RELEASE} ${CI_REGISTRY_IMAGE}/${IMAGE}
+        # If not master, use REF as staging tag.
+        if ! [ "${CI_COMMIT_REF_NAME}" = "master" ]; then
+          STAGING_TAG="_${CI_COMMIT_REF_NAME}"
         fi
     - |
-        docker push $CI_REGISTRY_IMAGE/$IMAGE
-        case "$VENDOR" in
+        if [ -z ${BASE_IMAGE} ]; then
+          BASE_IMAGE=${VENDOR}:${RELEASE}
+        fi
+    - IMAGE_NAME=$(echo ${CI_JOB_NAME} | awk -F':' '{ print $2 }')
+    - IMAGE_NAME_WITH_TAG=${IMAGE_NAME}:${RELEASE}${STAGING_TAG}
+    - IMAGE_URL=${CI_REGISTRY_IMAGE}/${IMAGE_NAME_WITH_TAG}
+    - |
+        # Render Dockerfile.
+        cat $(ls -v dockerfiles/base.*) > Dockerfile
+        if ! [ "${IMAGE_NAME}" = "base" ]; then
+            cat $(ls -v dockerfiles/$IMAGE_NAME.*) >> Dockerfile
+        fi
+    - |
+        # If jessie, workaround docker slowness.
+        if [ "$RELEASE" = "jessie" ]; then
+          EXTRA_BUILD_ARGS='--ulimit nofile=1024:1024'
+        fi
+    - |
+        # Build !
+        docker build -t ${IMAGE_URL} \
+                  --build-arg VENDOR=${VENDOR} \
+                  --build-arg RELEASE=${RELEASE} \
+                  --build-arg BASE_IMAGE=${BASE_IMAGE} \
+                  ${EXTRA_BUILD_ARGS} .
+
+    - docker push ${IMAGE_URL}
+    - |
+        # Check if aliases are needed.
+        if [ "${CI_COMMIT_REF_NAME}" = "master" ]; then
+          case "$VENDOR" in
             debian)
                 ALIASES=$(wget -O - http://deb.debian.org/debian/dists/${RELEASE}/Release | awk "/^Suite:/ { if (\$2 !~ /${RELEASE}/) print \$2 }")
                 test "$ALIASES" != 'unstable' || ALIASES="${ALIASES} latest"
@@ -60,56 +79,30 @@ image config:
             kali)
                 test "$RELEASE" != "kali-dev" || ALIASES="${ALIASES} latest"
             ;;
-        esac
-        for alias in $ALIASES; do
-            docker tag ${CI_REGISTRY_IMAGE}/${IMAGE} ${CI_REGISTRY_IMAGE}/staging:${STAGING_TAG}${NAME}-${alias}
-            docker push ${CI_REGISTRY_IMAGE}/staging:${STAGING_TAG}${NAME}-${alias}
-        done
+          esac
+        fi
     - |
-        mkdir -p "${CI_PROJECT_DIR}/docker/configs"
-        echo -n "${ALIASES}" > "${CI_PROJECT_DIR}/docker/configs/alias-${NAME}:${RELEASE}"
-  artifacts:
-    paths:
-      - ${CI_PROJECT_DIR}/docker/configs/alias-*
+        #Push the aliases.
+        for ALIAS in $ALIASES; do
+          ALIAS_IMAGE=${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${ALIAS}${STAGING_TAG}
+          docker tag ${IMAGE_URL} ${ALIAS_IMAGE}
+          docker push ${ALIAS_IMAGE}
+        done
+  except:
+    variables:
+      - $TEST_PIPELINE
 
-deploy images:
+.trigger_build: &trigger_build
   stage: deploy
-  image: docker:latest
-  services:
-    - docker:dind
+  image: debian:unstable
   before_script:
-    - docker login -u ${CI_REGISTRY_USER} -p ${CI_JOB_TOKEN} ${CI_REGISTRY}
+    - apt-get update && apt-get install python3 python3-gitlab -y
   script:
-    - |
-        for conf in $(find "${CI_PROJECT_DIR}/docker/configs" -name alias-\* | sort); do
-            NAME=${conf#*alias-}
-            RELEASE=${NAME#*:}
-            NAME=${NAME%:*}
-            IMAGE=staging:${CI_PIPELINE_ID}-${NAME}-${RELEASE}
-            docker pull ${CI_REGISTRY_IMAGE}/${IMAGE}
-            ALIASES=$(cat "${conf}")
-            echo "##### Pushing ${IMAGE} as ${RELEASE}${ALIASES:+ ${ALIASES}} in ${CI_REGISTRY_IMAGE}/${NAME} #####"
-            for alias in ${RELEASE} ${ALIASES}; do
-                docker tag ${CI_REGISTRY_IMAGE}/${IMAGE} ${CI_REGISTRY_IMAGE}/${NAME}:${alias}
-                docker push ${CI_REGISTRY_IMAGE}/${NAME}:${alias}
-            done
-        done
-  variables:
-    GIT_STRATEGY: none
-  <<: *should_build_images
+    - ./trigger_and_wait.py --release $RELEASES_LIST
+  except:
+    variables:
+      - $IS_A_CHILD_PIPELINE
   only:
-    <<: *changes_images
-    refs:
-      - master
-
-.build_base: &build_base
-  <<: *build_template
-  stage: images_base
-  variables:
-    BASE_IMAGE: $${VENDOR}:$${RELEASE}
-
-.build_others: &build_others
-  <<: *build_template
-  stage: images_others
-  variables:
-    BASE_IMAGE: ${CI_REGISTRY_IMAGE}/staging:${CI_PIPELINE_ID}-base-$${RELEASE}
+    variables:
+      - $CI_COMMIT_REF_NAME == "master"
+      - $BUILD_ALL_IMAGES

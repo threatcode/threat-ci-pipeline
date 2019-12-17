@@ -5,30 +5,21 @@
 # this notice are preserved. This file is offered as-is, without any warranty.
 
 include:
- - .images-ci.yml
- - .images-debian.yml
  - .pipeline-test.yml
+ - .images-debian.yml
 
 variables:
   DOCKER_TLS_CERTDIR: ""
-  SALSA_CI_IMAGES_APTLY: ${CI_REGISTRY_IMAGE}/staging:${CI_PIPELINE_ID}-aptly-latest
-  SALSA_CI_IMAGES_AUTOPKGTEST: ${CI_REGISTRY_IMAGE}/staging:${CI_PIPELINE_ID}-autopkgtest-latest
-  SALSA_CI_IMAGES_BASE: ${CI_REGISTRY_IMAGE}/staging:${CI_PIPELINE_ID}-base-${RELEASE}
-  SALSA_CI_IMAGES_GENERIC_TESTS: ${CI_REGISTRY_IMAGE}/staging:${CI_PIPELINE_ID}-generic_tests-${RELEASE}
-  SALSA_CI_IMAGES_BLHC: ${CI_REGISTRY_IMAGE}/staging:${CI_PIPELINE_ID}-blhc-latest
-  SALSA_CI_IMAGES_DOCKERBUILDER: ${CI_REGISTRY_IMAGE}/staging:${CI_PIPELINE_ID}-dockerbuilder-${RELEASE}
-  SALSA_CI_IMAGES_GBP: ${CI_REGISTRY_IMAGE}/staging:${CI_PIPELINE_ID}-gbp-latest
-  SALSA_CI_IMAGES_LINTIAN: ${CI_REGISTRY_IMAGE}/staging:${CI_PIPELINE_ID}-lintian-${RELEASE}
-  SALSA_CI_IMAGES_PIUPARTS: ${CI_REGISTRY_IMAGE}/staging:${CI_PIPELINE_ID}-piuparts-latest
-  SALSA_CI_IMAGES_REPROTEST: ${CI_REGISTRY_IMAGE}/staging:${CI_PIPELINE_ID}-reprotest-latest
   SALSA_CI_DISABLE_APTLY: "false"
 
 stages:
-  - prerequisites
-  - images_base
-  - images_others
+  - images
+
+  # From the tested pipeline.
   - build
   - publish
   - test
-  - contributions
+  # End From the tested pipeline.
+
   - deploy
+  - clean

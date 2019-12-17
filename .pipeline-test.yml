@@ -6,10 +6,9 @@
 
 include:
  - salsa-ci.yml
- - pipeline-jobs.yml
 
 check license + contributor:
-    stage: contributions
+    stage: test
     image: ${SALSA_CI_IMAGES_BASE}
     dependencies: []
     before_script:
@@ -30,7 +29,73 @@ check license + contributor:
             (echo "ERROR: ${GITLAB_USER_NAME} <${GITLAB_USER_EMAIL}> missing in the CONTRIBUTORS file"; exit 1) || \
             PROBLEMS=$(($PROBLEMS + 1))
         - exit $PROBLEMS
+    except:
+      variables:
+        - $TEST_PIPELINE
+        - $IS_A_CHILD_PIPELINE
+
+trigger testing:
+  stage: test
+  image: debian:unstable
+  before_script:
+    - apt-get update && apt-get install python3 python3-gitlab -y
+  script:
+    - |
+        ./trigger_and_wait.py --include-image-urls \
+            -e "TEST_PIPELINE=true"
+  except:
+    variables:
+      - $IS_A_CHILD_PIPELINE
 
 before_script:
     - test -d repo_test || ( apt-get update && apt-get install git -y; git clone https://salsa.debian.org/salsa-ci-team/dummypackage repo_test)
     - cd repo_test
+
+.only-in-test-pipeline: &only-in-test-pipeline
+  only:
+    variables:
+      - $TEST_PIPELINE
+
+build:
+    extends: .build-package
+    <<: *only-in-test-pipeline
+
+test-build-any:
+    extends: .test-build-package-any
+    <<: *only-in-test-pipeline
+
+test-build-all:
+    extends: .test-build-package-all
+    <<: *only-in-test-pipeline
+
+reprotest:
+    extends: .test-reprotest
+    <<: *only-in-test-pipeline
+
+lintian:
+    extends: .test-lintian
+    <<: *only-in-test-pipeline
+
+autopkgtest:
+    extends: .test-autopkgtest
+    <<: *only-in-test-pipeline
+
+blhc:
+    extends: .test-blhc
+    <<: *only-in-test-pipeline
+
+piuparts:
+    extends: .test-piuparts
+    <<: *only-in-test-pipeline
+
+missing-breaks:
+    extends: .test-missing-breaks
+    <<: *only-in-test-pipeline
+
+rc-bugs:
+    extends: .test-rc-bugs
+    <<: *only-in-test-pipeline
+
+aptly:
+    extends: .publish-aptly
+    <<: *only-in-test-pipeline

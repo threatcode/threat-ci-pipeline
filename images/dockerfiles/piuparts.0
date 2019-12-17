@@ -4,9 +4,6 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
-ARG BASE_IMAGE
-FROM ${BASE_IMAGE}
-
 RUN apt-get update && eatmydata apt-get install docker.io piuparts local-apt-repository --no-install-recommends -y && rm -rf /var/lib/apt
 
 COPY ./scripts/*_install_*_configs /etc/piuparts/scripts/

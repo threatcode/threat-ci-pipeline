@@ -4,145 +4,66 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
+include:
+ - .images-ci.yml
+
 variables:
-  SALSA_CI_TRIGGER_CLEANUP_URL: https://salsa.debian.org/api/v4/projects/36571/trigger/pipeline
+  VENDOR: debian
+  RELEASE: sid
 
-base:jessie:
-  extends: .build_base
+.build_only_sid: &build_only_sid
+  extends: .build_template
+  only:
+    variables:
+      - $RELEASE == 'sid'
+
+#
+# These images build only for sid.
+#
+image:aptly:
+  extends: .build_only_sid
+
+image:autopkgtest:
+  extends: .build_only_sid
+
+image:blhc:
+  extends: .build_only_sid
+
+image:gbp:
+  extends: .build_only_sid
+
+image:pipeline:
+  extends: .build_only_sid
+
+image:piuparts:
+  extends: .build_only_sid
+
+image:reprotest:
+  extends: .build_only_sid
+
+#
+# These images build for all the releases.
+#
+image:base:
+  extends: .build_template
+
+image:dockerbuilder:
+  extends: .build_template
+
+image:lintian:
+  extends: .build_template
+  only:
+    variables:
+      # Use != to avoid overriding template except.
+      - $RELEASE != 'experimental'
+
+image:generic_tests:
+  extends: .build_template
+
+#
+# Trigger build of other releases.
+#
+trigger other releases:
+  extends: .trigger_build
   variables:
-    EXTRA_BUILD_ARGS: "--ulimit nofile=1024:1024"
-
-base:stretch:
-  extends: .build_base
-
-base:stretch-backports:
-  extends: .build_base
-
-base:buster:
-  extends: .build_base
-
-base:buster-backports:
-  extends: .build_base
-
-base:bullseye:
-  extends: .build_base
-
-base:bullseye-backports:
-  extends: .build_base
-
-base:sid:
-  extends: .build_base
-
-base:experimental:
-  extends: .build_base
-
-piuparts:sid:
-  extends: .build_others
-
-reprotest:sid:
-  extends: .build_others
-
-# Image for the pipeline runner
-# salsa.debian.org/salsa-ci-team/pipeline
-pipeline:sid:
-  extends: .build_others
-
-autopkgtest:sid:
-  extends: .build_others
-
-blhc:sid:
-  extends: .build_others
-
-lintian:jessie:
-  extends: .build_others
-  variables:
-    EXTRA_BUILD_ARGS: "--ulimit nofile=1024:1024"
-
-lintian:stretch:
-  extends: .build_others
-
-lintian:stretch-backports:
-  extends: .build_others
-
-lintian:buster:
-  extends: .build_others
-
-lintian:buster-backports:
-  extends: .build_others
-
-lintian:bullseye:
-  extends: .build_others
-
-lintian:bullseye-backports:
-  extends: .build_others
-
-lintian:sid:
-  extends: .build_others
-
-lintian:experimental:
-  extends: .build_others
-  allow_failure: true
-
-gbp:sid:
-  extends: .build_others
-
-dockerbuilder:jessie:
-  extends: .build_others
-  variables:
-    EXTRA_BUILD_ARGS: "--ulimit nofile=1024:1024"
-
-dockerbuilder:stretch:
-  extends: .build_others
-
-dockerbuilder:stretch-backports:
-  extends: .build_others
-
-dockerbuilder:buster:
-  extends: .build_others
-
-dockerbuilder:buster-backports:
-  extends: .build_others
-
-dockerbuilder:bullseye:
-  extends: .build_others
-
-dockerbuilder:bullseye-backports:
-  extends: .build_others
-
-dockerbuilder:sid:
-  extends: .build_others
-
-dockerbuilder:experimental:
-  extends: .build_others
-
-generic_tests:jessie:
-  extends: .build_others
-  variables:
-    EXTRA_BUILD_ARGS: "--ulimit nofile=1024:1024"
-
-generic_tests:stretch:
-  extends: .build_others
-
-generic_tests:stretch-backports:
-  extends: .build_others
-
-generic_tests:buster:
-  extends: .build_others
-
-generic_tests:buster-backports:
-  extends: .build_others
-
-generic_tests:bullseye:
-  extends: .build_others
-
-generic_tests:bullseye-backports:
-  extends: .build_others
-
-generic_tests:sid:
-  extends: .build_others
-
-generic_tests:experimental:
-  extends: .build_others
-
-aptly:sid:
-  extends: .build_others
+    RELEASES_LIST: 'jessie stretch stretch-backports buster buster-backports bullseye bullseye-backports experimental'

@@ -4,12 +4,6 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
-ARG BASE_IMAGE
-FROM ${BASE_IMAGE}
-# This needs to be redeclared after FROM for it to affect subsequent
-# commands
-ARG RELEASE
-
 RUN \
 set -eux; \
 apt-get update; \

@@ -4,9 +4,6 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
-ARG BASE_IMAGE
-FROM ${BASE_IMAGE}
-
 RUN apt-get update && eatmydata apt-get install reprotest patch faketime locales-all \
  disorderfs sudo xxd unzip --no-install-recommends -y && rm -rf /var/lib/apt
 
