@@ -6,6 +6,7 @@
 # this notice are preserved. This file is offered as-is, without any warranty.
 
 variables:
+  GIT_DEPTH: 1
   DEBFULLNAME: "Salsa Pipeline"
   DEBEMAIL: "salsa-pipeline@debian.org"
   DEBIAN_FRONTEND: noninteractive
