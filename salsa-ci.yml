@@ -115,6 +115,7 @@ stages:
 .build-source-only: &build-source-only
   extends:
     - .build-definition
+    - .artifacts-default-expire
   variables:
     DB_BUILD_PARAM: "-S"
   except:
