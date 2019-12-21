@@ -118,6 +118,7 @@ stages:
     - .artifacts-default-expire
   variables:
     DB_BUILD_PARAM: "-S"
+    SALSA_CI_DISABLE_VERSION_BUMP: 1
   except:
     variables:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
