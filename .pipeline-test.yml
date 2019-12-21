@@ -60,6 +60,10 @@ build:
     extends: .build-package
     <<: *only-in-test-pipeline
 
+build source:
+    extends: .build-source-only
+    <<: *only-in-test-pipeline
+
 test-build-any:
     extends: .test-build-package-any
     <<: *only-in-test-pipeline
