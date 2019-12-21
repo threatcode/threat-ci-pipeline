@@ -15,7 +15,6 @@
 EXTRA_REPOSITORY=""
 EXTRA_REPOSITORY_KEY=""
 TARGET_ETC="/etc"
-UPDATE=0
 VERBOSE=0
 
 while [[ "$#" -ge 1 ]]; do
@@ -33,10 +32,6 @@ while [[ "$#" -ge 1 ]]; do
         --target-etc|-t)
             shift
             TARGET_ETC="$1"
-            shift
-            ;;
-        --update|-u)
-            UPDATE=1
             shift
             ;;
         --verbose|-v)
