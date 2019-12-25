@@ -13,6 +13,7 @@ RUN apt-get update && eatmydata apt-get --no-install-recommends install \
     devscripts \
     equivs  \
     ccache \
+    git \
     -y && rm -rf /var/lib/apt
 
 # Generate links
