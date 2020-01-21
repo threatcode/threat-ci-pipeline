@@ -205,10 +205,16 @@ stages:
     - umount -R /sys/fs/cgroup && mount -a
     - /etc/init.d/lxc-net start
     - /etc/init.d/lxc start
-    - debci localtest $CI_PROJECT_DIR/debian/output/*.changes --suite ${RELEASE} || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
+    - debci localtest $CI_PROJECT_DIR/debian/output/*.changes --suite ${RELEASE} --logs-dir ${DEBCI_LOG_PATH} || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
+    - rm -r ${WORKING_DIR}/debci/binaries
   variables:
     GIT_STRATEGY: none
     SCI_LXC_PATH: ${CI_PROJECT_DIR}/lxc
+    DEBCI_LOG_PATH: ${WORKING_DIR}/debci
+  artifacts:
+    when: always
+    paths:
+      - ${WORKING_DIR}/debci
   dependencies:
     - build
 

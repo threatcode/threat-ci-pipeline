@@ -1,0 +1,41 @@
+--- a/lib/environment.sh
++++ b/lib/environment.sh
+@@ -60,8 +60,8 @@ debci_failing_packages_per_page="${debci_failing_packages_per_page:-50}"
+
+ debci_secrets_dir=${debci_secrets_dir:-$(readlink -f "${debci_base_dir}/secrets")}
+
+-shared_short_options='c:s:a:b:d:m:hq'
+-shared_long_options='config:,suite:,arch:,backend:,data-dir:,amqp:,mirror:,help,quiet'
++shared_short_options='c:s:a:b:d:l:m:hq'
++shared_long_options='config:,suite:,arch:,backend:,data-dir:,logs-dir:,amqp:,mirror:,help,quiet'
+
+ usage_shared_options="Common options:
+
+@@ -75,6 +75,7 @@ usage_shared_options="Common options:
+                             (default: unstable)
+   -d DIR, --data-dir DIR    the directory in which debci will store its data,
+                             and where it will read from
++  -l DIR, --logs-dir DIR    the directory to store autopkgtest logs
+   --amqp amqp://[user:password@]hostname[:port]
+                             AMQP server to connect to (default: ${debci_amqp_server})
+   -m URL, --mirror URL      selects which mirror to use for APT-related actions,
+@@ -114,6 +115,9 @@ for arg in "$@"; do
+       -d|--data-dir)
+         var=debci_data_basedir
+         ;;
++      -l|--logs-dir)
++        var=debci_logs_dir
++        ;;
+       --amqp)
+         var=debci_amqp_server
+         ;;
+@@ -183,6 +187,9 @@ debci_session_secret="${debci_session_secret:-}"
+ # page to display when authentication fails
+ debci_auth_fail_page="${debci_auth_fail_page:-}"
+
++# parameter for autopkgtest --logs-dir
++debci_logs_dir="${debci_logs_dir:-}"
++
+ for dir in \
+   "${debci_base_dir}/backends/${debci_backend}" \
+   "${debci_bin_dir}"
