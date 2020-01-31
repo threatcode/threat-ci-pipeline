@@ -9,7 +9,7 @@ set -eu
 
 if [ ! -d "${WORKING_DIR}" ]; then
         echo "Directory \"${WORKING_DIR}\" does not exist, aborting build."
-        echo "Please check the defintion of WORKING_DIR in your gitlab-ci.yml"
+        echo "Please check the defintion of WORKING_DIR in your salsa-ci.yml"
         echo "It should look like this:"
         echo "  WORKING_DIR: \$CI_PROJECT_DIR/debian/output"
         echo "See the top of https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml"
