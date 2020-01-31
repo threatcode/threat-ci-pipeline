@@ -45,7 +45,9 @@ Having this on Gitlab CI ensures that every package accomplishes the minimum qua
 To use the Salsa Pipeline, the first thing to do is to change the project's setting to make it point to the config file we are going to create later.
 This can be done on `Settings` -> `CI/CD` (on the expanded menu, don't click on the CI / CD rocket) -> `General Pipelines` -> `Custom CI config path`.
 
-> :warning: **Note:** On Debian projects, you would normally want to put this file under the `debian/` folder. For example `debian/salsa-ci.yml`.
+> :warning: **Note:** On Debian projects, you would normally want to put this file under the `debian/` folder.
+
+The recommended filename is `debian/salsa-ci.yml`.
 
 The second step is to create and commit the file on the path set before with the following content:
 
@@ -143,7 +145,7 @@ Reproducible builds are important, but `reprotest`'s behavior can sometimes be a
 
 Without completely disabling `reprotest`, you can allow it to fail without failing the whole pipeline. That way, if `reprotest` fails, the pipeline will pass and show an orange warning telling you something went wrong.
 
-You can allow `reprotest` to fail by adding this variable in your gitlab-ci manifest:
+You can allow `reprotest` to fail by adding this variable in your salsa-ci.yml manifest:
 
 ```
 include:
@@ -194,7 +196,7 @@ used by the build and tests, and (optionally) the signing key for the
 repositories in armor format. These variables are of
 [type file](https://docs.gitlab.com/ce/ci/variables/#variable-types),
 which ease the multiline handling, but have the disadvantage that they can't
-be set on the gitlab-ci.yml file.
+be set on the salsa-ci.yml file.
 
 ### Setting variables on pipeline creation
 
