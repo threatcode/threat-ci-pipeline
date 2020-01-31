@@ -258,7 +258,6 @@ stages:
     variables:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_REPROTEST =~ /^(1|yes|true)$/
-      - $SALSA_CI_ENABLE_ATOMIC_REPROTEST =~ /^(1|yes|true)$/
   artifacts:
     name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
     paths:
