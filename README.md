@@ -315,7 +315,7 @@ variables:
 
 Sometimes it is desirable to add direct options to the dpkg-buildpackage that is run for the package building.
 
-You can do this using the `SALSA_CI_REPROTEST_ARGS` variable.
+You can do this using the `SALSA_CI_DPKG_BUILDPACKAGE_ARGS` variable.
 
 ```yaml
 ---
