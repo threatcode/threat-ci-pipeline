@@ -22,10 +22,9 @@ clean images:
         done
   when: always
   except:
-    refs:
-      - master
     variables:
       - $TEST_PIPELINE
+      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $CI_PROJECT_PATH == 'salsa-ci-team/pipeline'
 
 .build_template: &build_template
   stage: images
