@@ -75,7 +75,7 @@ stages:
    fi
 
    if ! echo "$SALSA_CI_DISABLE_VERSION_BUMP" | grep -qE '^(1|yes|true)$'; then
-     sed -i -e '1 s/\(~[a-z]\+[0-9]\++[0-9]\+\)\?)/+salsaci\1)/' debian/changelog
+     sed -i -e '1 s/)/+salsaci)/' debian/changelog
      git config user.email "$DEBEMAIL"
      git config user.name "$DEBFULLNAME"
      git commit debian/changelog -m "Salsa CI Version bump"
