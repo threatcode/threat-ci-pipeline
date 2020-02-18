@@ -29,7 +29,7 @@ clean images:
   except:
     variables:
       - $TEST_PIPELINE
-      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $CI_PROJECT_PATH == 'salsa-ci-team/pipeline'
+      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $SALSA_CI_PERSIST_IMAGES =~ /^(1|yes|true)$/
 
 .build_template: &build_template
   stage: images
@@ -108,5 +108,5 @@ clean images:
       - $IS_A_CHILD_PIPELINE
   only:
     variables:
-      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $CI_PROJECT_PATH == 'salsa-ci-team/pipeline'
+      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $SALSA_CI_PERSIST_IMAGES =~ /^(1|yes|true)$/
       - $BUILD_ALL_IMAGES
