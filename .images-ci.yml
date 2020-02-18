@@ -108,5 +108,5 @@ clean images:
       - $IS_A_CHILD_PIPELINE
   only:
     variables:
-      - $CI_COMMIT_REF_NAME == "master"
+      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $CI_PROJECT_PATH == 'salsa-ci-team/pipeline'
       - $BUILD_ALL_IMAGES
