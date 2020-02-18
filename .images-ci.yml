@@ -17,14 +17,19 @@ clean images:
     - chmod +x /usr/bin/reg
   script:
     - |
+        # If not master, use REF as staging tag.
+        if ! [ "${CI_COMMIT_REF_NAME}" = "master" ]; then
+          STAGING_TAG="_${CI_COMMIT_REF_NAME}"
+        fi
+    - |
         for IMAGE in $IMAGES_LIST; do
-          reg --registry ${CI_REGISTRY} rm ${CI_PROJECT_PATH}/${IMAGE}:${RELEASE}_${CI_COMMIT_REF_NAME} || true
+          reg --registry ${CI_REGISTRY} rm ${CI_PROJECT_PATH}/${IMAGE}:${RELEASE}${STAGING_TAG} || true
         done
   when: always
   except:
     variables:
       - $TEST_PIPELINE
-      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $CI_PROJECT_PATH == 'salsa-ci-team/pipeline'
+      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $SALSA_CI_PERSIST_IMAGES =~ /^(1|yes|true)$/
 
 .build_template: &build_template
   stage: images
@@ -103,5 +108,5 @@ clean images:
       - $IS_A_CHILD_PIPELINE
   only:
     variables:
-      - $CI_COMMIT_REF_NAME == "master"
+      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $SALSA_CI_PERSIST_IMAGES =~ /^(1|yes|true)$/
       - $BUILD_ALL_IMAGES

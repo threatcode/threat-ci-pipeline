@@ -375,5 +375,15 @@ To specify repository signing key, export the gpg key/passphrase as CI / CD [Var
 By default, the build job will increase the release number using the +sci suffix.
 To disable this behavior set the `SALSA_CI_DISABLE_VERSION_BUMP` to 1, 'yes' or 'true'.
 
+## Hacking
+
+### Allow images to be persistent
+
+By default all images are deleted when the pipeline is finished. This is to avoid images
+being created and stored in the registry when the project is forked.
+
+To disable this behavior set the `SALSA_CI_PERSIST_IMAGES` to 1, 'yes' or
+'true' on a CI variable (*CI/CD Settings*).
+
 ## Support
 Write us on \#salsaci @ OFTC or open an [issue here](https://salsa.debian.org/salsa-ci-team/pipeline/issues) :)
