@@ -29,6 +29,7 @@ variables:
   SALSA_CI_AUTOPKGTEST_LXC: https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc
   SALSA_CI_BLHC_ARGS: ''
   SALSA_CI_PIUPARTS_ARGS: ''
+  SALSA_CI_DPKG_BUILDPACKAGE_ARGS: ''
   DOCKER_TLS_CERTDIR: ""
   SALSA_CI_DISABLE_APTLY: 1
   SALSA_CI_DISABLE_MISSING_BREAKS: 1
@@ -100,7 +101,7 @@ stages:
   variables:
     CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
     CCACHE_WORK_DIR: ${CI_PROJECT_DIR}/.ccache
-    DB_BUILD_PARAM: ''
+    DB_BUILD_PARAM: ${SALSA_CI_DPKG_BUILDPACKAGE_ARGS}
   script:
     - *build-before-script
     - *build-script
@@ -118,7 +119,7 @@ stages:
     - .build-definition
     - .artifacts-default-expire
   variables:
-    DB_BUILD_PARAM: "-S"
+    DB_BUILD_PARAM: "${SALSA_CI_DPKG_BUILDPACKAGE_ARGS} -S"
     SALSA_CI_DISABLE_VERSION_BUMP: 1
   except:
     variables:
@@ -133,7 +134,7 @@ stages:
     - LOCAL_ARCH=`dpkg --print-architecture`
     - |
         if egrep -q "^Architecture:.*(any|[^\!]${LOCAL_ARCH})" debian/control; then
-            DB_BUILD_PARAM="--build=any"
+            DB_BUILD_PARAM="${SALSA_CI_DPKG_BUILDPACKAGE_ARGS} --build=any"
         else
             echo "###########################################"
             echo "### No binary package of type any or ${LOCAL_ARCH} found"
@@ -164,7 +165,7 @@ stages:
     - LOCAL_ARCH=`dpkg --print-architecture`
     - |
         if grep -q "^Architecture: all" debian/control; then
-            DB_BUILD_PARAM="--build=all"
+            DB_BUILD_PARAM="${SALSA_CI_DPKG_BUILDPACKAGE_ARGS} --build=all"
         else
             echo "###########################################"
             echo "### No binary package of type all found"
