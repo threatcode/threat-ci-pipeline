@@ -94,7 +94,7 @@ stages:
   image: $SALSA_CI_IMAGES_GBP
   dependencies: []
   services:
-    - docker:dind
+    - docker:19.03.5-dind
   cache:
     paths:
       - .ccache
@@ -300,7 +300,7 @@ stages:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_PIUPARTS =~ /^(1|yes|true)$/
   services:
-    - docker:dind
+    - docker:19.03.5-dind
   script:
     - CHROOT_PATH="/tmp/debian-chroot"
     - CONTAINER_ID=$(docker run --rm -d "${SALSA_CI_IMAGES_BASE}" sleep infinity)

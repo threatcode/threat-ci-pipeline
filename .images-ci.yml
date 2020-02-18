@@ -8,7 +8,7 @@ clean images:
   stage: clean
   image: docker:latest
   services:
-    - docker:dind
+    - docker:19.03.5-dind
   variables:
     IMAGES_LIST: 'aptly autopkgtest base blhc gbp piuparts reprotest dockerbuilder lintian generic_tests'
   before_script:
@@ -31,7 +31,7 @@ clean images:
   stage: images
   image: docker:latest
   services:
-    - docker:dind
+    - docker:19.03.5-dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_BUILD_TOKEN $CI_REGISTRY
   script:
