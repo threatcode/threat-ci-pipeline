@@ -10,7 +10,7 @@
     variables:
       - $SALSA_CI_ENABLE_ATOMIC_REPROTEST =~ /^(1|yes|true)$/
   variables:
-    SALSA_CI_REPROTEST_EXTRA_ARGS: '--variations=-all --variations=${VARIATION}'
+    SALSA_CI_REPROTEST_ARGS: '--variations=-all --variations=${VARIATION}'
 
 reprotest-environment:
   extends: .atomic-reprotest
