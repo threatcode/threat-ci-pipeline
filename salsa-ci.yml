@@ -28,6 +28,7 @@ variables:
   SALSA_CI_IMAGES_REPROTEST: ${SALSA_CI_IMAGES}/reprotest:latest
   SALSA_CI_AUTOPKGTEST_LXC: https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc
   SALSA_CI_BLHC_ARGS: ''
+  SALSA_CI_LINTIAN_SUPPRESS_TAGS: ""
   SALSA_CI_PIUPARTS_ARGS: ''
   SALSA_CI_DPKG_BUILDPACKAGE_ARGS: ''
   DOCKER_TLS_CERTDIR: ""
@@ -241,7 +242,7 @@ stages:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_LINTIAN =~ /^(1|yes|true)$/
   script:
-    - lintian --display-info --pedantic ${WORKING_DIR}/*.changes | tee lintian.output || ECODE=$?
+    - lintian --suppress-tags "${SALSA_CI_LINTIAN_SUPPRESS_TAGS}" --display-info --pedantic ${WORKING_DIR}/*.changes | tee lintian.output || ECODE=$?
     - lintian2junit.py --lintian-file lintian.output > ${WORKING_DIR}/lintian.xml
     - exit ${ECODE-0}
   variables:
