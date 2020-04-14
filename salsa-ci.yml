@@ -242,6 +242,7 @@ stages:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_LINTIAN =~ /^(1|yes|true)$/
   script:
+    - lintian --version
     - lintian --suppress-tags "${SALSA_CI_LINTIAN_SUPPRESS_TAGS}" --display-info --pedantic ${WORKING_DIR}/*.changes | tee lintian.output || ECODE=$?
     - lintian2junit.py --lintian-file lintian.output > ${WORKING_DIR}/lintian.xml
     - exit ${ECODE-0}
