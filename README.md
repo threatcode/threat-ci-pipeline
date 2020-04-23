@@ -42,14 +42,13 @@ Having this on Gitlab CI ensures that every package accomplishes the minimum qua
 
 ## Basic Use
 
-To use the Salsa Pipeline, the first thing to do is to change the project's setting to make it point to the config file we are going to create later.
+To use the Salsa Pipeline, the first thing to do is to change the project's setting to make it point to the pipeline's config file.
 This can be done on `Settings` -> `CI/CD` (on the expanded menu, don't click on the CI / CD rocket) -> `General Pipelines` -> `Custom CI config path`.
 
-> :warning: **Note:** On Debian projects, you would normally want to put this file under the `debian/` folder.
+The recommended way is to use `recipes/debian.yml@salsa-ci-team/pipeline`, which
+refers to a configuration file kept in this repository.
 
-The recommended filename is `debian/salsa-ci.yml`.
-
-The second step is to create and commit the file on the path set before with the following content:
+Alternatively, you can set a path (relative to your repository's root), then create and commit a file on that path with the following content:
 
 ```yaml
 ---
@@ -57,6 +56,8 @@ include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 ```
+
+> :warning: **Note:** On Debian projects, you would normally want to put this file under the `debian/` folder.
 
 
 ## Advanced Use
