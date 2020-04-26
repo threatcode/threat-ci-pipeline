@@ -24,4 +24,3 @@ RUN useradd --gid 100 salsa-ci
 ENV PATH="/usr/lib/ccache/:${PATH}"
 
 COPY ./scripts/install-build-deps.sh /usr/local/bin/
-COPY ./scripts/mk-ci-build-deps /usr/local/bin/

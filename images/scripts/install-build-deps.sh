@@ -9,7 +9,7 @@ mkdir -p $TMPDIR
 
 echo " -> Starting installing the build-deps"
 
-/usr/local/bin/mk-ci-build-deps debian/control
+mk-build-deps debian/control
 
 FILENAME=$(echo ${TMPDIR}/*-build-deps*.deb)
 PKGNAME=$(dpkg-deb -f ${FILENAME} Package)
