@@ -12,6 +12,10 @@ echo " -> Starting installing the build-deps"
 mk-build-deps debian/control
 
 FILENAME=$(echo ${TMPDIR}/*-build-deps*.deb)
+if [ ! -f $FILENAME ]; then
+    FILENAME=$(echo *-build-deps*.deb)
+fi
+
 PKGNAME=$(dpkg-deb -f ${FILENAME} Package)
 
 dpkg --force-depends --force-conflicts -i $FILENAME
@@ -25,6 +29,8 @@ aptitude -y --without-recommends \
 	-o "Aptitude::ProblemResolver::Keep-All-Level=55000" \
 	-o "Aptitude::ProblemResolver::Remove-Essential-Level=maximum" \
 	install $PKGNAME
+
+rm $FILENAME
 
 if ! dpkg -l $PKGNAME 2>/dev/null | grep -q ^ii; then
 	echo "Aptitude couldn't satisfy the build dependencies"
