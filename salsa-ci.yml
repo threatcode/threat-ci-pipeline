@@ -64,6 +64,10 @@ stages:
    rm -rf ${CI_PROJECT_DIR}/debian/output/.ccache
 
    mkdir -p ${WORKING_DIR} ${CCACHE_WORK_DIR}
+      
+   # https://salsa.debian.org/salsa-ci-team/pipeline/-/merge_requests/230
+   rm -rf ${CCACHE_TMP_DIR}
+   
    mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
    add_extra_repository.sh -v -e "${EXTRA_REPOSITORY}" -k "${EXTRA_REPOSITORY_KEY}"
    gbp pull --ignore-branch --pristine-tar --track-missing
