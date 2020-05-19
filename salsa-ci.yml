@@ -58,16 +58,14 @@ stages:
    # `$CI_PROJECT_DIR/debian/output/.ccache`, so it creates a folder named
    # "\$CI_PROJECT_DIR", which is then saved as build cache. To allow smooth
    # transition, that wrongly named folder has to be removed:
-   rm -rf '$CI_PROJECT_DIR' 
+   rm -rf '$CI_PROJECT_DIR'
 
    # salsa-ci-team/pipeline#107
    rm -rf ${CI_PROJECT_DIR}/debian/output/.ccache
 
    mkdir -p ${WORKING_DIR} ${CCACHE_WORK_DIR}
       
-   # if ${CCACHE_TMP_DIR} exists, mv creates a subdir in it instead of
-   # overwriting. This eventually leads to an error on mv the 3rd time it 
-   # happens (because the destination dir is not empty)
+   # https://salsa.debian.org/salsa-ci-team/pipeline/-/merge_requests/230
    rm -rf ${CCACHE_TMP_DIR}
    
    mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
