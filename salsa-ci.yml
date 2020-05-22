@@ -29,6 +29,7 @@ variables:
   SALSA_CI_AUTOPKGTEST_LXC: https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc
   SALSA_CI_BLHC_ARGS: ''
   SALSA_CI_LINTIAN_SUPPRESS_TAGS: ""
+  SALSA_CI_LINTIAN_FAIL_WARNING: ""
   SALSA_CI_PIUPARTS_ARGS: ''
   SALSA_CI_DPKG_BUILDPACKAGE_ARGS: ''
   SALSA_CI_GBP_BUILDPACKAGE_ARGS: ''
@@ -249,7 +250,21 @@ stages:
       - $SALSA_CI_DISABLE_LINTIAN =~ /^(1|yes|true)$/
   script:
     - lintian --version
-    - lintian --suppress-tags "${SALSA_CI_LINTIAN_SUPPRESS_TAGS}" --display-info --pedantic --allow-root ${WORKING_DIR}/*.changes | tee lintian.output || ECODE=$?
+    - |
+        if lintian --fail-on error --allow-root > /dev/null ; then
+            if echo "${SALSA_CI_LINTIAN_FAIL_WARNING}" | grep -qE '^(1|yes|true)$'; then
+                SALSA_CI_LINTIAN_FAIL_ARG='--fail-on warning'
+            else
+                SALSA_CI_LINTIAN_FAIL_ARG='--fail-on error'
+            fi
+        else
+            SALSA_CI_LINTIAN_FAIL_ARG=''
+        fi
+    - lintian --suppress-tags "${SALSA_CI_LINTIAN_SUPPRESS_TAGS}" --display-info --pedantic ${SALSA_CI_LINTIAN_FAIL_ARG} --allow-root ${WORKING_DIR}/*.changes | tee lintian.output || ECODE=$?
+    - |
+        if echo "${SALSA_CI_LINTIAN_FAIL_WARNING}" | grep -qE '^(1|yes|true)$'; then
+            grep -q '^W: ' lintian.output && ECODE=3
+        fi
     - lintian2junit.py --lintian-file lintian.output > ${WORKING_DIR}/lintian.xml
     - exit ${ECODE-0}
   variables:
