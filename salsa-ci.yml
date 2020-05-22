@@ -249,7 +249,7 @@ stages:
       - $SALSA_CI_DISABLE_LINTIAN =~ /^(1|yes|true)$/
   script:
     - lintian --version
-    - lintian --suppress-tags "${SALSA_CI_LINTIAN_SUPPRESS_TAGS}" --display-info --pedantic ${WORKING_DIR}/*.changes | tee lintian.output || ECODE=$?
+    - lintian --suppress-tags "${SALSA_CI_LINTIAN_SUPPRESS_TAGS}" --display-info --pedantic --allow-root ${WORKING_DIR}/*.changes | tee lintian.output || ECODE=$?
     - lintian2junit.py --lintian-file lintian.output > ${WORKING_DIR}/lintian.xml
     - exit ${ECODE-0}
   variables:
