@@ -31,6 +31,7 @@ variables:
   SALSA_CI_LINTIAN_SUPPRESS_TAGS: ""
   SALSA_CI_PIUPARTS_ARGS: ''
   SALSA_CI_DPKG_BUILDPACKAGE_ARGS: ''
+  SALSA_CI_GBP_BUILDPACKAGE_ARGS: ''
   DOCKER_TLS_CERTDIR: ""
   SALSA_CI_DISABLE_APTLY: 1
   SALSA_CI_DISABLE_MISSING_BREAKS: 1
@@ -90,7 +91,7 @@ stages:
    gbp buildpackage \
         --git-ignore-branch \
         --git-ignore-new \
-        --git-no-create-orig $gbp_args \
+        --git-no-create-orig $gbp_args "${SALSA_CI_GBP_BUILDPACKAGE_ARGS}"\
         --git-export-dir=${WORKING_DIR} \
         --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}" |& filter-output
 
