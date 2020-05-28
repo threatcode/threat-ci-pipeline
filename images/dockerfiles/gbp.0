@@ -20,6 +20,7 @@ RUN apt-get update && eatmydata apt-get install ca-certificates fakeroot --no-in
 
 COPY ./scripts/docker-origtargz.sh /usr/local/bin/
 COPY ./scripts/docker-build.sh /usr/local/bin/
+COPY ./scripts/install-build-deps.sh /usr/local/bin/
 
 # Support for docker:dind
 ENV DOCKER_HOST=tcp://docker:2375

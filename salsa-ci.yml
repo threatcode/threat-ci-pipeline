@@ -79,11 +79,11 @@ stages:
 
 .build-script: &build-script |
    # Check if we can obtain the orig from the git branches
-   if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
+   # if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
      # Fallback using origtargz in the corresponding $RELEASE
-     docker-origtargz.sh "${SALSA_CI_IMAGES_DOCKERBUILDER}"
-     SALSA_CI_GBP_BUILDPACKAGE_ARGS="--git-overlay ${SALSA_CI_GBP_BUILDPACKAGE_ARGS}"
-   fi
+     # docker-origtargz.sh "${SALSA_CI_IMAGES_DOCKERBUILDER}"
+     # gbp_args="--git-overlay"
+   # fi
 
    if ! echo "$SALSA_CI_DISABLE_VERSION_BUMP" | grep -qE '^(1|yes|true)$'; then
      sed -i -e '1 s/)/+salsaci)/' debian/changelog
@@ -97,8 +97,7 @@ stages:
         --git-ignore-new \
         --git-no-create-orig \
         --git-export-dir=${WORKING_DIR} \
-        ${SALSA_CI_GBP_BUILDPACKAGE_ARGS} \
-        --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}" |& filter-output
+        --git-builder="docker-build.sh ${DB_BUILD_PARAM}" |& filter-output
 
 .build-definition: &build-definition
   stage: build

@@ -24,19 +24,7 @@ BUILD_LOGFILE_ARCH=$(dpkg --print-architecture)
 
 BUILD_LOGFILE="${WORKING_DIR}/${BUILD_LOGFILE_SOURCE}_${BUILD_LOGFILE_VERSION}_${BUILD_LOGFILE_ARCH}.build"
 
-DOCKER_IMAGE_NAME=$1
-
-VOLUME_DIR=${CI_PROJECT_DIR:-${GBP_BUILD_DIR}}
-VOLUMES="-v ${VOLUME_DIR}/..:${VOLUME_DIR}/.. -v ${CCACHE_TMP_DIR}:/tmp/ccache"
-
-CCACHE_DIR_ENV="-e CCACHE_DIR=/tmp/ccache"
-
-CONTAINER_ID=$(docker run -d --rm -w ${GBP_BUILD_DIR} ${VOLUMES} ${DOCKER_IMAGE_NAME} sleep infinity)
-
-cleanup() {
-    docker rm -f ${CONTAINER_ID}
-}
-trap cleanup EXIT
+CCACHE_DIR_ENV="CCACHE_DIR=/tmp/ccache"
 
 DEBIAN_VARENVS=""
 
@@ -48,26 +36,18 @@ done
 
 set -x
 
-eval docker cp /etc/apt/sources.list.d/./ ${CONTAINER_ID}:/etc/apt/sources.list.d/
+apt-get update
 
-eval docker cp /etc/apt/trusted.gpg.d/./ ${CONTAINER_ID}:/etc/apt/trusted.gpg.d/
+apt-get install eatmydata -y
 
-eval docker cp /etc/apt/preferences.d/./ ${CONTAINER_ID}:/etc/apt/preferences.d/
-
-eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} apt-get update
-
-eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} apt-get install eatmydata -y
-
-eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} eatmydata apt-get dist-upgrade -y
+eatmydata apt-get dist-upgrade -y
 
 set -o pipefail
 
-eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} eatmydata install-build-deps.sh |& tee -a "${BUILD_LOGFILE}"
+eatmydata install-build-deps.sh |& tee -a "${BUILD_LOGFILE}"
 
-eval docker exec ${DEBIAN_VARENVS} ${CONTAINER_ID} eatmydata chown -R salsa-ci:100 ${GBP_BUILD_DIR}/.. /tmp/ccache
+${CCACHE_DIR_ENV}  ccache -z
 
-eval docker exec --user salsa-ci ${DEBIAN_VARENVS} ${CCACHE_DIR_ENV} ${CONTAINER_ID} ccache -z
+${CCACHE_DIR_ENV}  eatmydata dpkg-buildpackage "${@:1}" |& tee -a "${BUILD_LOGFILE}"
 
-eval docker exec --user salsa-ci ${DEBIAN_VARENVS} ${CCACHE_DIR_ENV} ${CONTAINER_ID} eatmydata dpkg-buildpackage "${@:2}" |& tee -a "${BUILD_LOGFILE}"
-
-eval docker exec --user salsa-ci ${DEBIAN_VARENVS} ${CCACHE_DIR_ENV} ${CONTAINER_ID} ccache -s
+${CCACHE_DIR_ENV}  ccache -s
