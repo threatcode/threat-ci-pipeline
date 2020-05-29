@@ -330,7 +330,7 @@ variables:
 
 #### Adding extra arguments to gbp-buildpackage
 
-Sometimes it is desirable to add direct options to the ```gbp buildpackage``` command.
+Sometimes it is desirable to add direct options to the `gbp buildpackage` command.
 
 You can do this using the `SALSA_CI_GBP_BUILDPACKAGE_ARGS` variable.
 
