@@ -328,6 +328,22 @@ variables:
   SALSA_CI_DPKG_BUILDPACKAGE_ARGS: --your-option
 ```
 
+#### Adding extra arguments to gbp-buildpackage
+
+Sometimes it is desirable to add direct options to the `gbp buildpackage` command.
+
+You can do this using the `SALSA_CI_GBP_BUILDPACKAGE_ARGS` variable.
+
+```yaml
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  SALSA_CI_GBP_BUILDPACKAGE_ARGS: --your-option
+```
+
 #### Breaking up the reprotest job into the different variations
 
 By default, reprotest applies all the known variations (`--variations=+all`,

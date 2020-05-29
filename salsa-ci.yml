@@ -31,6 +31,7 @@ variables:
   SALSA_CI_LINTIAN_SUPPRESS_TAGS: ""
   SALSA_CI_PIUPARTS_ARGS: ''
   SALSA_CI_DPKG_BUILDPACKAGE_ARGS: ''
+  SALSA_CI_GBP_BUILDPACKAGE_ARGS: ''
   DOCKER_TLS_CERTDIR: ""
   SALSA_CI_DISABLE_APTLY: 1
   SALSA_CI_DISABLE_MISSING_BREAKS: 1
@@ -77,7 +78,7 @@ stages:
    if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
      # Fallback using origtargz in the corresponding $RELEASE
      docker-origtargz.sh "${SALSA_CI_IMAGES_DOCKERBUILDER}"
-     gbp_args="--git-overlay"
+     SALSA_CI_GBP_BUILDPACKAGE_ARGS="--git-overlay ${SALSA_CI_GBP_BUILDPACKAGE_ARGS}"
    fi
 
    if ! echo "$SALSA_CI_DISABLE_VERSION_BUMP" | grep -qE '^(1|yes|true)$'; then
@@ -90,8 +91,9 @@ stages:
    gbp buildpackage \
         --git-ignore-branch \
         --git-ignore-new \
-        --git-no-create-orig $gbp_args \
+        --git-no-create-orig \
         --git-export-dir=${WORKING_DIR} \
+        "${SALSA_CI_GBP_BUILDPACKAGE_ARGS}" \
         --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}" |& filter-output
 
 .build-definition: &build-definition
