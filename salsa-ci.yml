@@ -89,6 +89,7 @@ stages:
    fi
 
    eatmydata install-build-deps.sh |& filter-output
+   export CCACHE_DIR=${CCACHE_TMP_DIR}
    ccache -z
    gbp buildpackage \
         --git-ignore-branch \
