@@ -93,7 +93,7 @@ stages:
         --git-ignore-new \
         --git-no-create-orig \
         --git-export-dir=${WORKING_DIR} \
-        "${SALSA_CI_GBP_BUILDPACKAGE_ARGS}" \
+        ${SALSA_CI_GBP_BUILDPACKAGE_ARGS} \
         --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}" |& filter-output
 
 .build-definition: &build-definition
