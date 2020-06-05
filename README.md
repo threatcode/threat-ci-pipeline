@@ -277,6 +277,29 @@ test-build-all:
 
 Note: These additional build jobs don't work with `RELEASE: 'jessie'` and are skipped in that case.
 
+### Customizing Lintian
+
+The Lintian job can be customized to ignore certain tags.
+
+To ignore a tag, add it to the setting `SALSA_CI_LINTIAN_SUPPRESS_TAGS`.
+
+By default the Lintian jobs fails either if a Lintian run-time error occurs or if Lintian finds a tag of the error category.
+
+To also fail the job on findings of the category warning, set `SALSA_CI_LINTIAN_FAIL_WARNING` to 1 (or "yes" or "true").
+
+
+```yaml
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  SALSA_CI_LINTIAN_FAIL_WARNING: yes
+  SALSA_CI_LINTIAN_SUPPRESS_TAGS: 'orig-tarball-missing-upstream-signature'
+```
+
+
 ### Customizing reprotest
 
 #### Running reprotest with diffoscope
