@@ -253,7 +253,7 @@ stages:
     - |
         if lintian --fail-on error --allow-root > /dev/null ; then
             if echo "${SALSA_CI_LINTIAN_FAIL_WARNING}" | grep -qE '^(1|yes|true)$'; then
-                SALSA_CI_LINTIAN_FAIL_ARG='--fail-on warning'
+                SALSA_CI_LINTIAN_FAIL_ARG='--fail-on error --fail-on warning'
             else
                 SALSA_CI_LINTIAN_FAIL_ARG='--fail-on error'
             fi
