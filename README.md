@@ -46,10 +46,10 @@ To use the Salsa Pipeline, the first thing to do is to enable the project's Pipe
 Then, change the project's setting to make it point to the pipeline's config file.
 This can be done on `Settings` -> `CI/CD` (on the expanded menu, don't click on the CI / CD rocket) -> `General Pipelines` -> `Custom CI config path`.
 
-The recommended way is to use `recipes/debian.yml@salsa-ci-team/pipeline`, which
-refers to a configuration file kept in this repository.
+If the base pipeline configuration fits your needs without further modifications, the recommended way is to use `recipes/debian.yml@salsa-ci-team/pipeline` as config path, which refers to a file kept in this repository.
 
-Alternatively, you can set a path (relative to your repository's root), then create and commit a file on that path with the following content:
+On the other hand, if you want to use the base configuration and apply customizations on top, the recommended path to create this file is `debian/salsa-ci.yml`.
+It should contain at least the following lines:
 
 ```yaml
 ---
