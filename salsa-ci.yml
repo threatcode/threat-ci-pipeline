@@ -266,6 +266,11 @@ stages:
             grep -q '^W: ' lintian.output && ECODE=3
         fi
     - lintian2junit.py --lintian-file lintian.output > ${WORKING_DIR}/lintian.xml
+    - |
+        # 🗂️ Generate HTML report.
+        lintian --suppress-tags "${SALSA_CI_LINTIAN_SUPPRESS_TAGS}" \
+                --display-info --pedantic --allow-root --exp-output format=html \
+                ${WORKING_DIR}/*.changes > ${WORKING_DIR}/lintian.html || true
     - exit ${ECODE-0}
   variables:
     GIT_STRATEGY: none
@@ -273,7 +278,7 @@ stages:
     reports:
       junit: ${WORKING_DIR}/lintian.xml
     paths:
-      - ${WORKING_DIR}/lintian.xml
+      - ${WORKING_DIR}/lintian.html
   dependencies:
     - build
 
