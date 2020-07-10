@@ -279,6 +279,7 @@ stages:
       junit: ${WORKING_DIR}/lintian.xml
     paths:
       - ${WORKING_DIR}/lintian.html
+    when: always
   dependencies:
     - build
 
