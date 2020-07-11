@@ -296,7 +296,7 @@ include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
 
 variables:
-  SALSA_CI_LINTIAN_FAIL_WARNING: yes
+  SALSA_CI_LINTIAN_FAIL_WARNING: 1
   SALSA_CI_LINTIAN_SUPPRESS_TAGS: 'orig-tarball-missing-upstream-signature'
 ```
 
