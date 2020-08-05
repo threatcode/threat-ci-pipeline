@@ -11,3 +11,7 @@ include:
 
 variables:
   SALSA_CI_DISABLE_BLHC: 1
+  SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE: 1
+
+reprotest:
+  allow_failure: true
