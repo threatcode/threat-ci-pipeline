@@ -54,8 +54,7 @@ It should contain at least the following lines:
 ```yaml
 ---
 include:
-  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
-  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/recipes/debian.yml
 ```
 
 > :warning: **Note:** On Debian projects, you would normally want to put this file under the `debian/` folder.
