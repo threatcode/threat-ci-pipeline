@@ -412,6 +412,7 @@ stages:
   script:
     - export REPO_URL="${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/${REPO_PATH}"
     - export REPO_PUBKEY_URL="${REPO_URL}/${PUBKEY_FILENAME}"
+    - export GPG_TTY=$(tty)
     - aptly repo create -distribution ${RELEASE} -component main ${CI_PROJECT_NAME}
     - aptly repo add ${CI_PROJECT_NAME} "${WORKING_DIR}"
     - aptly repo show -with-packages ${CI_PROJECT_NAME}
@@ -420,13 +421,13 @@ stages:
     - |
         if [ -n "${SALSA_CI_APTLY_GPG_KEY}" ]; then \
             echo "${SALSA_CI_APTLY_GPG_KEY}" \
-                | gpg1 --import ${SALSA_CI_APTLY_GPG_PASSPHRASE:+ --passphrase ${SALSA_CI_APTLY_GPG_PASSPHRASE}}; \
+                | gpg --import ${SALSA_CI_APTLY_GPG_PASSPHRASE:+ --passphrase ${SALSA_CI_APTLY_GPG_PASSPHRASE}}; \
         else \
             rngd -r /dev/urandom; \
             printf "Key-Type: RSA\nKey-Length: 2048\nName-Real: ${DEBFULLNAME}\nName-Email: ${DEBEMAIL}\nExpire-Date: 0\n${SALSA_CI_APTLY_GPG_PASSPHRASE:+Passphrase: ${SALSA_CI_APTLY_GPG_PASSPHRASE}\n}%commit" | \
-                gpg1 --batch --gen-key; \
+                gpg --batch --gen-key; \
         fi
-        gpg1 --export --armor > "${PUBKEY_FILENAME}"
+        gpg --export --armor > "${PUBKEY_FILENAME}"
     - |
         ARCHITECTURES=$(aptly repo show -with-packages ${CI_PROJECT_NAME} | \
             awk 'BEGIN {FS="_"} /^Packages:/ {x=NR} (x && NR>x) {print $3}' | \
