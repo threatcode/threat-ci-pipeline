@@ -423,8 +423,9 @@ stages:
             echo "${SALSA_CI_APTLY_GPG_KEY}" \
                 | gpg --import ${SALSA_CI_APTLY_GPG_PASSPHRASE:+ --passphrase ${SALSA_CI_APTLY_GPG_PASSPHRASE}}; \
         else \
+            export SALSA_CI_APTLY_GPG_PASSPHRASE=${SALSA_CI_APTLY_GPG_PASSPHRASE:-${CI_PROJECT_NAME}:${CI_PIPELINE_ID}}; \
             rngd -r /dev/urandom; \
-            printf "Key-Type: RSA\nKey-Length: 2048\nName-Real: ${DEBFULLNAME}\nName-Email: ${DEBEMAIL}\nExpire-Date: 0\n${SALSA_CI_APTLY_GPG_PASSPHRASE:+Passphrase: ${SALSA_CI_APTLY_GPG_PASSPHRASE}\n}%%commit" | \
+            printf "Key-Type: RSA\nKey-Length: 2048\nName-Real: ${DEBFULLNAME}\nName-Email: ${DEBEMAIL}\nExpire-Date: 0\nPassphrase: ${SALSA_CI_APTLY_GPG_PASSPHRASE}\n%%commit" | \
                 gpg --batch --gen-key; \
         fi
         gpg --export --armor > "${PUBKEY_FILENAME}"
