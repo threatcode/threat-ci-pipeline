@@ -30,7 +30,7 @@ While the pipeline is a Work-In-Progess project, it will always try to replicate
 The services we got working are the following:
 
  * Building the package from the source (only gbp is supported)
- * [Lintian](https://github.com/Debian/lintian)
+ * [Lintian](https://lintian.debian.org)
  * Reproducible build using [Reprotest](https://reproducible-builds.org/tools)
  * [Piuparts](https://piuparts.debian.org)
  * [Autopkgtest](https://salsa.debian.org/ci-team/autopkgtest/raw/master/doc/README.package-tests.rst)
