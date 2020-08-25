@@ -191,7 +191,7 @@ See also https://docs.gitlab.com/ee/ci/yaml/#skipping-jobs
 
 ### Adding your private repositories to the builds
 
-The variables `EXTRA_REPOSITORY` and `EXTRA_REPOSITORY_KEY` can be
+The variables `SALSA_CI_EXTRA_REPOSITORY` and `SALSA_CI_EXTRA_REPOSITORY_KEY` can be
 used to add private apt repositories to the sources.list, to be
 used by the build and tests, and (optionally) the signing key for the
 repositories in armor format. These variables are of
