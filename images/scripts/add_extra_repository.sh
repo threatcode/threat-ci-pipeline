@@ -12,8 +12,8 @@
 # Passing the update flag will cause the script to call apt-get update at the
 # end if the file was added.
 
-EXTRA_REPOSITORY=""
-EXTRA_REPOSITORY_KEY=""
+SALSA_CI_EXTRA_REPOSITORY=""
+SALSA_CI_EXTRA_REPOSITORY_KEY=""
 TARGET_ETC="/etc"
 VERBOSE=0
 
@@ -21,12 +21,12 @@ while [[ "$#" -ge 1 ]]; do
     case "$1" in
         --extra-repository|-e)
             shift
-            EXTRA_REPOSITORY="$1"
+            SALSA_CI_EXTRA_REPOSITORY="$1"
             shift
             ;;
         --extra-repository-key|-k)
             shift
-            EXTRA_REPOSITORY_KEY="$1"
+            SALSA_CI_EXTRA_REPOSITORY_KEY="$1"
             shift
             ;;
         --target-etc|-t)
@@ -45,13 +45,13 @@ if [[ "$VERBOSE" -ne 0 ]]; then
     set -x
 fi
 
-if [[ -n "${EXTRA_REPOSITORY}" ]]; then
+if [[ -n "${SALSA_CI_EXTRA_REPOSITORY}" ]]; then
     mkdir -p "${TARGET_ETC}"/apt/sources.list.d/
-    cp "${EXTRA_REPOSITORY}" \
+    cp "${SALSA_CI_EXTRA_REPOSITORY}" \
         "${TARGET_ETC}"/apt/sources.list.d/extra_repository.list
-    if [[ -n "${EXTRA_REPOSITORY_KEY}" ]]; then
+    if [[ -n "${SALSA_CI_EXTRA_REPOSITORY_KEY}" ]]; then
         mkdir -p "${TARGET_ETC}"/apt/trusted.gpg.d/
-        cp "${EXTRA_REPOSITORY_KEY}" \
+        cp "${SALSA_CI_EXTRA_REPOSITORY_KEY}" \
             "${TARGET_ETC}"/apt/trusted.gpg.d/extra_repository.asc
     fi
     apt-get update
