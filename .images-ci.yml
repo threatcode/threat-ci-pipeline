@@ -33,11 +33,12 @@ clean images:
 
 .build_template: &build_template
   stage: images
-  image: docker:latest
-  services:
-    - docker:19.03.5-dind
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_BUILD_TOKEN $CI_REGISTRY
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
   script:
     - cd images
     - |
@@ -65,13 +66,13 @@ clean images:
         fi
     - |
         # Build !
-        docker build -t ${IMAGE_URL} \
+        /kaniko/executor --context ${PWD} \
+                  --dockerfile ${PWD}/Dockerfile \
                   --build-arg VENDOR=${VENDOR} \
                   --build-arg RELEASE=${RELEASE} \
                   --build-arg BASE_IMAGE=${BASE_IMAGE} \
-                  ${EXTRA_BUILD_ARGS} .
-
-    - docker push ${IMAGE_URL}
+                  ${EXTRA_BUILD_ARGS} \
+                  --destination ${IMAGE_URL}
     - |
         # Check if aliases are needed.
         if [ "${CI_COMMIT_REF_NAME}" = "master" ]; then
@@ -89,8 +90,13 @@ clean images:
         #Push the aliases.
         for ALIAS in $ALIASES; do
           ALIAS_IMAGE=${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${ALIAS}${STAGING_TAG}
-          docker tag ${IMAGE_URL} ${ALIAS_IMAGE}
-          docker push ${ALIAS_IMAGE}
+          /kaniko/executor --context ${PWD} \
+                    --dockerfile ${PWD}/Dockerfile \
+                    --build-arg VENDOR=${VENDOR} \
+                    --build-arg RELEASE=${RELEASE} \
+                    --build-arg BASE_IMAGE=${BASE_IMAGE} \
+                    ${EXTRA_BUILD_ARGS} \
+                    --destination ${ALIAS_IMAGE}
         done
   except:
     variables:
