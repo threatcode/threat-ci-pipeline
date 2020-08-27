@@ -26,7 +26,7 @@ variables:
   SALSA_CI_IMAGES_LINTIAN: ${SALSA_CI_IMAGES}/lintian:${RELEASE}
   SALSA_CI_IMAGES_PIUPARTS: ${SALSA_CI_IMAGES}/piuparts:latest
   SALSA_CI_IMAGES_REPROTEST: ${SALSA_CI_IMAGES}/reprotest:latest
-  SALSA_CI_CACHE_DOCKER_IMAGES: ${CI_PROJECT_DIR}/kaniko-cache
+  SALSA_CI_KANIKO_CACHE: ${CI_PROJECT_DIR}/kaniko-cache
   SALSA_CI_AUTOPKGTEST_LXC: https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc
   SALSA_CI_BLHC_ARGS: ''
   SALSA_CI_LINTIAN_SUPPRESS_TAGS: ""
