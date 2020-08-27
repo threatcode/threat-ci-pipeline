@@ -63,11 +63,6 @@ clean images:
             cat $(ls -v dockerfiles/$IMAGE_NAME.*) >> Dockerfile
         fi
     - |
-        # If jessie, workaround docker slowness.
-        if [ "$RELEASE" = "jessie" ]; then
-          EXTRA_BUILD_ARGS='--ulimit nofile=1024:1024'
-        fi
-    - |
         # Build !
         /kaniko/executor --context ${PWD} \
                   --dockerfile ${PWD}/Dockerfile \
