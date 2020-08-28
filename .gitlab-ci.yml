@@ -16,6 +16,7 @@ stages:
   - images
 
   # From the tested pipeline.
+  - provisioning
   - build
   - publish
   - test

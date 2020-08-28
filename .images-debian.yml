@@ -29,6 +29,9 @@ image:autopkgtest:
 image:blhc:
   extends: .build_only_sid
 
+image:gbp:
+  extends: .build_only_sid
+
 image:piuparts:
   extends: .build_only_sid
 
@@ -39,9 +42,6 @@ image:reprotest:
 # These images build for all the releases.
 #
 image:base:
-  extends: .build_template
-
-image:gbp:
   extends: .build_template
 
 image:lintian:

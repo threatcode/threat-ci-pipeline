@@ -7,6 +7,9 @@
 include:
     - 'https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/atomic-reprotest.yml'
 
+extract-source:
+    extends: .build-extract-source
+
 build:
     extends: .build-package
 

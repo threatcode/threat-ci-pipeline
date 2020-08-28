@@ -13,6 +13,7 @@ variables:
   WORKING_DIR: $CI_PROJECT_DIR/debian/output
   VENDOR: 'debian'
   RELEASE: 'unstable'
+  ARCH: 'amd64'
   SALSA_CI_MIRROR: 'http://deb.debian.org/debian'
   SALSA_CI_COMPONENTS: 'main'
   SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/pipeline'
@@ -21,8 +22,7 @@ variables:
   SALSA_CI_IMAGES_BASE: ${SALSA_CI_IMAGES}/base:${RELEASE}
   SALSA_CI_IMAGES_GENERIC_TESTS: ${SALSA_CI_IMAGES}/generic_tests:${RELEASE}
   SALSA_CI_IMAGES_BLHC: ${SALSA_CI_IMAGES}/blhc:latest
-  SALSA_CI_IMAGES_DOCKERBUILDER: $SALSA_CI_IMAGES/dockerbuilder:${RELEASE}
-  SALSA_CI_IMAGES_GBP: ${SALSA_CI_IMAGES}/gbp:${RELEASE}
+  SALSA_CI_IMAGES_GBP: ${SALSA_CI_IMAGES}/gbp:latest
   SALSA_CI_IMAGES_LINTIAN: ${SALSA_CI_IMAGES}/lintian:${RELEASE}
   SALSA_CI_IMAGES_PIUPARTS: ${SALSA_CI_IMAGES}/piuparts:latest
   SALSA_CI_IMAGES_REPROTEST: ${SALSA_CI_IMAGES}/reprotest:latest
@@ -42,6 +42,7 @@ variables:
   SALSA_CI_EXTRA_REPOSITORY_KEY: ${EXTRA_REPOSITORY_KEY}
 
 stages:
+  - provisioning
   - build
   - publish
   - test
@@ -75,11 +76,44 @@ stages:
 
    mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
    add_extra_repository.sh -v -e "${SALSA_CI_EXTRA_REPOSITORY}" -k "${SALSA_CI_EXTRA_REPOSITORY_KEY}"
-   gbp pull --ignore-branch --pristine-tar --track-missing
 
 .build-script: &build-script |
+   export CCACHE_DIR=${CCACHE_TMP_DIR}
+   SOURCE_DIR=${WORKING_DIR}/${ARCH}/source_dir
+   DB_BUILD_PARAM="${SALSA_CI_DPKG_BUILDPACKAGE_ARGS}"
+
+   apt-get update && eatmydata apt-get install --no-install-recommends -y \
+     devscripts \
+     ccache \
+     build-essential
+
+   eatmydata apt-get build-dep -y ${WORKING_DIR}/*.dsc
+
+   mkdir -p `dirname ${SOURCE_DIR}`
+   dpkg-source -x ${WORKING_DIR}/*.dsc ${SOURCE_DIR}
+   cd ${SOURCE_DIR}
+
+   if ! echo "$SALSA_CI_DISABLE_VERSION_BUMP" | grep -qE '^(1|yes|true)$'; then
+     sed -i -e '1 s/)/+salsaci)/' debian/changelog
+   fi
+
+   ccache -z
+   dpkg-buildpackage -us -uc ${DB_BUILD_PARAM}
+   cd ${WORKING_DIR}
+   rm -rf ${SOURCE_DIR}
+   ccache -s
+
+.build-script-extract-source: &build-script-extract-source |
+   mkdir -p ${WORKING_DIR}
+
+   gbp pull --ignore-branch --pristine-tar --track-missing
+
    # Check if we can obtain the orig from the git branches
-   origtargz -dt
+   if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
+     # Fallback using origtargz
+     origtargz -dt
+     SALSA_CI_GBP_BUILDPACKAGE_ARGS="--git-overlay ${SALSA_CI_GBP_BUILDPACKAGE_ARGS}"
+   fi
 
    if ! echo "$SALSA_CI_DISABLE_VERSION_BUMP" | grep -qE '^(1|yes|true)$'; then
      sed -i -e '1 s/)/+salsaci)/' debian/changelog
@@ -88,23 +122,30 @@ stages:
      git commit debian/changelog -m "Salsa CI Version bump"
    fi
 
-   eatmydata install-build-deps.sh |& filter-output
-   export CCACHE_DIR=${CCACHE_TMP_DIR}
-   ccache -z
    gbp buildpackage \
         --git-ignore-branch \
         --git-ignore-new \
         --git-no-create-orig \
         --git-export-dir=${WORKING_DIR} \
-        ${DB_BUILD_PARAM} |& filter-output
-   ccache -s
+        --no-check-builddeps \
+        -S -nc -uc -us --buildinfo-option=--version --source-option=--abort-on-upstream-changes \
+        ${SALSA_CI_GBP_BUILDPACKAGE_ARGS} \
+        ${DB_BUILD_PARAM} ; true |& filter-output
+
+   ls -la ${WORKING_DIR}
+
+.definition-extract-source: &definition-extract-source
+  stage: provisioning
+  image: $SALSA_CI_IMAGES_GBP
+  dependencies: []
+  variables:
+    DB_BUILD_PARAM: ${SALSA_CI_DPKG_BUILDPACKAGE_ARGS}
+  script:
+    - *build-script-extract-source
 
 .build-definition: &build-definition
   stage: build
-  image: $SALSA_CI_IMAGES_GBP
-  dependencies: []
-  services:
-    - docker:19.03.5-dind
+  image: $SALSA_CI_IMAGES_BASE
   cache:
     paths:
       - .ccache
@@ -116,10 +157,27 @@ stages:
     - *build-before-script
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+  dependencies:
+    - extract-source
+
+.build-extract-source: &build-extract-source
+  extends:
+    - .definition-extract-source
+    - .artifacts-default-expire
+  variables:
+    DB_BUILD_PARAM: "${SALSA_CI_DPKG_BUILDPACKAGE_ARGS}"
+    SALSA_CI_DISABLE_VERSION_BUMP: 1
+  except:
+    variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
+
 
 .build-package: &build-package
-  <<: *build-definition
-  <<: *artifacts-default-expire
+  extends:
+    - .build-definition
+    - .artifacts-default-expire
+  variables:
+    DB_BUILD_PARAM: "${SALSA_CI_DPKG_BUILDPACKAGE_ARGS} -b"
   except:
     variables:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
@@ -131,6 +189,7 @@ stages:
   variables:
     DB_BUILD_PARAM: "${SALSA_CI_DPKG_BUILDPACKAGE_ARGS} -S"
     SALSA_CI_DISABLE_VERSION_BUMP: 1
+    ARCH: 'source'
   except:
     variables:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
@@ -216,7 +275,7 @@ stages:
     - umount -R /sys/fs/cgroup && mount -a
     - /etc/init.d/lxc-net start
     - /etc/init.d/lxc start
-    - debci localtest $CI_PROJECT_DIR/debian/output/*.changes --suite ${RELEASE} --logs-dir ${DEBCI_LOG_PATH} || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
+    - debci localtest $CI_PROJECT_DIR/debian/output/$ARCH/*.changes --suite ${RELEASE} --logs-dir ${DEBCI_LOG_PATH} || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
     - rm -r ${WORKING_DIR}/debci/binaries
   variables:
     GIT_STRATEGY: none
@@ -304,7 +363,7 @@ stages:
   script:
     - add_extra_repository.sh -v -e "${SALSA_CI_EXTRA_REPOSITORY}" -k "${SALSA_CI_EXTRA_REPOSITORY_KEY}"
     - apt-get update
-    - eatmydata apt-get build-dep -y ${WORKING_DIR}/*.dsc
+    - eatmydata apt-get build-dep -y ${WORKING_DIR}/${ARCH}/*.dsc
     - |
         if ! echo "${SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE}" | grep -q -E '^(1|yes|true)$'; then
           SALSA_CI_REPROTEST_ARGS="${SALSA_CI_REPROTEST_ARGS} --no-diffoscope"

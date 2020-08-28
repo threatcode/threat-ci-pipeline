@@ -10,7 +10,7 @@ clean images:
   services:
     - docker:19.03.5-dind
   variables:
-    IMAGES_LIST: 'aptly autopkgtest base blhc gbp piuparts reprotest dockerbuilder lintian generic_tests'
+    IMAGES_LIST: 'aptly autopkgtest base blhc gbp piuparts reprotest lintian generic_tests'
   before_script:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
     - wget -O /usr/bin/reg https://github.com/genuinetools/reg/releases/download/v0.13.0/reg-linux-amd64

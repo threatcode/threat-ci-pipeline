@@ -89,7 +89,7 @@ class PipelineTrigger:
 def generate_staging_images_urls(registry_url, release, staging_tag ):
     """Generate a dict with the variables of the Salsa CI pipeline images."""
     images = ['aptly', 'autopkgtest', 'base', 'generic_tests', 'blhc',
-              'dockerbuilder', 'gbp', 'lintian', 'piuparts', 'reprotest']
+              'gbp', 'lintian', 'piuparts', 'reprotest']
     return {
             f'SALSA_CI_IMAGES_{image.upper()}': f'{registry_url}/{image}:{release}_{staging_tag}' for image in images
     }
