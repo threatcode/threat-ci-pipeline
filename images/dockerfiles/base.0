@@ -5,7 +5,8 @@
 # this notice are preserved. This file is offered as-is, without any warranty.
 
 ARG BASE_IMAGE
-FROM ${BASE_IMAGE}
+ARG ARCH=amd64
+FROM ${ARCH}/${BASE_IMAGE}
 
 ARG VENDOR
 ARG RELEASE

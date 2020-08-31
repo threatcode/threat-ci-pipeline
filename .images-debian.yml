@@ -10,6 +10,7 @@ include:
 variables:
   VENDOR: debian
   RELEASE: sid
+  ARCH: amd64
 
 .build_only_sid: &build_only_sid
   extends: .build_template
@@ -43,6 +44,11 @@ image:reprotest:
 #
 image:base:
   extends: .build_template
+
+image:i386/base:
+  extends: .build_template
+  variables:
+    ARCH: 'i386'
 
 image:lintian:
   extends: .build_template

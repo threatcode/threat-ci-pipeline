@@ -21,6 +21,7 @@ variables:
   SALSA_CI_IMAGES_APTLY: ${SALSA_CI_IMAGES}/aptly
   SALSA_CI_IMAGES_AUTOPKGTEST: ${SALSA_CI_IMAGES}/autopkgtest
   SALSA_CI_IMAGES_BASE: ${SALSA_CI_IMAGES}/base:${RELEASE}
+  SALSA_CI_IMAGES_BASE_I386: ${SALSA_CI_IMAGES}/i386/base:${RELEASE}
   SALSA_CI_IMAGES_GENERIC_TESTS: ${SALSA_CI_IMAGES}/generic_tests:${RELEASE}
   SALSA_CI_IMAGES_BLHC: ${SALSA_CI_IMAGES}/blhc:latest
   SALSA_CI_IMAGES_GBP: ${SALSA_CI_IMAGES}/gbp:latest
@@ -158,6 +159,7 @@ stages:
   stage: build
   image: $SALSA_CI_IMAGES_BASE
   cache:
+    key: "build-${ARCH}"
     paths:
       - .ccache
   variables:
@@ -178,6 +180,16 @@ stages:
   except:
     variables:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
+
+.build-package-i386: &build-package-i386
+  extends:
+    - .build-package
+  image: $SALSA_CI_IMAGES_BASE_I386
+  variables:
+    ARCH: 'i386'
+  except:
+    variables:
+      - $SALSA_CI_DISABLE_BUILD_PACKAGE_I386 =~ /^(1|yes|true)$/
 
 .build-source-only: &build-source-only
   extends:
