@@ -32,9 +32,6 @@ image:blhc:
 image:gbp:
   extends: .build_only_sid
 
-image:pipeline:
-  extends: .build_only_sid
-
 image:piuparts:
   extends: .build_only_sid
 
