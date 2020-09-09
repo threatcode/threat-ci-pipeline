@@ -11,6 +11,7 @@ variables:
   DEBEMAIL: "salsa-pipeline@debian.org"
   DEBIAN_FRONTEND: noninteractive
   WORKING_DIR: $CI_PROJECT_DIR/debian/output
+  SOURCE_DIR: 'source_dir'
   VENDOR: 'debian'
   RELEASE: 'unstable'
   ARCH: 'amd64'
@@ -79,28 +80,27 @@ stages:
 
 .build-script: &build-script |
    export CCACHE_DIR=${CCACHE_TMP_DIR}
-   SOURCE_DIR=${WORKING_DIR}/${ARCH}/source_dir
-   DB_BUILD_PARAM="${SALSA_CI_DPKG_BUILDPACKAGE_ARGS}"
+
+   # Add deb-src entries
+   sed -n '/^deb\s/s//deb-src /p' /etc/apt/sources.list > /etc/apt/sources.list.d/deb-src.list
 
    apt-get update && eatmydata apt-get install --no-install-recommends -y \
      devscripts \
      ccache \
      build-essential
 
-   eatmydata apt-get build-dep -y ${WORKING_DIR}/*.dsc
+   eatmydata apt-get build-dep -y ${WORKING_DIR}/${SOURCE_DIR}
 
-   mkdir -p `dirname ${SOURCE_DIR}`
-   dpkg-source -x ${WORKING_DIR}/*.dsc ${SOURCE_DIR}
-   cd ${SOURCE_DIR}
+   cd ${WORKING_DIR}/${SOURCE_DIR}
 
    if ! echo "$SALSA_CI_DISABLE_VERSION_BUMP" | grep -qE '^(1|yes|true)$'; then
      sed -i -e '1 s/)/+salsaci)/' debian/changelog
    fi
 
    ccache -z
-   dpkg-buildpackage -us -uc ${DB_BUILD_PARAM}
+   debuild -us -uc ${DB_BUILD_PARAM}
    cd ${WORKING_DIR}
-   rm -rf ${SOURCE_DIR}
+   rm -rf ${WORKING_DIR}/${SOURCE_DIR}
    ccache -s
 
 .build-script-extract-source: &build-script-extract-source |
@@ -112,6 +112,7 @@ stages:
    if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
      # Fallback using origtargz
      origtargz -dt
+     cp ../*orig.tar* ${WORKING_DIR}
      SALSA_CI_GBP_BUILDPACKAGE_ARGS="--git-overlay ${SALSA_CI_GBP_BUILDPACKAGE_ARGS}"
    fi
 
@@ -122,17 +123,30 @@ stages:
      git commit debian/changelog -m "Salsa CI Version bump"
    fi
 
+   # As of 2020-09-09, gbp doesn't have a simpler method to extract the
+   # debianized source package. Use --git-pbuilder=`/bin/true` for the moment:
+   # https://bugs.debian.org/969952
    gbp buildpackage \
         --git-ignore-branch \
         --git-ignore-new \
         --git-no-create-orig \
         --git-export-dir=${WORKING_DIR} \
         --no-check-builddeps \
-        -S -nc -uc -us --buildinfo-option=--version --source-option=--abort-on-upstream-changes \
-        ${SALSA_CI_GBP_BUILDPACKAGE_ARGS} \
-        ${DB_BUILD_PARAM} ; true |& filter-output
+        --git-builder=/bin/true \
+        --git-no-pbuilder \
+        --git-no-hooks \
+        --git-no-purge \
+        ${SALSA_CI_GBP_BUILDPACKAGE_ARGS} |& filter-output
 
-   ls -la ${WORKING_DIR}
+   cd ${WORKING_DIR}
+   DEBIANIZED_SOURCE=$(find . -maxdepth 3 -wholename "*/debian/changelog" |\
+                       awk -F '/debian' '{print $1}')
+   if [ ! "${DEBIANIZED_SOURCE}" ] ; then
+     echo "Error: No valid debianized source tree found."
+     exit 1
+   fi
+
+   mv ${DEBIANIZED_SOURCE} ${SOURCE_DIR}
 
 .definition-extract-source: &definition-extract-source
   stage: provisioning
@@ -177,7 +191,7 @@ stages:
     - .build-definition
     - .artifacts-default-expire
   variables:
-    DB_BUILD_PARAM: "${SALSA_CI_DPKG_BUILDPACKAGE_ARGS} -b"
+    DB_BUILD_PARAM: "${SALSA_CI_DPKG_BUILDPACKAGE_ARGS}"
   except:
     variables:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
@@ -189,7 +203,6 @@ stages:
   variables:
     DB_BUILD_PARAM: "${SALSA_CI_DPKG_BUILDPACKAGE_ARGS} -S"
     SALSA_CI_DISABLE_VERSION_BUMP: 1
-    ARCH: 'source'
   except:
     variables:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
@@ -275,7 +288,7 @@ stages:
     - umount -R /sys/fs/cgroup && mount -a
     - /etc/init.d/lxc-net start
     - /etc/init.d/lxc start
-    - debci localtest $CI_PROJECT_DIR/debian/output/$ARCH/*.changes --suite ${RELEASE} --logs-dir ${DEBCI_LOG_PATH} || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
+    - debci localtest $CI_PROJECT_DIR/debian/output/*.changes --suite ${RELEASE} --logs-dir ${DEBCI_LOG_PATH} || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
     - rm -r ${WORKING_DIR}/debci/binaries
   variables:
     GIT_STRATEGY: none
@@ -363,7 +376,7 @@ stages:
   script:
     - add_extra_repository.sh -v -e "${SALSA_CI_EXTRA_REPOSITORY}" -k "${SALSA_CI_EXTRA_REPOSITORY_KEY}"
     - apt-get update
-    - eatmydata apt-get build-dep -y ${WORKING_DIR}/${ARCH}/*.dsc
+    - eatmydata apt-get build-dep -y ${WORKING_DIR}/*.dsc
     - |
         if ! echo "${SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE}" | grep -q -E '^(1|yes|true)$'; then
           SALSA_CI_REPROTEST_ARGS="${SALSA_CI_REPROTEST_ARGS} --no-diffoscope"
