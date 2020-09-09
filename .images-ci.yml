@@ -71,6 +71,7 @@ clean images:
                   --build-arg BASE_IMAGE=${BASE_IMAGE} \
                   --cache \
                   --cache-dir ${SALSA_CI_KANIKO_CACHE} \
+                  --cache-ttl=24h \
                   --destination ${IMAGE_URL}
     - |
         # Check if aliases are needed.
@@ -96,6 +97,7 @@ clean images:
                     --build-arg BASE_IMAGE=${BASE_IMAGE} \
                     --cache \
                     --cache-dir ${SALSA_CI_KANIKO_CACHE} \
+                    --cache-ttl=24h \
                     --destination ${ALIAS_IMAGE}
         done
   except:
