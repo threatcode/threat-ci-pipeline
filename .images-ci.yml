@@ -37,11 +37,8 @@ clean images:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   before_script:
-    - mkdir -p /kaniko/.docker ${SALSA_CI_KANIKO_CACHE}
+    - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
-  cache:
-    paths:
-      - ${SALSA_CI_KANIKO_CACHE}
   script:
     - cd images
     - |
@@ -69,9 +66,6 @@ clean images:
                   --build-arg VENDOR=${VENDOR} \
                   --build-arg RELEASE=${RELEASE} \
                   --build-arg BASE_IMAGE=${BASE_IMAGE} \
-                  --cache \
-                  --cache-dir ${SALSA_CI_KANIKO_CACHE} \
-                  --cache-ttl=24h \
                   --destination ${IMAGE_URL}
     - |
         # Check if aliases are needed.
@@ -95,9 +89,6 @@ clean images:
                     --build-arg VENDOR=${VENDOR} \
                     --build-arg RELEASE=${RELEASE} \
                     --build-arg BASE_IMAGE=${BASE_IMAGE} \
-                    --cache \
-                    --cache-dir ${SALSA_CI_KANIKO_CACHE} \
-                    --cache-ttl=24h \
                     --destination ${ALIAS_IMAGE}
         done
   except:
