@@ -66,7 +66,8 @@ clean images:
                   --build-arg VENDOR=${VENDOR} \
                   --build-arg RELEASE=${RELEASE} \
                   --build-arg BASE_IMAGE=${BASE_IMAGE} \
-                  --destination ${IMAGE_URL}
+                  --destination ${IMAGE_URL} \
+                  --cache=false  # Do not use cache. See 7788516d
     - |
         # Check if aliases are needed.
         if [ "${CI_COMMIT_REF_NAME}" = "master" ]; then
@@ -89,7 +90,8 @@ clean images:
                     --build-arg VENDOR=${VENDOR} \
                     --build-arg RELEASE=${RELEASE} \
                     --build-arg BASE_IMAGE=${BASE_IMAGE} \
-                    --destination ${ALIAS_IMAGE}
+                    --destination ${ALIAS_IMAGE} \
+                    --cache=false  # Do not use cache. See 7788516d
         done
   except:
     variables:
