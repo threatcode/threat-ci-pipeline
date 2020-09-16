@@ -46,9 +46,6 @@ image:lintian:
 image:gbp:
   extends: .build_only_kali-dev
 
-image:dockerbuilder:
-  extends: .build_template
-
 image:generic_tests:
   extends: .build_except_kali-experimental
 

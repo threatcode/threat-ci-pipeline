@@ -11,8 +11,10 @@ variables:
   DEBEMAIL: "salsa-pipeline@debian.org"
   DEBIAN_FRONTEND: noninteractive
   WORKING_DIR: $CI_PROJECT_DIR/debian/output
+  SOURCE_DIR: 'source_dir'
   VENDOR: 'debian'
   RELEASE: 'unstable'
+  ARCH: 'amd64'
   SALSA_CI_MIRROR: 'http://deb.debian.org/debian'
   SALSA_CI_COMPONENTS: 'main'
   SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/pipeline'
@@ -21,7 +23,6 @@ variables:
   SALSA_CI_IMAGES_BASE: ${SALSA_CI_IMAGES}/base:${RELEASE}
   SALSA_CI_IMAGES_GENERIC_TESTS: ${SALSA_CI_IMAGES}/generic_tests:${RELEASE}
   SALSA_CI_IMAGES_BLHC: ${SALSA_CI_IMAGES}/blhc:latest
-  SALSA_CI_IMAGES_DOCKERBUILDER: $SALSA_CI_IMAGES/dockerbuilder:${RELEASE}
   SALSA_CI_IMAGES_GBP: ${SALSA_CI_IMAGES}/gbp:latest
   SALSA_CI_IMAGES_LINTIAN: ${SALSA_CI_IMAGES}/lintian:${RELEASE}
   SALSA_CI_IMAGES_PIUPARTS: ${SALSA_CI_IMAGES}/piuparts:latest
@@ -42,6 +43,7 @@ variables:
   SALSA_CI_EXTRA_REPOSITORY_KEY: ${EXTRA_REPOSITORY_KEY}
 
 stages:
+  - provisioning
   - build
   - publish
   - test
@@ -55,6 +57,55 @@ stages:
 .artifacts-default-expire: &artifacts-default-expire
   artifacts:
     <<: *artifacts
+
+.provisioning-extract-source: &provisioning-extract-source
+  stage: provisioning
+  image: $SALSA_CI_IMAGES_GBP
+  extends:
+    - .artifacts-default-expire
+  variables:
+    DB_BUILD_PARAM: ${SALSA_CI_DPKG_BUILDPACKAGE_ARGS}
+  except:
+    variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
+  script:
+    - |
+      mkdir -p ${WORKING_DIR}
+
+      gbp pull --ignore-branch --pristine-tar --track-missing
+
+      # Check if we can obtain the orig from the git branches
+      if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
+        # Fallback using origtargz
+        origtargz -dt
+        cp ../*orig.tar* ${WORKING_DIR}
+        SALSA_CI_GBP_BUILDPACKAGE_ARGS="--git-overlay ${SALSA_CI_GBP_BUILDPACKAGE_ARGS}"
+      fi
+
+      # As of 2020-09-09, gbp doesn't have a simpler method to extract the
+      # debianized source package. Use --git-pbuilder=`/bin/true` for the moment:
+      # https://bugs.debian.org/969952
+      gbp buildpackage \
+           --git-ignore-branch \
+           --git-ignore-new \
+           --git-no-create-orig \
+           --git-export-dir=${WORKING_DIR} \
+           --no-check-builddeps \
+           --git-builder=/bin/true \
+           --git-no-pbuilder \
+           --git-no-hooks \
+           --git-no-purge \
+           ${SALSA_CI_GBP_BUILDPACKAGE_ARGS} |& filter-output
+
+      cd ${WORKING_DIR}
+      DEBIANIZED_SOURCE=$(find . -maxdepth 3 -wholename "*/debian/changelog" |\
+                          awk -F '/debian' '{print $1}')
+      if [ ! "${DEBIANIZED_SOURCE}" ] ; then
+        echo "Error: No valid debianized source tree found."
+        exit 1
+      fi
+
+      mv ${DEBIANIZED_SOURCE} ${SOURCE_DIR}
 
 .build-before-script: &build-before-script |
    # Reported in https://salsa.debian.org/salsa-ci-team/pipeline/issues/104,
@@ -75,37 +126,35 @@ stages:
 
    mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
    add_extra_repository.sh -v -e "${SALSA_CI_EXTRA_REPOSITORY}" -k "${SALSA_CI_EXTRA_REPOSITORY_KEY}"
-   gbp pull --ignore-branch --pristine-tar --track-missing
 
 .build-script: &build-script |
-   # Check if we can obtain the orig from the git branches
-   if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
-     # Fallback using origtargz in the corresponding $RELEASE
-     docker-origtargz.sh "${SALSA_CI_IMAGES_DOCKERBUILDER}"
-     SALSA_CI_GBP_BUILDPACKAGE_ARGS="--git-overlay ${SALSA_CI_GBP_BUILDPACKAGE_ARGS}"
-   fi
+   export CCACHE_DIR=${CCACHE_TMP_DIR}
+
+   # Add deb-src entries
+   sed -n '/^deb\s/s//deb-src /p' /etc/apt/sources.list > /etc/apt/sources.list.d/deb-src.list
+
+   apt-get update && eatmydata apt-get install --no-install-recommends -y \
+     devscripts \
+     ccache \
+     build-essential
+
+   eatmydata apt-get build-dep -y ${WORKING_DIR}/${SOURCE_DIR}
+
+   cd ${WORKING_DIR}/${SOURCE_DIR}
 
    if ! echo "$SALSA_CI_DISABLE_VERSION_BUMP" | grep -qE '^(1|yes|true)$'; then
      sed -i -e '1 s/)/+salsaci)/' debian/changelog
-     git config user.email "$DEBEMAIL"
-     git config user.name "$DEBFULLNAME"
-     git commit debian/changelog -m "Salsa CI Version bump"
    fi
 
-   gbp buildpackage \
-        --git-ignore-branch \
-        --git-ignore-new \
-        --git-no-create-orig \
-        --git-export-dir=${WORKING_DIR} \
-        ${SALSA_CI_GBP_BUILDPACKAGE_ARGS} \
-        --git-builder="docker-build.sh ${SALSA_CI_IMAGES_DOCKERBUILDER} ${DB_BUILD_PARAM}" |& filter-output
+   ccache -z
+   debuild -us -uc ${DB_BUILD_PARAM}
+   cd ${WORKING_DIR}
+   rm -rf ${WORKING_DIR}/${SOURCE_DIR}
+   ccache -s
 
 .build-definition: &build-definition
   stage: build
-  image: $SALSA_CI_IMAGES_GBP
-  dependencies: []
-  services:
-    - docker:19.03.5-dind
+  image: $SALSA_CI_IMAGES_BASE
   cache:
     paths:
       - .ccache
@@ -117,10 +166,13 @@ stages:
     - *build-before-script
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+  dependencies:
+    - extract-source
 
 .build-package: &build-package
-  <<: *build-definition
-  <<: *artifacts-default-expire
+  extends:
+    - .build-definition
+    - .artifacts-default-expire
   except:
     variables:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/

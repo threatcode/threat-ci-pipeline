@@ -44,9 +44,6 @@ image:reprotest:
 image:base:
   extends: .build_template
 
-image:dockerbuilder:
-  extends: .build_template
-
 image:lintian:
   extends: .build_template
   only:

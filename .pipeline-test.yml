@@ -47,14 +47,17 @@ trigger testing:
     variables:
       - $IS_A_CHILD_PIPELINE
 
-before_script:
-    - test -d repo_test || ( apt-get update && apt-get install git -y; git clone https://salsa.debian.org/salsa-ci-team/dummypackage repo_test)
-    - cd repo_test
-
 .only-in-test-pipeline: &only-in-test-pipeline
   only:
     variables:
       - $TEST_PIPELINE
+
+extract-source:
+    extends: .provisioning-extract-source
+    <<: *only-in-test-pipeline
+    before_script:
+        - test -d repo_test || ( apt-get update && apt-get install git -y; git clone https://salsa.debian.org/salsa-ci-team/dummypackage repo_test)
+        - cd repo_test
 
 build:
     extends: .build-package
