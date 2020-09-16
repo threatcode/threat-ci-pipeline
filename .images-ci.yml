@@ -29,7 +29,8 @@ clean images:
   except:
     variables:
       - $TEST_PIPELINE
-      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $SALSA_CI_PERSIST_IMAGES =~ /^(1|yes|true)$/
+      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      - $SALSA_CI_PERSIST_IMAGES =~ /^(1|yes|true)$/
 
 .build_template: &build_template
   stage: images
