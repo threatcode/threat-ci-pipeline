@@ -139,7 +139,7 @@ stages:
      equivs \
      build-essential
 
-   eatmydata apt-get build-dep -y ${WORKING_DIR}/${SOURCE_DIR}
+   eatmydata install-build-deps.sh
 
    cd ${WORKING_DIR}/${SOURCE_DIR}
 
