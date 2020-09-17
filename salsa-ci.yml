@@ -148,7 +148,7 @@ stages:
    fi
 
    ccache -z
-   debuild -us -uc ${DB_BUILD_PARAM}
+   debuild -us -uc ${DB_BUILD_PARAM} |& filter-output
    cd ${WORKING_DIR}
    rm -rf ${WORKING_DIR}/${SOURCE_DIR}
    ccache -s
