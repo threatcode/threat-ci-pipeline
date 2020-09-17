@@ -136,6 +136,7 @@ stages:
    apt-get update && eatmydata apt-get install --no-install-recommends -y \
      devscripts \
      ccache \
+     equivs \
      build-essential
 
    eatmydata apt-get build-dep -y ${WORKING_DIR}/${SOURCE_DIR}
