@@ -11,7 +11,7 @@ mkdir -p $TMPDIR
 
 echo " -> Starting installing the build-deps"
 
-mk-build-deps debian/control
+mk-build-deps $1/debian/control
 
 FILENAME=$(echo ${TMPDIR}/*-build-deps*.deb)
 if [ ! -f $FILENAME ]; then

@@ -139,7 +139,7 @@ stages:
      equivs \
      build-essential
 
-   eatmydata install-build-deps.sh
+   eatmydata install-build-deps.sh ${WORKING_DIR}/${SOURCE_DIR}
 
    cd ${WORKING_DIR}/${SOURCE_DIR}
 
