@@ -503,7 +503,7 @@ stages:
     - |
         if [ -n "${SALSA_CI_APTLY_GPG_KEY}" ]; then \
             echo "${SALSA_CI_APTLY_GPG_KEY}" \
-                | gpg --import ${SALSA_CI_APTLY_GPG_PASSPHRASE:+ --passphrase "${SALSA_CI_APTLY_GPG_PASSPHRASE}"}; \
+                | gpg --import ${SALSA_CI_APTLY_GPG_PASSPHRASE:+ --batch --passphrase "${SALSA_CI_APTLY_GPG_PASSPHRASE}"}; \
         else \
             export SALSA_CI_APTLY_GPG_PASSPHRASE="${SALSA_CI_APTLY_GPG_PASSPHRASE:-${CI_PROJECT_NAME}:${CI_PIPELINE_ID}}"; \
             rngd -r /dev/urandom; \
