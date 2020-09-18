@@ -140,11 +140,11 @@ stages:
      equivs \
      build-essential
 
-   # Install package build dependencies
-   eatmydata install-build-deps.sh ${WORKING_DIR}/${SOURCE_DIR}
-
    # Enter source package dir
    cd ${WORKING_DIR}/${SOURCE_DIR}
+
+   # Install package build dependencies
+   eatmydata install-build-deps.sh .
 
    # If not disabled, bump package version
    if ! echo "$SALSA_CI_DISABLE_VERSION_BUMP" | grep -qE '^(1|yes|true)$'; then
