@@ -151,6 +151,10 @@ stages:
      sed -i -e '1 s/)/+salsaci)/' debian/changelog
    fi
 
+   # Generate ccache links
+   dpkg-reconfigure ccache
+   PATH="/usr/lib/ccache/:${PATH}"
+
    # Reset ccache stats
    ccache -z
 
