@@ -63,6 +63,10 @@ build:
     extends: .build-package
     <<: *only-in-test-pipeline
 
+build i386:
+    extends: .build-package-i386
+    <<: *only-in-test-pipeline
+
 build source:
     extends: .build-source-only
     <<: *only-in-test-pipeline

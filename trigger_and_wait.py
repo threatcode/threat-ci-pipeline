@@ -86,12 +86,26 @@ class PipelineTrigger:
         assert pipeline.status == PIPELINE_SUCCESS, 'Pipeline failed!'
 
 
-def generate_staging_images_urls(registry_url, release, staging_tag ):
+def generate_staging_images_urls(registry_url, release, staging_tag):
     """Generate a dict with the variables of the Salsa CI pipeline images."""
-    images = ['aptly', 'autopkgtest', 'base', 'generic_tests', 'blhc',
-              'gbp', 'lintian', 'piuparts', 'reprotest']
+    images = [
+        # amd64 images
+        ('APTLY', 'aptly'),
+        ('AUTOPKGTEST', 'autopkgtest'),
+        ('BASE', 'base'),
+        ('GENERIC_TESTS', 'generic_tests'),
+        ('BLHC', 'blhc'),
+        ('GBP', 'gbp'),
+        ('LINTIAN', 'lintian'),
+        ('PIUPARTS', 'piuparts'),
+        ('REPROTEST', 'reprotest'),
+        # i386 images
+        ('BASE_I386', 'i386/base'),
+    ]
+
     return {
-            f'SALSA_CI_IMAGES_{image.upper()}': f'{registry_url}/{image}:{release}_{staging_tag}' for image in images
+        f'SALSA_CI_IMAGES_{name}': f'{registry_url}/{path}:{release}_{staging_tag}'
+        for name, path in images
     }
 
 

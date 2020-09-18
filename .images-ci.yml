@@ -87,6 +87,7 @@ clean images:
                   --build-arg VENDOR=${VENDOR} \
                   --build-arg RELEASE=${RELEASE} \
                   --build-arg BASE_IMAGE=${BASE_IMAGE} \
+                  --build-arg ARCH=${ARCH} \
                   --destination ${IMAGE_URL} \
                   ${ALIASES_DESTINATION} \
                   --cache=false  # Do not use cache. See 7788516d
