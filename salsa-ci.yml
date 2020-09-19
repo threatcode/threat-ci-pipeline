@@ -159,7 +159,7 @@ stages:
    ccache -z
 
    # Create salsaci user and fix permissions
-   useradd --uid 101 salsaci
+   useradd salsaci
    chown -R salsaci. ${WORKING_DIR}
 
    # Build package as user salsaci
