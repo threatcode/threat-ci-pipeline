@@ -161,7 +161,7 @@ stages:
 
    # Create salsaci user and fix permissions
    useradd salsaci
-   chown -R salsaci. ${WORKING_DIR}
+   chown -R salsaci. ${WORKING_DIR} ${CCACHE_DIR}
 
    # Build package as user salsaci
    su salsaci -c "debuild -us -uc ${DB_BUILD_PARAM}" |& filter-output
