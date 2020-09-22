@@ -164,7 +164,7 @@ stages:
    chown -R salsaci. ${WORKING_DIR} ${CCACHE_DIR}
 
    # Build package as user salsaci
-   su salsaci -c "dpkg-buildpackage ${DB_BUILD_PARAM}" |& filter-output
+   su salsaci -c "eatmydata dpkg-buildpackage ${DB_BUILD_PARAM}" |& filter-output
 
    # Restore PWD to ${WORKING_DIR}
    cd ${WORKING_DIR}
