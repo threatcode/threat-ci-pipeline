@@ -4,10 +4,6 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
-RUN echo 'deb http://deb.debian.org/debian testing main' | tee -a /etc/apt/sources.list
-RUN echo 'Package: lxc\nPin: release a=testing\nPin-Priority: 900\n' | tee /etc/apt/preferences.d/lxc;
-RUN echo 'Package: liblxc1\nPin: release a=testing\nPin-Priority: 900\n' | tee -a /etc/apt/preferences.d/lxc;
-
 RUN apt-get update && \
     eatmydata apt-get install -y \
         dnsmasq-base debci libvirt-clients libvirt-daemon-system libvirt-daemon-system-sysv \
