@@ -417,6 +417,16 @@ To disable this behavior set the `SALSA_CI_DISABLE_VERSION_BUMP` to 1, 'yes' or 
 
 ## Hacking
 
+To contribute, forking the project and opening a merge request should be straight forward.
+
+Things to take into consideration:
+
+1. The branch name is used as a staging tag on the generated images.
+Because of this, slashes (`/`) are not allowed, otherwise CI will fail.
+Avoid branch names like `something/other`.
+
+1. Your fork should have 'Public' visibility for the pipeline to be shown on the merge request.
+
 ### Allow images to be persistent
 
 By default all images are deleted when the pipeline is finished. This is to avoid images
