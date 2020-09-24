@@ -214,6 +214,7 @@ stages:
     ARCH: 'i386'
   except:
     variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_BUILD_PACKAGE_I386 =~ /^(1|yes|true)$/
 
 .build-source-only: &build-source-only
