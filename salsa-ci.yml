@@ -42,6 +42,7 @@ variables:
   # Backward compatibility
   SALSA_CI_EXTRA_REPOSITORY: ${EXTRA_REPOSITORY}
   SALSA_CI_EXTRA_REPOSITORY_KEY: ${EXTRA_REPOSITORY_KEY}
+  PYTHONIOENCODING: utf-8
 
 stages:
   - provisioning
