@@ -31,7 +31,7 @@ output_filepath = os.path.join(OUTPUT_PATH, OUTPUT_FILENAME)
 
 separation_line = '#' * 120
 
-with open(output_filepath, 'w') as output_file:
+with open(output_filepath, 'w', encoding='utf-8') as output_file:
     for line in sys.stdin.buffer:
         try:
             line = line.decode('utf-8')
