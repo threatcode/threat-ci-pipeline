@@ -218,6 +218,9 @@ If you want to use the definitions provided by the Salsa CI Team, but want to ex
 ---
 include: https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
 
+extract-source:
+    extends: .provisioning-extract-source
+
 variables:
   RELEASE: 'experimental'
 
