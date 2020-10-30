@@ -79,6 +79,7 @@ stages:
       # Check if we can obtain the orig from the git branches
       if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
         # Fallback using origtargz
+        apt-get update
         origtargz -dt
         cp ../*orig.tar* ${WORKING_DIR}
         SALSA_CI_GBP_BUILDPACKAGE_ARGS="--git-overlay ${SALSA_CI_GBP_BUILDPACKAGE_ARGS}"
