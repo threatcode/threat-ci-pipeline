@@ -223,6 +223,8 @@ stages:
   extends:
     - .build-definition
     - .artifacts-default-expire
+  cache:
+    paths: []  # Override cache for source builds
   variables:
     DB_BUILD_PARAM: "${SALSA_CI_DPKG_BUILDPACKAGE_ARGS} -S"
     SALSA_CI_DISABLE_VERSION_BUMP: 1
