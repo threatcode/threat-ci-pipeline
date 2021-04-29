@@ -3,10 +3,16 @@
 # Copying and distribution of this file, with or without modification, are
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
-
 include:
  - .pipeline-test.yml
  - .images-debian.yml
+
+workflow:
+  rules:
+    # Avoid duplicated pipelines, do not run dettached pipelines.
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - when: always
 
 variables:
   DOCKER_TLS_CERTDIR: ""

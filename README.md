@@ -99,6 +99,24 @@ The following releases are currently supported:
 * experimental
 
 
+### Avoid running CI on certain branches
+
+It is possible to configure the pipeline to skip branches you don't want CI to be run on.
+The `SALSA_CI_IGNORED_BRANCHES` variable can be set to a regex that will be compared against the ref name and will decide if a pipeline is created.
+
+By default, pipelines are only created for branches that contain a `debian/` folder.
+
+```yaml
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  SALSA_CI_IGNORED_BRANCHES: 'some-branch|another-ref'
+```
+
+
 ### Building with non-free dependencies
 By default, only `main` repositories are used.
 If your package has dependencies or build-dependencies in the `contrib` or `non-free` components (archive areas), set `SALSA_CI_COMPONENTS` to indicate this:
