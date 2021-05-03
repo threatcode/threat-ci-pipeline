@@ -5,6 +5,18 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
+workflow:
+  rules:
+    # If the branch matches the ones it should not run on, ignore it.
+    - if: $SALSA_CI_IGNORED_BRANCHES && $CI_COMMIT_REF_NAME =~ $SALSA_CI_IGNORED_BRANCHES
+      when: never
+    # Otherwise, if there's a debian/ folder, run.
+    - exists:
+        - debian/**
+      when: always
+    # Fallback to not running.
+    - when: never
+
 variables:
   GIT_DEPTH: 1
   DEBFULLNAME: "Salsa Pipeline"
@@ -39,6 +51,7 @@ variables:
   SALSA_CI_DISABLE_APTLY: 1
   SALSA_CI_DISABLE_MISSING_BREAKS: 1
   SALSA_CI_DISABLE_RC_BUGS: 1
+  SALSA_CI_IGNORED_BRANCHES: ''
   # Backward compatibility
   SALSA_CI_EXTRA_REPOSITORY: ${EXTRA_REPOSITORY}
   SALSA_CI_EXTRA_REPOSITORY_KEY: ${EXTRA_REPOSITORY_KEY}
