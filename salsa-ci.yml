@@ -115,7 +115,7 @@ stages:
 
       cd ${WORKING_DIR}
       DEBIANIZED_SOURCE=$(find . -maxdepth 3 -wholename "*/debian/changelog" |\
-                          awk -F '/debian' '{print $1}')
+                          sed -e 's%/\w*/\w*$%%')
       if [ ! "${DEBIANIZED_SOURCE}" ] ; then
         echo "Error: No valid debianized source tree found."
         exit 1
