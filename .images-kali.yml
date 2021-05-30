@@ -3,67 +3,68 @@
 # Copying and distribution of this file, with or without modification, are
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
-
+---
 include:
- - .images-ci.yml
+  - .images-ci.yml
 
 variables:
+  ARCH: amd64
   VENDOR: kali
-  RELEASE: kali-dev
   BASE_IMAGE: "debian:testing"
 
-.build_only_kali-dev: &build_only_kali-dev
+# Images built on main branch
+images-prod:
+  stage: build
   extends: .build_template
+  parallel:
+    matrix:
+      # All releases
+      - IMAGE_NAME: base
+        RELEASE:
+          - kali-dev
+          - kali-experimental
+          - kali-rolling
+      # All but experimental
+      - IMAGE_NAME:
+          - lintian
+          - generic_tests
+        RELEASE:
+          - kali-dev
+          - kali-rolling
+      # Only kali-dev
+      - IMAGE_NAME:
+          - aptly
+          - autopkgtest
+          - blhc
+          - gbp
+          - piuparts
+          - reprotest
+        RELEASE: kali-dev
   only:
     variables:
-      - $RELEASE == 'kali-dev'
+      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      - $BUILD_ALL_IMAGES
 
-#
-# These images build only for kali-dev.
-#
-image:aptly:
-  extends: .build_only_kali-dev
-
-image:autopkgtest:
-  extends: .build_only_kali-dev
-
-image:blhc:
-  extends: .build_only_kali-dev
-
-image:gbp:
-  extends: .build_only_kali-dev
-
-image:piuparts:
-  extends: .build_only_kali-dev
-
-image:reprotest:
-  extends: .build_only_kali-dev
-
-#
-# These images build for all the releases.
-#
-image:base:
+# Images built on branches.
+# This is a subset of all the images, and are the only ones
+# built for branches != main.
+image-staging:
   extends: .build_template
-
-image:i386/base:
-  extends: .build_template
-  variables:
-    ARCH: 'i386'
-
-image:lintian:
-  extends: .build_template
-  only:
+  stage: build
+  parallel:
+    matrix:
+      - IMAGE_NAME:
+          - aptly
+          - autopkgtest
+          - base
+          - blhc
+          - gbp
+          - generic_tests
+          - lintian
+          - piuparts
+          - reprotest
+        RELEASE: kali-dev
+  except:
     variables:
-      # Use != to avoid overriding template except.
-      - $RELEASE != 'kali-experimental'
-
-image:generic_tests:
-  extends: .build_template
-
-#
-# Trigger build of other releases.
-#
-trigger other releases:
-  extends: .trigger_build
-  variables:
-    RELEASES_LIST: 'kali-experimental kali-rolling'
+      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      - $BUILD_ALL_IMAGES

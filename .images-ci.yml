@@ -3,34 +3,9 @@
 # Copying and distribution of this file, with or without modification, are
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
-
-clean images:
-  stage: clean
-  image: docker:latest
-  services:
-    - docker:19.03.5-dind
-  variables:
-    IMAGES_LIST: 'aptly autopkgtest base blhc gbp piuparts reprotest lintian generic_tests'
-  before_script:
-    - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
-    - wget -O /usr/bin/reg https://github.com/genuinetools/reg/releases/download/v0.13.0/reg-linux-amd64
-    - chmod +x /usr/bin/reg
-  script:
-    - |
-        # If not master, use REF as staging tag.
-        if ! [ "${CI_COMMIT_REF_NAME}" = "master" ]; then
-          STAGING_TAG="_${CI_COMMIT_REF_NAME}"
-        fi
-    - |
-        for IMAGE in $IMAGES_LIST; do
-          reg --registry ${CI_REGISTRY} rm ${CI_PROJECT_PATH}/${IMAGE}:${RELEASE}${STAGING_TAG} || true
-        done
-  when: always
-  except:
-    variables:
-      - $TEST_PIPELINE
-      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-      - $SALSA_CI_PERSIST_IMAGES =~ /^(1|yes|true)$/
+---
+stages:
+  - build
 
 .build_template: &build_template
   stage: images
@@ -51,9 +26,13 @@ clean images:
         if [ -z ${BASE_IMAGE} ]; then
           BASE_IMAGE=${VENDOR}:${RELEASE}
         fi
-    - IMAGE_NAME=$(echo ${CI_JOB_NAME} | awk -F':' '{ print $2 }')
     - IMAGE_NAME_WITH_TAG=${IMAGE_NAME}:${RELEASE}${STAGING_TAG}
-    - IMAGE_URL=${CI_REGISTRY_IMAGE}/${IMAGE_NAME_WITH_TAG}
+    - |
+        # Non-amd64 images have their own namespace
+        if [ "${ARCH}" != "amd64" ]; then
+          ARCH_NAMESPACE=${ARCH}/
+        fi
+    - IMAGE_URL=${CI_REGISTRY_IMAGE}/${ARCH_NAMESPACE}${IMAGE_NAME_WITH_TAG}
     - |
         # Render Dockerfile.
         cat $(ls -v dockerfiles/base.*) > Dockerfile
@@ -77,7 +56,7 @@ clean images:
         # Define the image aliases.
         ALIASES_DESTINATION=''
         for ALIAS in $ALIASES; do
-          ALIAS_IMAGE=${CI_REGISTRY_IMAGE}/${IMAGE_NAME}:${ALIAS}${STAGING_TAG}
+          ALIAS_IMAGE=${CI_REGISTRY_IMAGE}/${ARCH_NAMESPACE}${IMAGE_NAME}:${ALIAS}${STAGING_TAG}
           ALIASES_DESTINATION="${ALIASES_DESTINATION} --destination ${ALIAS_IMAGE}"
         done
     - |
@@ -91,21 +70,3 @@ clean images:
                   --destination ${IMAGE_URL} \
                   ${ALIASES_DESTINATION} \
                   --cache=false  # Do not use cache. See 7788516d
-  except:
-    variables:
-      - $TEST_PIPELINE
-
-.trigger_build: &trigger_build
-  stage: deploy
-  image: debian:unstable
-  before_script:
-    - apt-get update && apt-get install python3 python3-gitlab -y
-  script:
-    - ./trigger_and_wait.py --release $RELEASES_LIST
-  except:
-    variables:
-      - $IS_A_CHILD_PIPELINE
-  only:
-    variables:
-      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH && $SALSA_CI_PERSIST_IMAGES =~ /^(1|yes|true)$/
-      - $BUILD_ALL_IMAGES
