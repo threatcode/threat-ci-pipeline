@@ -159,12 +159,10 @@ variables:
 ```
 
 
-### Allow reprotest to fail
-Reproducible builds are important, but `reprotest`'s behavior can sometimes be a little heractic and fail randomly on packages that aren't totally reproducible (yet!).
+### Allowing a job to fail
+Without completely disabling a job, you can allow it to fail without failing the whole pipeline. That way, if the job fails, the pipeline will pass and show an orange warning telling you something went wrong.
 
-Without completely disabling `reprotest`, you can allow it to fail without failing the whole pipeline. That way, if `reprotest` fails, the pipeline will pass and show an orange warning telling you something went wrong.
-
-You can allow `reprotest` to fail by adding this variable in your salsa-ci.yml manifest:
+For example, even though reproducible builds are important, `reprotest`'s behavior can sometimes be a little heractic and fail randomly on packages that aren't totally reproducible (yet!). In such case, you can allow `reprotest` to fail by adding this variable in your salsa-ci.yml manifest:
 
 ```
 include:
