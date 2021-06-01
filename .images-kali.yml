@@ -12,26 +12,16 @@ variables:
   RELEASE: kali-dev
   BASE_IMAGE: "debian:testing"
 
-
 .build_only_kali-dev: &build_only_kali-dev
   extends: .build_template
   only:
     variables:
       - $RELEASE == 'kali-dev'
 
-.build_except_kali-experimental: &build_except_kali-experimental
-  extends: .build_template
-  except:
-    variables:
-      - $RELEASE == 'kali-experimental'
-
-image:base:
-  extends: .build_template
-
-image:piuparts:
-  extends: .build_only_kali-dev
-
-image:reprotest:
+#
+# These images build only for kali-dev.
+#
+image:aptly:
   extends: .build_only_kali-dev
 
 image:autopkgtest:
@@ -40,17 +30,35 @@ image:autopkgtest:
 image:blhc:
   extends: .build_only_kali-dev
 
-image:lintian:
-  extends: .build_except_kali-experimental
-
 image:gbp:
   extends: .build_only_kali-dev
 
-image:generic_tests:
-  extends: .build_except_kali-experimental
-
-image:aptly:
+image:piuparts:
   extends: .build_only_kali-dev
+
+image:reprotest:
+  extends: .build_only_kali-dev
+
+#
+# These images build for all the releases.
+#
+image:base:
+  extends: .build_template
+
+image:i386/base:
+  extends: .build_template
+  variables:
+    ARCH: 'i386'
+
+image:lintian:
+  extends: .build_template
+  only:
+    variables:
+      # Use != to avoid overriding template except.
+      - $RELEASE != 'kali-experimental'
+
+image:generic_tests:
+  extends: .build_template
 
 #
 # Trigger build of other releases.
