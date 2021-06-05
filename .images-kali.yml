@@ -8,7 +8,6 @@ include:
   - .images-ci.yml
 
 variables:
-  ARCH: amd64
   VENDOR: kali
   BASE_IMAGE: "debian:testing"
 
@@ -18,20 +17,30 @@ images-prod:
   extends: .build_template
   parallel:
     matrix:
-      # All releases
+      # All releases, all arches
       - IMAGE_NAME: base
+        ARCH:
+          - i386
+          - amd64
         RELEASE:
           - kali-dev
           - kali-experimental
           - kali-rolling
-      # All but experimental
+      # All releases, only amd64
+      - IMAGE_NAME: generic_tests
+        ARCH: amd64
+        RELEASE:
+          - kali-dev
+          - kali-experimental
+          - kali-rolling
+      # All but experimental, only amd64
       - IMAGE_NAME:
           - lintian
-          - generic_tests
+        ARCH: amd64
         RELEASE:
           - kali-dev
           - kali-rolling
-      # Only kali-dev
+      # Only kali-dev, only amd64
       - IMAGE_NAME:
           - aptly
           - autopkgtest
@@ -39,6 +48,7 @@ images-prod:
           - gbp
           - piuparts
           - reprotest
+        ARCH: amd64
         RELEASE: kali-dev
   only:
     variables:
