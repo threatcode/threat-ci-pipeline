@@ -3,67 +3,89 @@
 # Copying and distribution of this file, with or without modification, are
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
-
+---
 include:
- - .images-ci.yml
+  - .images-ci.yml
 
 variables:
   VENDOR: debian
-  RELEASE: sid
-  ARCH: amd64
 
-.build_only_sid: &build_only_sid
+.all-supported-releases: &all-supported-releases
+  - stretch
+  - stretch-backports
+  - buster
+  - buster-backports
+  - bullseye
+  - bullseye-backports
+  - sid
+  - experimental
+
+# Images built on main branch
+images-prod:
+  stage: build
   extends: .build_template
+  parallel:
+    matrix:
+      # Base image, all releases, all arches
+      - IMAGE_NAME: base
+        ARCH:
+          - i386
+          - amd64
+        RELEASE: *all-supported-releases
+      # All releases only amd64
+      - IMAGE_NAME: generic_tests
+        ARCH: amd64
+        RELEASE: *all-supported-releases
+      # Images in sid only amd64
+      - IMAGE_NAME:
+          - aptly
+          - autopkgtest
+          - blhc
+          - gbp
+          - piuparts
+          - reprotest
+        ARCH: amd64
+        RELEASE: sid
+      # Lintian is not built for experimental
+      - IMAGE_NAME: lintian
+        ARCH: amd64
+        RELEASE:
+          - stretch
+          - stretch-backports
+          - buster
+          - buster-backports
+          - bullseye
+          - bullseye-backports
+          - sid
   only:
     variables:
-      - $RELEASE == 'sid'
+      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      - $BUILD_ALL_IMAGES
 
-#
-# These images build only for sid.
-#
-image:aptly:
-  extends: .build_only_sid
-
-image:autopkgtest:
-  extends: .build_only_sid
-
-image:blhc:
-  extends: .build_only_sid
-
-image:gbp:
-  extends: .build_only_sid
-
-image:piuparts:
-  extends: .build_only_sid
-
-image:reprotest:
-  extends: .build_only_sid
-
-#
-# These images build for all the releases.
-#
-image:base:
+# Images built on branches.
+# This is a subset of all the images, and are the only ones
+# built for branches != main.
+image-staging:
   extends: .build_template
-
-image:i386/base:
-  extends: .build_template
-  variables:
-    ARCH: 'i386'
-
-image:lintian:
-  extends: .build_template
-  only:
+  stage: build
+  parallel:
+    matrix:
+      - IMAGE_NAME:
+          - aptly
+          - autopkgtest
+          - base
+          - blhc
+          - gbp
+          - generic_tests
+          - lintian
+          - piuparts
+          - reprotest
+        ARCH: amd64
+        RELEASE: sid
+      - IMAGE_NAME: base
+        ARCH: i386
+        RELEASE: sid
+  except:
     variables:
-      # Use != to avoid overriding template except.
-      - $RELEASE != 'experimental'
-
-image:generic_tests:
-  extends: .build_template
-
-#
-# Trigger build of other releases.
-#
-trigger other releases:
-  extends: .trigger_build
-  variables:
-    RELEASES_LIST: 'jessie stretch stretch-backports buster buster-backports bullseye bullseye-backports experimental'
+      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      - $BUILD_ALL_IMAGES
