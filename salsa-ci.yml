@@ -152,6 +152,9 @@ stages:
 .build-script: &build-script |
    export CCACHE_DIR=${CCACHE_TMP_DIR}
 
+   # add target architecture if cross-compiliing
+   test -z "${HOST_ARCH}" || dpkg --add-architecture ${HOST_ARCH}
+
    # Add deb-src entries
    sed -n '/^deb\s/s//deb-src /p' /etc/apt/sources.list > /etc/apt/sources.list.d/deb-src.list
 
@@ -161,6 +164,15 @@ stages:
      ccache \
      equivs \
      build-essential
+
+   # in case we are cross-building, install some more dependencies
+   # see #815172 why we need libc-dev and libstdc++-dev
+   test -z "${HOST_ARCH}" || eatmydata apt-get satisfy --no-install-recommends -y \
+        libc-dev:${HOST_ARCH} \
+        libstdc++-dev:${HOST_ARCH} \
+        crossbuild-essential-${HOST_ARCH}
+   # when cross-compiling, add 'nocheck' to the DEB_BUILD_OPTIONS
+   test -z "${HOST_ARCH}" || export DEB_BUILD_OPTIONS=nocheck${DEB_BUILD_OPTIONS:+,}${DEB_BUILD_OPTIONS}
 
    # Enter source package dir
    cd ${WORKING_DIR}/${SOURCE_DIR}
@@ -192,7 +204,7 @@ stages:
    BUILD_LOGFILE="${WORKING_DIR}/${BUILD_LOGFILE_SOURCE}_${BUILD_LOGFILE_VERSION}_${BUILD_LOGFILE_ARCH}.build"
 
    # Build package as user salsaci
-   su salsaci -c "eatmydata dpkg-buildpackage ${DB_BUILD_PARAM}" |& OUTPUT_FILENAME=${BUILD_LOGFILE} filter-output
+   su salsaci -c "eatmydata dpkg-buildpackage ${HOST_ARCH:+--host-arch ${HOST_ARCH} -Pcross,nocheck} ${DB_BUILD_PARAM}" |& OUTPUT_FILENAME=${BUILD_LOGFILE} filter-output
 
    # Restore PWD to ${WORKING_DIR}
    cd ${WORKING_DIR}
