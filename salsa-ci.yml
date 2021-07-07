@@ -26,7 +26,8 @@ variables:
   SOURCE_DIR: 'source_dir'
   VENDOR: 'debian'
   RELEASE: 'unstable'
-  ARCH: 'amd64'
+  # the architecture of the builder
+  BUILD_ARCH: 'amd64'
   SALSA_CI_MIRROR: 'http://deb.debian.org/debian'
   SALSA_CI_COMPONENTS: 'main'
   SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/pipeline'
@@ -199,7 +200,7 @@ stages:
   stage: build
   image: $SALSA_CI_IMAGES_BASE
   cache:
-    key: "build-${ARCH}"
+    key: "build-${BUILD_ARCH}"
     paths:
       - .ccache
   variables:
@@ -226,7 +227,7 @@ stages:
     - .build-package
   image: $SALSA_CI_IMAGES_BASE_I386
   variables:
-    ARCH: 'i386'
+    BUILD_ARCH: 'i386'
   except:
     variables:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
