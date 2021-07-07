@@ -11,7 +11,7 @@ mkdir -p "${TMPDIR}"
 
 echo " -> Starting installing the build-deps"
 
-mk-build-deps $1/debian/control
+mk-build-deps ${HOST_ARCH:+--host-arch=${HOST_ARCH} -Pcross,nocheck} $1/debian/control
 
 FILENAME=$(echo ${TMPDIR}/*-build-deps*.deb)
 if [ ! -f "${FILENAME}" ]; then
@@ -30,7 +30,7 @@ aptitude -y --without-recommends \
 	-o "Aptitude::ProblemResolver::Hints::KeepDummy=reject $PKGNAME :UNINST" \
 	-o "Aptitude::ProblemResolver::Keep-All-Level=55000" \
 	-o "Aptitude::ProblemResolver::Remove-Essential-Level=maximum" \
-	install "${PKGNAME}"
+	install "${PKGNAME}${HOST_ARCH:+:${HOST_ARCH}}"
 
 rm $FILENAME
 
