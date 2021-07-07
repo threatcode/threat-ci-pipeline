@@ -324,6 +324,37 @@ stages:
       # dpkg-buildpackage in jessie doesn't have --build=all/any
       - $RELEASE =~ /^jessie/ || $RELEASE =~ /^oldoldstable/
 
+.test-crossbuild-package-arm64: &test-crossbuild-package-arm64
+  extends:
+    - .build-definition
+  stage: test
+  script:
+    - *build-before-script
+    - |
+        if test -n ${HOST_ARCH} && egrep -q "^Architecture:.*(any|[^\!]${HOST_ARCH})" debian/control; then
+            DB_BUILD_PARAM="${SALSA_CI_DPKG_BUILDPACKAGE_ARGS} --build=any"
+        else
+            echo "###########################################"
+            echo "### No binary package of type any or ${HOST_ARCH} found"
+            echo "### Stopping ${CI_JOB_NAME} test."
+            echo "###########################################"
+            echo "You should disable this job via:"
+            echo "variables:"
+            echo "  SALSA_CI_DISABLE_CROSSBUILD_ARM64: '1'"
+            mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+            exit 0
+        fi
+    - *build-script
+    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+  variables:
+    HOST_ARCH: arm64
+  except:
+    variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
+      - $SALSA_CI_DISABLE_CROSSBUILD_ARM64 =~ /^(1|yes|true)$/
+      - $BUILD_ARCH == $HOST_ARCH
+      - $HOST_ARCH == ""
+
 .test-autopkgtest: &test-autopkgtest
   stage: test
   image: $SALSA_CI_IMAGES_AUTOPKGTEST
