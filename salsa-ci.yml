@@ -28,6 +28,8 @@ variables:
   RELEASE: 'unstable'
   # the architecture of the builder
   BUILD_ARCH: 'amd64'
+  # only set this for cross-compiling
+  HOST_ARCH: ''
   SALSA_CI_MIRROR: 'http://deb.debian.org/debian'
   SALSA_CI_COMPONENTS: 'main'
   SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/pipeline'
@@ -144,6 +146,9 @@ stages:
    mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
    add_extra_repository.sh -v -e "${SALSA_CI_EXTRA_REPOSITORY}" -k "${SALSA_CI_EXTRA_REPOSITORY_KEY}"
 
+   # are we cross-compiling? if not, unset HOST_ARCH
+   test "${BUILD_ARCH}" != "${HOST_ARCH}" || HOST_ARCH=""
+
 .build-script: &build-script |
    export CCACHE_DIR=${CCACHE_TMP_DIR}
 
@@ -183,7 +188,7 @@ stages:
    BUILD_LOGFILE_SOURCE=$(dpkg-parsechangelog -S Source)
    BUILD_LOGFILE_VERSION=$(dpkg-parsechangelog -S Version)
    BUILD_LOGFILE_VERSION=${BUILD_LOGFILE_VERSION#*:}
-   BUILD_LOGFILE_ARCH=$(dpkg --print-architecture)
+   BUILD_LOGFILE_ARCH=${HOST_ARCH:-${BUILD_ARCH}}
    BUILD_LOGFILE="${WORKING_DIR}/${BUILD_LOGFILE_SOURCE}_${BUILD_LOGFILE_VERSION}_${BUILD_LOGFILE_ARCH}.build"
 
    # Build package as user salsaci
@@ -200,7 +205,7 @@ stages:
   stage: build
   image: $SALSA_CI_IMAGES_BASE
   cache:
-    key: "build-${BUILD_ARCH}"
+    key: "build-${BUILD_ARCH}_${HOST_ARCH}"
     paths:
       - .ccache
   variables:
