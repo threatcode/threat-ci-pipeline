@@ -31,6 +31,8 @@ variables:
   RELEASE: 'unstable'
   # the architecture of the builder
   BUILD_ARCH: 'amd64'
+  # only set this for cross-compiling
+  HOST_ARCH: ''
   SALSA_CI_MIRROR: 'http://deb.debian.org/debian'
   SALSA_CI_COMPONENTS: 'main'
   SALSA_CI_IMAGES: 'registry.salsa.debian.org/salsa-ci-team/pipeline'
@@ -147,8 +149,14 @@ stages:
    mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
    add_extra_repository.sh -v -e "${SALSA_CI_EXTRA_REPOSITORY}" -k "${SALSA_CI_EXTRA_REPOSITORY_KEY}"
 
+   # are we cross-compiling? if not, unset HOST_ARCH
+   test "${BUILD_ARCH}" != "${HOST_ARCH}" || HOST_ARCH=""
+
 .build-script: &build-script |
    export CCACHE_DIR=${CCACHE_TMP_DIR}
+
+   # add target architecture if cross-compiliing
+   test -z "${HOST_ARCH}" || dpkg --add-architecture ${HOST_ARCH}
 
    # Add deb-src entries
    sed -n '/^deb\s/s//deb-src /p' /etc/apt/sources.list > /etc/apt/sources.list.d/deb-src.list
@@ -159,6 +167,15 @@ stages:
      ccache \
      equivs \
      build-essential
+
+   # in case we are cross-building, install some more dependencies
+   # see #815172 why we need libc-dev and libstdc++-dev
+   test -z "${HOST_ARCH}" || eatmydata apt-get satisfy --no-install-recommends -y \
+        libc-dev:${HOST_ARCH} \
+        libstdc++-dev:${HOST_ARCH} \
+        crossbuild-essential-${HOST_ARCH}
+   # when cross-compiling, add 'nocheck' to the DEB_BUILD_OPTIONS
+   test -z "${HOST_ARCH}" || export DEB_BUILD_OPTIONS=nocheck${DEB_BUILD_OPTIONS:+,}${DEB_BUILD_OPTIONS}
 
    # Enter source package dir
    cd ${WORKING_DIR}/${SOURCE_DIR}
@@ -186,11 +203,11 @@ stages:
    BUILD_LOGFILE_SOURCE=$(dpkg-parsechangelog -S Source)
    BUILD_LOGFILE_VERSION=$(dpkg-parsechangelog -S Version)
    BUILD_LOGFILE_VERSION=${BUILD_LOGFILE_VERSION#*:}
-   BUILD_LOGFILE_ARCH=$(dpkg --print-architecture)
+   BUILD_LOGFILE_ARCH=${HOST_ARCH:-${BUILD_ARCH}}
    BUILD_LOGFILE="${WORKING_DIR}/${BUILD_LOGFILE_SOURCE}_${BUILD_LOGFILE_VERSION}_${BUILD_LOGFILE_ARCH}.build"
 
    # Build package as user salsaci
-   su salsaci -c "eatmydata dpkg-buildpackage ${DB_BUILD_PARAM}" |& OUTPUT_FILENAME=${BUILD_LOGFILE} filter-output
+   su salsaci -c "eatmydata dpkg-buildpackage ${HOST_ARCH:+--host-arch ${HOST_ARCH} -Pcross,nocheck} ${DB_BUILD_PARAM}" |& OUTPUT_FILENAME=${BUILD_LOGFILE} filter-output
 
    # Restore PWD to ${WORKING_DIR}
    cd ${WORKING_DIR}
@@ -203,7 +220,7 @@ stages:
   stage: build
   image: $SALSA_CI_IMAGES_BASE
   cache:
-    key: "build-${BUILD_ARCH}"
+    key: "build-${BUILD_ARCH}_${HOST_ARCH}"
     paths:
       - .ccache
   variables:
@@ -309,6 +326,37 @@ stages:
       - $SALSA_CI_DISABLE_BUILD_PACKAGE_ALL =~ /^(1|yes|true)$/
       # dpkg-buildpackage in jessie doesn't have --build=all/any
       - $RELEASE =~ /^jessie/ || $RELEASE =~ /^oldoldstable/
+
+.test-crossbuild-package-arm64: &test-crossbuild-package-arm64
+  extends:
+    - .build-definition
+  stage: test
+  script:
+    - *build-before-script
+    - |
+        if test -n ${HOST_ARCH} && egrep -q "^Architecture:.*(any|[^\!]${HOST_ARCH})" debian/control; then
+            DB_BUILD_PARAM="${SALSA_CI_DPKG_BUILDPACKAGE_ARGS} --build=any"
+        else
+            echo "###########################################"
+            echo "### No binary package of type any or ${HOST_ARCH} found"
+            echo "### Stopping ${CI_JOB_NAME} test."
+            echo "###########################################"
+            echo "You should disable this job via:"
+            echo "variables:"
+            echo "  SALSA_CI_DISABLE_CROSSBUILD_ARM64: '1'"
+            mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+            exit 0
+        fi
+    - *build-script
+    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+  variables:
+    HOST_ARCH: arm64
+  except:
+    variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
+      - $SALSA_CI_DISABLE_CROSSBUILD_ARM64 =~ /^(1|yes|true)$/
+      - $BUILD_ARCH == $HOST_ARCH
+      - $HOST_ARCH == ""
 
 .test-autopkgtest: &test-autopkgtest
   stage: test
