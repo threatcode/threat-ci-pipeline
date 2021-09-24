@@ -58,6 +58,7 @@ variables:
   SALSA_CI_DISABLE_MISSING_BREAKS: 1
   SALSA_CI_DISABLE_RC_BUGS: 1
   SALSA_CI_IGNORED_BRANCHES: ''
+  SALSA_CI_BUILD_TIMEOUT_ARGS: "2.75h"
   # Backward compatibility
   SALSA_CI_EXTRA_REPOSITORY: ${EXTRA_REPOSITORY}
   SALSA_CI_EXTRA_REPOSITORY_KEY: ${EXTRA_REPOSITORY_KEY}
@@ -228,7 +229,7 @@ stages:
    - BUILD_LOGFILE="${WORKING_DIR}/${BUILD_LOGFILE_SOURCE}_${BUILD_LOGFILE_VERSION}_${BUILD_LOGFILE_ARCH}.build"
 
    # Build package as user salsaci
-   - su salsaci -c "eatmydata dpkg-buildpackage ${HOST_ARCH:+--host-arch ${HOST_ARCH} -Pcross,nocheck} --build=${DB_BUILD_TYPE} ${DB_BUILD_PARAM}" |& OUTPUT_FILENAME=${BUILD_LOGFILE} filter-output
+   - su salsaci -c "timeout ${SALSA_CI_BUILD_TIMEOUT_ARGS} eatmydata dpkg-buildpackage ${HOST_ARCH:+--host-arch ${HOST_ARCH} -Pcross,nocheck} --build=${DB_BUILD_TYPE} ${DB_BUILD_PARAM}" |& OUTPUT_FILENAME=${BUILD_LOGFILE} filter-output
 
    # Restore PWD to ${WORKING_DIR}
    - cd ${WORKING_DIR}
@@ -490,7 +491,7 @@ stages:
           SALSA_CI_REPROTEST_ARGS="${SALSA_CI_REPROTEST_ARGS} --no-diffoscope"
         fi
     - |
-        eatmydata reprotest \
+        timeout ${SALSA_CI_BUILD_TIMEOUT_ARGS} eatmydata reprotest \
           --min-cpus $(nproc --all) \
           --store-dir ${WORKING_DIR}/reprotest \
           --verbosity=2  \
