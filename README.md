@@ -135,6 +135,30 @@ variables:
 This is currently used for `piuparts`, but is likely to be used for
 other stages in future.
 
+It is possible to use the `SALSA_CI_EXTRA_REPOSITORY` support to add a
+suitable apt source to the build environment and allow builds to access
+build-dependencies from contrib and non-free. You will need permission
+to modify the Salsa Settings for the project.
+
+The CI/CD settings are at a URL like:
+
+`https://salsa.debian.org/<team>/<project>/-/settings/ci_cd`
+Expand the section on Variables and add a **File** type variable:
+
+> Key: SALSA_CI_EXTRA_REPOSITORY
+
+> Value: deb https://deb.debian.org/debian/ sid contrib non-free
+
+The apt source should reference `sid` or `unstable`.
+
+Many `contrib` and `non-free` packages only build on `amd64`, so the
+32 bit build should be disabled in the `variables` block:
+
+```yaml
+
+variables:
+  SALSA_CI_DISABLE_BUILD_PACKAGE_I386: 1
+```
 
 ### Skipping a job
 There are many ways to skip a certain job. The recommended way is to set to 1 (or "yes" or "true") the `SALSA_CI_DISABLE_*` variables that have been created for this purpose.
