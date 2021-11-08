@@ -22,7 +22,4 @@ RUN chmod 755 /usr/local/bin/filter-output
 COPY files/base/initialize /initialize
 RUN /initialize $VENDOR $RELEASE && rm -f /initialize
 
-COPY ./scripts/install-build-deps.sh /usr/local/bin/
-RUN chmod 755 /usr/local/bin/install-build-deps.sh
-
 RUN apt-get update && apt-get install -y apt ca-certificates && rm -rf /var/lib/apt

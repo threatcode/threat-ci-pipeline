@@ -162,10 +162,8 @@ stages:
    sed -n '/^deb\s/s//deb-src /p' /etc/apt/sources.list > /etc/apt/sources.list.d/deb-src.list
 
    apt-get update && eatmydata apt-get install --no-install-recommends -y \
-     aptitude \
-     devscripts \
      ccache \
-     equivs \
+     fakeroot \
      build-essential
 
    # in case we are cross-building, install some more dependencies
@@ -181,7 +179,27 @@ stages:
    cd ${WORKING_DIR}/${SOURCE_DIR}
 
    # Install package build dependencies
-   eatmydata install-build-deps.sh .
+   # use plain "apt-get build-dep" so that we can install only packages for
+   # architecture indep or arch:any builds
+   aptopts=""
+   if [ "$DB_BUILD_TYPE" = "any" ]; then
+     aptopts="--arch-only"
+   elif [ "$DB_BUILD_TYPE" = "all" ]; then
+     aptopts="--indep-only"
+   fi
+   # use aspcud solver for experimental and backports
+   if "$RELEASE" == experimental || $RELEASE =~ /.*-backports$/; then
+     eatmydata apt-get install --no-install-recommends -y aspcud
+     aptopts="$aptopts --solver aspcud -oAPT::Solver::Strict-Pinning=false -oAPT::Solver::aspcud::Preferences="
+     # minimize number of packages from experimental and backports
+     if "$RELEASE" == experimental; then
+       aptopts="$aptopts-count(solution,APT-Release:=/a=experimental/),"
+     elif $RELEASE =~ /.*-backports$/; then
+       aptopts="$aptopts-count(solution,APT-Release:~/a=.*-backports/),"
+     fi
+     $aptopts="$aptopts-removed,-changed,-new"
+   fi
+   eatmydata apt-get build-dep ${HOST_ARCH:+--host-architecture ${HOST_ARCH} -Pcross,nocheck} --no-install-recommends -y $aptopts .
 
    # If not disabled, bump package version
    if ! echo "$SALSA_CI_DISABLE_VERSION_BUMP" | grep -qE '^(1|yes|true)$'; then
@@ -207,7 +225,7 @@ stages:
    BUILD_LOGFILE="${WORKING_DIR}/${BUILD_LOGFILE_SOURCE}_${BUILD_LOGFILE_VERSION}_${BUILD_LOGFILE_ARCH}.build"
 
    # Build package as user salsaci
-   su salsaci -c "eatmydata dpkg-buildpackage ${HOST_ARCH:+--host-arch ${HOST_ARCH} -Pcross,nocheck} ${DB_BUILD_PARAM}" |& OUTPUT_FILENAME=${BUILD_LOGFILE} filter-output
+   su salsaci -c "eatmydata dpkg-buildpackage ${HOST_ARCH:+--host-arch ${HOST_ARCH} -Pcross,nocheck} --build=${DB_BUILD_TYPE} ${DB_BUILD_PARAM}" |& OUTPUT_FILENAME=${BUILD_LOGFILE} filter-output
 
    # Restore PWD to ${WORKING_DIR}
    cd ${WORKING_DIR}
@@ -227,6 +245,7 @@ stages:
     CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
     CCACHE_WORK_DIR: ${CI_PROJECT_DIR}/.ccache
     DB_BUILD_PARAM: ${SALSA_CI_DPKG_BUILDPACKAGE_ARGS}
+    DB_BUILD_TYPE: full
   script:
     - *build-before-script
     - *build-script
@@ -260,7 +279,7 @@ stages:
   cache:
     paths: []  # Override cache for source builds
   variables:
-    DB_BUILD_PARAM: "${SALSA_CI_DPKG_BUILDPACKAGE_ARGS} -S"
+    DB_BUILD_TYPE: source
     SALSA_CI_DISABLE_VERSION_BUMP: 1
   except:
     variables:
@@ -275,7 +294,7 @@ stages:
     - LOCAL_ARCH=`dpkg --print-architecture`
     - |
         if egrep -q "^Architecture:.*(any|[^\!]${LOCAL_ARCH})" debian/control; then
-            DB_BUILD_PARAM="${SALSA_CI_DPKG_BUILDPACKAGE_ARGS} --build=any"
+            DB_BUILD_TYPE="any"
         else
             echo "###########################################"
             echo "### No binary package of type any or ${LOCAL_ARCH} found"
@@ -304,7 +323,7 @@ stages:
     - LOCAL_ARCH=`dpkg --print-architecture`
     - |
         if grep -q "^Architecture: all" debian/control; then
-            DB_BUILD_PARAM="${SALSA_CI_DPKG_BUILDPACKAGE_ARGS} --build=all"
+            DB_BUILD_TYPE="all"
         else
             echo "###########################################"
             echo "### No binary package of type all found"
@@ -331,7 +350,7 @@ stages:
     - *build-before-script
     - |
         if test -n ${HOST_ARCH} && egrep -q "^Architecture:.*(any|[^\!]${HOST_ARCH})" debian/control; then
-            DB_BUILD_PARAM="${SALSA_CI_DPKG_BUILDPACKAGE_ARGS} --build=any"
+            DB_BUILD_TYPE="any"
         else
             echo "###########################################"
             echo "### No binary package of type any or ${HOST_ARCH} found"

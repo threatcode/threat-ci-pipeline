@@ -10,10 +10,8 @@ RUN \
 
 RUN apt-get update && eatmydata apt-get install --no-install-recommends -y \
     git-buildpackage \
-    devscripts \
     pristine-tar \
     curl \
-    aptitude \
     unzip \
     && rm -rf /var/lib/apt
 
