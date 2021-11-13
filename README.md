@@ -42,7 +42,7 @@ Having this on Gitlab CI ensures that every package accomplishes the minimum qua
 
 ## Basic Use
 
-To use the Salsa Pipeline, the first thing to do is to enable the project's Pipeline. Go to `Settings` (General), expand `Visibility, project features, permissions`, and in `Repository`, enable `Pipelines`. This makes the `CI/CD` settings and menu available.
+To use the Salsa Pipeline, the first thing to do is to enable the project's Pipeline. Go to `Settings` (General), expand `Visibility, project features, permissions`, and in `Repository`, enable `CI/CD`. This makes the `CI/CD` settings and menu available.
 Then, change the project's setting to make it point to the pipeline's config file.
 This can be done on `Settings` -> `CI/CD` (on the expanded menu, don't click on the CI / CD rocket) -> `General Pipelines` -> `Custom CI config path`.
 
