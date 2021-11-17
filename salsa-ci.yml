@@ -293,8 +293,6 @@ stages:
     variables:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_BUILD_PACKAGE_ANY =~ /^(1|yes|true)$/
-      # dpkg-buildpackage in jessie doesn't have --build=all/any
-      - $RELEASE =~ /^jessie/ || $RELEASE =~ /^oldoldstable/
 
 
 .test-build-package-all: &test-build-package-all
@@ -324,8 +322,6 @@ stages:
     variables:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_BUILD_PACKAGE_ALL =~ /^(1|yes|true)$/
-      # dpkg-buildpackage in jessie doesn't have --build=all/any
-      - $RELEASE =~ /^jessie/ || $RELEASE =~ /^oldoldstable/
 
 .test-crossbuild-package-arm64: &test-crossbuild-package-arm64
   extends:

@@ -87,7 +87,6 @@ variables:
 ```
 
 The following releases are currently supported:
-* jessie
 * stretch
 * stretch-backports
 * buster
@@ -317,8 +316,6 @@ test-build-all:
 `.test-build-package-any` runs `dpkg-buildpackage` with the option `--build=any` and will only build arch-specific packages.
 
 `.test-build-package-all` does the opposite and runs `dpkg-buildpackage` with the option `--build=all` building only arch-indep packages.
-
-Note: These additional build jobs don't work with `RELEASE: 'jessie'` and are skipped in that case.
 
 ### Customizing Lintian
 
