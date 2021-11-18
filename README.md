@@ -433,23 +433,27 @@ triggering the pipeline, without the need of creating a specific commit.
 
 
 ### Using automatically built apt repository
-The [Aptly](https://www.aptly.info/) task runs in the publish stage and will save published apt repository files as its artifacts, so downstream CI tasks may access built binary/source packages directly through artifacts url via apt.
-
-To find the url manually, click `Browse` (in the `Job artifacts` pane) -> `aptly` -> `index.html`. In brief it takes:
-
-```bash
-$ export BASE_URL=${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/${REPO_PATH}
-$ sudo wget ${BASE_URL}/public-key.asc | sudo apt-key add -
-$ echo | sudo tee /etc/apt/sources.list.d/job-${CI_JOB_ID}.list <<EOF
-deb ${BASE_URL} ${RELEASE} main
-# deb-src ${BASE_URL} ${RELEASE} main
-EOF
-$ sudo apt-get update
-```
-
-This is currently disabled by default. Set `SALSA_CI_DISABLE_APTLY` to anything other than 1, 'yes' or 'true' to enable it.
+The [Aptly](https://www.aptly.info/) task runs in the publish stage and will save published apt repository files as its artifacts, so downstream CI tasks may access built binary/source packages directly through artifacts url via apt. This is currently disabled by default. Set `SALSA_CI_DISABLE_APTLY` to anything other than 1, 'yes' or 'true' to enable it.
 
 To specify repository signing key, export the gpg key/passphrase as CI / CD [Variables](https://salsa.debian.org/help/ci/variables/README#variables) `SALSA_CI_APTLY_GPG_KEY` and `SALSA_CI_APTLY_GPG_PASSPHRASE`. Otherwise, an automatically generated one will be used.
+
+For example to let package `src:pkgA` of team `${TEAM}` and project `${PROJECT}` setup an aptly repository and let package `src:pkgB` use the repository, add the following to `debian/salsa-ci.yml` of `src:pkgA`:
+
+```yaml
+variables:
+  SALSA_CI_DISABLE_APTLY: 0
+```
+
+The next time the pipeline of `src:pkgA` is run, a new job called `aptly` will be part of the "Publish" stage of the pipeline. Click on the job to obtain the job number which you need `debian/salsa-ci.yml` of `src:pkgB`:
+
+```yaml
+before_script:
+  - echo "deb [trusted=yes] https://salsa.debian.org/${TEAM}/${PROJECT}/-/jobs/${JOB_ID}/artifacts/raw/aptly unstable main" | tee /etc/apt/sources.list.d/pkga.list
+  - apt-get update
+```
+
+Replace `{TEAM}`, `${PROJECT}` and `${JOB_ID}` with the correct values in the last snippet. Now you can use the binary packages produced by `src:pkgA` in `src:pkgB`. Note, that when you make changes to `src:pkgA`, `src:pkgB` will continue using the old repository that the job number points to. If you want `src:pkgB` to use the updated binary packages, you have to retrieve the job number of the `aptly` job from `src:pkgA` and update the `${JOB_ID}` of `src:pkgB`.
+
 
 ### Debian release bump
 By default, the build job will increase the release number using the +salsaci suffix.
