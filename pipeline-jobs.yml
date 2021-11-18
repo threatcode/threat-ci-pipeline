@@ -16,6 +16,15 @@ build:
 build i386:
     extends: .build-package-i386
 
+build armel:
+    extends: .build-package-armel
+
+build armhf:
+    extends: .build-package-armhf
+
+build arm64:
+    extends: .build-package-arm64
+
 build source:
     extends: .build-source-only
 
