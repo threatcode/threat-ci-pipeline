@@ -13,7 +13,6 @@ RUN apt-get update && eatmydata apt-get install --no-install-recommends -y \
     pristine-tar \
     curl \
     unzip \
-    python3 \
     && rm -rf /var/lib/apt
 
 # Just for backward compatibility, because current pipeline does gbp pull for no reasons... Remove it after merge

@@ -1,73 +1,81 @@
-#! /usr/bin/python3
+#! /usr/bin/perl
 # Copyright salsa-ci-team and others
 # SPDX-License-Identifier: FSFAP
 # Copying and distribution of this file, with or without modification, are
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
-import sys
-import os
-import time
+use strict;
+use warnings;
 
-DOT_EVERY_S = int(os.environ.get('DOT_EVERY_S', 60))
+use Time::HiRes qw(clock_gettime);
+use List::Util qw(max);
+use File::Copy;
+
+my $DOT_EVERY_S = $ENV{DOT_EVERY_S} // 60;
+
 # The maximum output in the salsa environment is 4 MB, but we usually have some
 # output that is not covered by this script. Let's reserve 200 KB for that.
-MAX_STDOUT_BYTES = int(os.environ.get('MAX_STDOUT_BYTES',
-                                      (4 * 1024 * 1024) - (200 * 1024)))
-HEAD_TAIL_PROPORTION = float(os.environ.get('HEAD_TAIL_PROPORTION', 0.8))
-OUTPUT_PATH = os.environ.get('WORKING_DIR', '.')
-OUTPUT_FILENAME = os.environ.get('OUTPUT_FILENAME', 'output.log')
+my $MAX_STDOUT_BYTES = $ENV{MAX_STDOUT_BYTES} // ((4 * 1024 * 1024) - (200 * 1024));
+my $HEAD_TAIL_PROPORTION = $ENV{HEAD_TAIL_PROPORTION} // 0.8;
+my $OUTPUT_PATH = $ENV{WORKING_DIR} // '.';
+my $OUTPUT_FILENAME = $ENV{OUTPUT_FILENAME} // 'output.log';
 
-HEAD_BYTES = MAX_STDOUT_BYTES * HEAD_TAIL_PROPORTION
+my $HEAD_BYTES = $MAX_STDOUT_BYTES * $HEAD_TAIL_PROPORTION;
 
-byte_counter = 0
-bytes_shown = 0
-bytes_written = 0
+my $byte_counter = 0;
+my $bytes_shown = 0;
+my $bytes_written = 0;
 
-stdout_truncated = False
-last_time_dot = time.monotonic()
+my $stdout_truncated = 0;
+my $last_time_dot = clock_gettime(&Time::HiRes::CLOCK_MONOTONIC);
 
-output_filepath = os.path.join(OUTPUT_PATH, OUTPUT_FILENAME)
+my $output_filepath = $OUTPUT_FILENAME =~ /^\// ? $OUTPUT_FILENAME : "$OUTPUT_PATH/$OUTPUT_FILENAME";
 
-separation_line = '#' * 120
+my $separation_line = '#' x 120;
 
-with open(output_filepath, 'w', encoding='utf-8') as output_file:
-    for line in sys.stdin.buffer:
-        try:
-            line = line.decode('utf-8')
-        except UnicodeDecodeError:
-            line = line.decode('iso-8859-1')
-        byte_counter += len(line)
-        output_file.write(line)
-        if byte_counter <= HEAD_BYTES:
-            sys.stdout.write(line)
-            bytes_shown = byte_counter
-            bytes_written = byte_counter
-        else:
-            if not stdout_truncated:
-                stdout_truncated = True
-                msg = ('{0}\n'
-                       '# WARNING stdout has been truncated\n'
-                       '{0}\n').format(separation_line)
-                print(msg, end='')
-                bytes_written += len(msg)
-            if (time.monotonic() - last_time_dot) >= DOT_EVERY_S:
-                last_time_dot = time.monotonic()
-                print('.', end='')
-                bytes_written += 1
+open my $output_file, '>', $output_filepath;
 
-if stdout_truncated:
-    msg = ('\n'
-           '{0}\n'
-           '# WARNING showing the log tail bytes\n'
-           '{0}\n').format(separation_line)
-    print(msg, end='')
-    bytes_written += len(msg)
-    remaining = MAX_STDOUT_BYTES - bytes_written
+foreach my $line (<STDIN>) {
+    {
+	use bytes;
+	$byte_counter += length $line;
+    }
+    print $output_file $line;
+    if ($byte_counter <= $HEAD_BYTES) {
+	print STDOUT $line;
+	$bytes_shown = $byte_counter;
+	$bytes_written = $byte_counter;
+    } else {
+	if (!$stdout_truncated) {
+	    $stdout_truncated = 1;
+	    my $msg = "$separation_line\n# WARNING stdout has been truncated\n$separation_line\n";
+	    print STDOUT $msg;
+	    $bytes_written += length $msg;
+	}
+	my $now = clock_gettime(&Time::HiRes::CLOCK_MONOTONIC);
+	if ($now - $last_time_dot > $DOT_EVERY_S) {
+	    $last_time_dot = $now;
+	    print STDOUT '.';
+	    $bytes_written += 1;
+	}
+    }
+}
 
-    print('{} {} {}'.format(bytes_written, bytes_shown, byte_counter),
-          file=sys.stderr)
-    with open(output_filepath) as fh:
-        fh.seek(0, os.SEEK_END)
-        fh.seek(max(fh.tell() - remaining, bytes_shown, 0), os.SEEK_SET)
-        print(fh.read(), end='')
+close $output_file;
+
+if ($stdout_truncated) {
+    my $msg = "\n$separation_line\n# WARNING showing the log tail bytes\n$separation_line\n";
+    print STDOUT $msg;
+    $bytes_written += length $msg;
+    my $remaining = $MAX_STDOUT_BYTES - $bytes_written;
+
+    print STDERR "$bytes_written $bytes_shown $byte_counter";
+
+    open my $fh, '<', $output_filepath;
+    seek $fh, 0, 2;
+    seek $fh, max ((tell $fh) - $remaining, $bytes_shown, 0), 0;
+    STDOUT->flush();
+    copy $fh, *STDOUT;
+    close $fh;
+}
