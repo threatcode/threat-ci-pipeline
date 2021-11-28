@@ -189,7 +189,7 @@ stages:
    fi
    # use aspcud solver for experimental and backports
    if [ "$RELEASE" = "experimental" ] || [[ "$RELEASE" =~ .*-backports$ ]]; then
-     eatmydata apt-get install --no-install-recommends -y aspcud
+     eatmydata apt-get install --no-install-recommends -y aspcud apt-cudf
      aptopts="$aptopts --solver aspcud -oAPT::Solver::Strict-Pinning=false -oAPT::Solver::aspcud::Preferences="
      # minimize number of packages from experimental and backports
      if [ "$RELEASE" = "experimental" ]; then
