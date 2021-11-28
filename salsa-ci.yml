@@ -197,7 +197,7 @@ stages:
      elif [[ "$RELEASE" =~ .*-backports$ ]]; then
        aptopts="$aptopts-count(solution,APT-Release:~/a=.*-backports/),"
      fi
-     $aptopts="$aptopts-removed,-changed,-new"
+     aptopts="$aptopts-removed,-changed,-new"
    fi
    eatmydata apt-get build-dep ${HOST_ARCH:+--host-architecture ${HOST_ARCH} -Pcross,nocheck} --no-install-recommends -y $aptopts .
 
