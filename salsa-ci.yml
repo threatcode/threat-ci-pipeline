@@ -90,12 +90,13 @@ stages:
     variables:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
   script:
-    - |
-      mkdir -p ${WORKING_DIR}
+    - mkdir -p ${WORKING_DIR}
 
-      gbp pull --ignore-branch --pristine-tar --track-missing
+    - gbp pull --ignore-branch --pristine-tar --track-missing
 
       # Check if we can obtain the orig from the git branches
+
+    - |
       if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
         # Fallback using origtargz
         apt-get update
@@ -107,6 +108,7 @@ stages:
       # As of 2020-09-09, gbp doesn't have a simpler method to extract the
       # debianized source package. Use --git-pbuilder=`/bin/true` for the moment:
       # https://bugs.debian.org/969952
+    - |
       gbp buildpackage \
            --git-ignore-branch \
            --git-ignore-new \
@@ -119,120 +121,121 @@ stages:
            --git-no-purge \
            ${SALSA_CI_GBP_BUILDPACKAGE_ARGS} |& filter-output
 
-      cd ${WORKING_DIR}
-      DEBIANIZED_SOURCE=$(find . -maxdepth 3 -wholename "*/debian/changelog" |\
-                          sed -e 's%/\w*/\w*$%%')
+    - cd ${WORKING_DIR}
+    - DEBIANIZED_SOURCE=$(find . -maxdepth 3 -wholename "*/debian/changelog" | sed -e 's%/\w*/\w*$%%')
+    - |
       if [ ! "${DEBIANIZED_SOURCE}" ] ; then
         echo "Error: No valid debianized source tree found."
         exit 1
       fi
 
-      mv ${DEBIANIZED_SOURCE} ${SOURCE_DIR}
+    - mv ${DEBIANIZED_SOURCE} ${SOURCE_DIR}
 
-.build-before-script: &build-before-script |
+.build-before-script: &build-before-script
    # Reported in https://salsa.debian.org/salsa-ci-team/pipeline/issues/104,
    # GitLab can only expand variables once. So at the beginning CCACHE_WORK_DIR
    # was assigned to `${WORKING_DIR}/.ccache`, and it will be expanded as
    # `$CI_PROJECT_DIR/debian/output/.ccache`, so it creates a folder named
    # "\$CI_PROJECT_DIR", which is then saved as build cache. To allow smooth
    # transition, that wrongly named folder has to be removed:
-   rm -rf '$CI_PROJECT_DIR'
+   - rm -rf '$CI_PROJECT_DIR'
 
    # salsa-ci-team/pipeline#107
-   rm -rf ${CI_PROJECT_DIR}/debian/output/.ccache
+   - rm -rf ${CI_PROJECT_DIR}/debian/output/.ccache
 
-   mkdir -p ${WORKING_DIR} ${CCACHE_WORK_DIR}
+   - mkdir -p ${WORKING_DIR} ${CCACHE_WORK_DIR}
 
    # https://salsa.debian.org/salsa-ci-team/pipeline/-/merge_requests/230
-   rm -rf ${CCACHE_TMP_DIR}
+   - rm -rf ${CCACHE_TMP_DIR}
 
-   mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
-   add_extra_repository.sh -v -e "${SALSA_CI_EXTRA_REPOSITORY}" -k "${SALSA_CI_EXTRA_REPOSITORY_KEY}"
+   - mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
+   - add_extra_repository.sh -v -e "${SALSA_CI_EXTRA_REPOSITORY}" -k "${SALSA_CI_EXTRA_REPOSITORY_KEY}"
 
    # are we cross-compiling? if not, unset HOST_ARCH
-   test "${BUILD_ARCH}" != "${HOST_ARCH}" || HOST_ARCH=""
+   - test "${BUILD_ARCH}" != "${HOST_ARCH}" || HOST_ARCH=""
 
-.build-script: &build-script |
-   export CCACHE_DIR=${CCACHE_TMP_DIR}
+.build-script: &build-script
+   - export CCACHE_DIR=${CCACHE_TMP_DIR}
 
    # add target architecture if cross-compiliing
-   test -z "${HOST_ARCH}" || dpkg --add-architecture ${HOST_ARCH}
+   - test -z "${HOST_ARCH}" || dpkg --add-architecture ${HOST_ARCH}
 
    # Add deb-src entries
-   sed -n '/^deb\s/s//deb-src /p' /etc/apt/sources.list > /etc/apt/sources.list.d/deb-src.list
+   - sed -n '/^deb\s/s//deb-src /p' /etc/apt/sources.list > /etc/apt/sources.list.d/deb-src.list
 
-   apt-get update && eatmydata apt-get install --no-install-recommends -y \
-     ccache \
-     fakeroot \
-     build-essential
+   - |
+     apt-get update && eatmydata apt-get install --no-install-recommends -y \
+       ccache \
+       fakeroot \
+       build-essential
 
    # in case we are cross-building, install some more dependencies
    # see #815172 why we need libc-dev and libstdc++-dev
-   test -z "${HOST_ARCH}" || eatmydata apt-get satisfy --no-install-recommends -y \
+   - |
+     test -z "${HOST_ARCH}" || eatmydata apt-get satisfy --no-install-recommends -y \
         libc-dev:${HOST_ARCH} \
         libstdc++-dev:${HOST_ARCH} \
         crossbuild-essential-${HOST_ARCH}
    # when cross-compiling, add 'nocheck' to the DEB_BUILD_OPTIONS
-   test -z "${HOST_ARCH}" || export DEB_BUILD_OPTIONS=nocheck${DEB_BUILD_OPTIONS:+,}${DEB_BUILD_OPTIONS}
+   - test -z "${HOST_ARCH}" || export DEB_BUILD_OPTIONS=nocheck${DEB_BUILD_OPTIONS:+,}${DEB_BUILD_OPTIONS}
 
    # Enter source package dir
-   cd ${WORKING_DIR}/${SOURCE_DIR}
+   - cd ${WORKING_DIR}/${SOURCE_DIR}
 
    # Install package build dependencies
    # use plain "apt-get build-dep" so that we can install only packages for
    # architecture indep or arch:any builds
-   aptopts=""
-   if [ "$DB_BUILD_TYPE" = "any" ]; then
-     aptopts="--arch-only"
-   elif [ "$DB_BUILD_TYPE" = "all" ]; then
-     aptopts="--indep-only"
-   fi
+   - aptopts=""
+   - test "$DB_BUILD_TYPE" != "any" || aptopts="--arch-only"
+   - test "$DB_BUILD_TYPE" != "all" || aptopts="--indep-only"
    # use aspcud solver for experimental and backports
-   if [ "$RELEASE" = "experimental" ] || [[ "$RELEASE" =~ .*-backports$ ]]; then
-     eatmydata apt-get install --no-install-recommends -y aspcud apt-cudf
-     aptopts="$aptopts --solver aspcud -oAPT::Solver::Strict-Pinning=false -oAPT::Solver::aspcud::Preferences="
-     # minimize number of packages from experimental and backports
-     if [ "$RELEASE" = "experimental" ]; then
-       aptopts="$aptopts-count(solution,APT-Release:=/a=experimental/),"
-     elif [[ "$RELEASE" =~ .*-backports$ ]]; then
-       aptopts="$aptopts-count(solution,APT-Release:~/a=.*-backports/),"
+   - |
+     if [ "$RELEASE" = "experimental" ] || [[ "$RELEASE" =~ .*-backports$ ]]; then
+       eatmydata apt-get install --no-install-recommends -y aspcud apt-cudf
+       aptopts="$aptopts --solver aspcud -oAPT::Solver::Strict-Pinning=false -oAPT::Solver::aspcud::Preferences="
+       # minimize number of packages from experimental and backports
+       if [ "$RELEASE" = "experimental" ]; then
+         aptopts="$aptopts-count(solution,APT-Release:=/a=experimental/),"
+       elif [[ "$RELEASE" =~ .*-backports$ ]]; then
+         aptopts="$aptopts-count(solution,APT-Release:~/a=.*-backports/),"
+       fi
+       aptopts="$aptopts-removed,-changed,-new"
      fi
-     aptopts="$aptopts-removed,-changed,-new"
-   fi
-   eatmydata apt-get build-dep ${HOST_ARCH:+--host-architecture ${HOST_ARCH} -Pcross,nocheck} --no-install-recommends -y $aptopts .
+   - eatmydata apt-get build-dep ${HOST_ARCH:+--host-architecture ${HOST_ARCH} -Pcross,nocheck} --no-install-recommends -y $aptopts .
 
    # If not disabled, bump package version
-   if ! echo "$SALSA_CI_DISABLE_VERSION_BUMP" | grep -qE '^(1|yes|true)$'; then
-     sed -i -e '1 s/)/+salsaci)/' debian/changelog
-   fi
+   - |
+     if ! echo "$SALSA_CI_DISABLE_VERSION_BUMP" | grep -qE '^(1|yes|true)$'; then
+       sed -i -e '1 s/)/+salsaci)/' debian/changelog
+     fi
 
    # Generate ccache links
-   dpkg-reconfigure ccache
-   PATH="/usr/lib/ccache/:${PATH}"
+   - dpkg-reconfigure ccache
+   - PATH="/usr/lib/ccache/:${PATH}"
 
    # Reset ccache stats
-   ccache -z
+   - ccache -z
 
    # Create salsaci user and fix permissions
-   useradd salsaci
-   chown -R salsaci. ${WORKING_DIR} ${CCACHE_DIR}
+   - useradd salsaci
+   - chown -R salsaci. ${WORKING_DIR} ${CCACHE_DIR}
 
    # Define buildlog filename
-   BUILD_LOGFILE_SOURCE=$(dpkg-parsechangelog -S Source)
-   BUILD_LOGFILE_VERSION=$(dpkg-parsechangelog -S Version)
-   BUILD_LOGFILE_VERSION=${BUILD_LOGFILE_VERSION#*:}
-   BUILD_LOGFILE_ARCH=${HOST_ARCH:-${BUILD_ARCH}}
-   BUILD_LOGFILE="${WORKING_DIR}/${BUILD_LOGFILE_SOURCE}_${BUILD_LOGFILE_VERSION}_${BUILD_LOGFILE_ARCH}.build"
+   - BUILD_LOGFILE_SOURCE=$(dpkg-parsechangelog -S Source)
+   - BUILD_LOGFILE_VERSION=$(dpkg-parsechangelog -S Version)
+   - BUILD_LOGFILE_VERSION=${BUILD_LOGFILE_VERSION#*:}
+   - BUILD_LOGFILE_ARCH=${HOST_ARCH:-${BUILD_ARCH}}
+   - BUILD_LOGFILE="${WORKING_DIR}/${BUILD_LOGFILE_SOURCE}_${BUILD_LOGFILE_VERSION}_${BUILD_LOGFILE_ARCH}.build"
 
    # Build package as user salsaci
-   su salsaci -c "eatmydata dpkg-buildpackage ${HOST_ARCH:+--host-arch ${HOST_ARCH} -Pcross,nocheck} --build=${DB_BUILD_TYPE} ${DB_BUILD_PARAM}" |& OUTPUT_FILENAME=${BUILD_LOGFILE} filter-output
+   - su salsaci -c "eatmydata dpkg-buildpackage ${HOST_ARCH:+--host-arch ${HOST_ARCH} -Pcross,nocheck} --build=${DB_BUILD_TYPE} ${DB_BUILD_PARAM}" |& OUTPUT_FILENAME=${BUILD_LOGFILE} filter-output
 
    # Restore PWD to ${WORKING_DIR}
-   cd ${WORKING_DIR}
-   rm -rf ${WORKING_DIR}/${SOURCE_DIR}
+   - cd ${WORKING_DIR}
+   - rm -rf ${WORKING_DIR}/${SOURCE_DIR}
 
    # Print ccache stats on job log
-   ccache -s
+   - ccache -s
 
 .build-definition: &build-definition
   stage: build
@@ -291,7 +294,7 @@ stages:
   stage: test
   script:
     - *build-before-script
-    - LOCAL_ARCH=`dpkg --print-architecture`
+    - LOCAL_ARCH=$(dpkg --print-architecture)
     - |
         if egrep -q "^Architecture:.*(any|[^\!]${LOCAL_ARCH})" debian/control; then
             DB_BUILD_TYPE="any"
@@ -320,7 +323,7 @@ stages:
   stage: test
   script:
     - *build-before-script
-    - LOCAL_ARCH=`dpkg --print-architecture`
+    - LOCAL_ARCH=$(dpkg --print-architecture)
     - |
         if grep -q "^Architecture: all" debian/control; then
             DB_BUILD_TYPE="all"
