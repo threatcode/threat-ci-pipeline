@@ -32,7 +32,7 @@ check license + contributor:
   image: ${CI_REGISTRY_IMAGE}/base:${IMAGE_VERSION}
   dependencies: []
   variables:
-    RELEASE: sid
+    RELEASE: kali-dev
   before_script:
     - apt-get update && apt-get upgrade -y
     - apt-get install -y licensecheck
@@ -67,7 +67,7 @@ check gpg signature:
   image: ${CI_REGISTRY_IMAGE}/base:${IMAGE_VERSION}
   dependencies: []
   variables:
-    RELEASE: sid
+    RELEASE: kali-dev
     IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
   before_script:
     - apt-get update && apt-get upgrade -y
@@ -94,7 +94,7 @@ check yaml lint:
   image: ${CI_REGISTRY_IMAGE}/base:${IMAGE_VERSION}
   dependencies: []
   variables:
-    RELEASE: sid
+    RELEASE: kali-dev
   before_script:
     - apt-get update && apt-get upgrade -y
     - apt-get install -y yamllint
@@ -110,7 +110,7 @@ check yaml lint:
 
 test-pipeline:
   variables:
-    RELEASE: sid
+    RELEASE: kali-dev
   trigger:
     include:
       - local: .pipeline-test.yml
@@ -137,7 +137,7 @@ clean images:
     - docker:20.10.12-dind
   variables:
     IMAGES_LIST: 'aptly autopkgtest base arm32v5/base arm32v7/base arm64v8/base i386/base blhc gbp piuparts reprotest lintian generic_tests'
-    RELEASE: sid
+    RELEASE: kali-dev
   before_script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - wget -O /usr/bin/reg https://github.com/genuinetools/reg/releases/download/v0.13.0/reg-linux-amd64
