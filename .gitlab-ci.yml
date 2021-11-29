@@ -24,7 +24,7 @@ images:
   stage: images
   trigger:
     include:
-      - local: .images-debian.yml
+      - local: .images-kali.yml
     strategy: depend
 
 check license + contributor:
