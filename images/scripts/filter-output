@@ -11,6 +11,7 @@ use warnings;
 use Time::HiRes qw(clock_gettime);
 use List::Util qw(max);
 use File::Copy;
+use IO::Select;
 
 my $DOT_EVERY_S = $ENV{DOT_EVERY_S} // 60;
 
@@ -36,7 +37,9 @@ my $separation_line = '#' x 120;
 
 open my $output_file, '>', $output_filepath;
 
-foreach my $line (<STDIN>) {
+my $sel = IO::Select->new(*STDIN);
+while ($sel->can_read()) {
+    sysread(*STDIN, my $line, 64*1024) or last;
     {
 	use bytes;
 	$byte_counter += length $line;
