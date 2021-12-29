@@ -520,7 +520,7 @@ stages:
     - docker:20.10.12-dind
   script:
     - CHROOT_PATH="/tmp/debian-chroot"
-    - CONTAINER_ID=$(docker run --security-opt seccomp=unconfined --rm -d "${SALSA_CI_IMAGES_BASE}" sleep infinity)
+    - CONTAINER_ID=$(docker run --rm -d "${SALSA_CI_IMAGES_BASE}" sleep infinity)
     - docker exec ${CONTAINER_ID} bash -c "apt-get update && apt-get install eatmydata -y"
     - mkdir -p ${CHROOT_PATH}
     - docker export ${CONTAINER_ID} | tar -C ${CHROOT_PATH} -xf -
