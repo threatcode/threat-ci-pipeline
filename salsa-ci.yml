@@ -517,7 +517,7 @@ stages:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_PIUPARTS =~ /^(1|yes|true)$/
   services:
-    - docker:19.03.5-dind
+    - docker:20.10.12-dind
   script:
     - CHROOT_PATH="/tmp/debian-chroot"
     - CONTAINER_ID=$(docker run --security-opt seccomp=unconfined --rm -d "${SALSA_CI_IMAGES_BASE}" sleep infinity)
