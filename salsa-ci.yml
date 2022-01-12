@@ -397,7 +397,7 @@ stages:
     - /etc/init.d/lxc-net start
     - /etc/init.d/lxc start
     - debci localtest $CI_PROJECT_DIR/debian/output/*.changes --suite ${RELEASE} --logs-dir ${DEBCI_LOG_PATH} || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
-    - rm -r ${WORKING_DIR}/debci/binaries
+    - rm -rf ${WORKING_DIR}/debci/binaries
   variables:
     GIT_STRATEGY: none
     SCI_LXC_PATH: ${CI_PROJECT_DIR}/lxc
