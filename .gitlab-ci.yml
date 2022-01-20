@@ -69,7 +69,7 @@ clean images:
   stage: clean
   image: docker:latest
   services:
-    - docker:19.03.5-dind
+    - docker:20.10.12-dind
   variables:
     IMAGES_LIST: 'aptly autopkgtest base i386/base blhc gbp piuparts reprotest lintian generic_tests'
   before_script:
