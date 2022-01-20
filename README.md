@@ -15,7 +15,7 @@ Build and test on reproducible environments on every push.
 
 The Salsa CI Team work aims to improve the Debian packaging lifecycle by providing [Continuous Integration](https://about.gitlab.com/product/continuous-integration/) fully compatible with Debian packaging.
 
-Currently all the building and testing performed by Debian QA is run asynchronusly and takes a long time to give feedback because it is only accessible after pushing a release to the archive.
+Currently all the building and testing performed by Debian QA is run asynchronously and takes a long time to give feedback because it is only accessible after pushing a release to the archive.
 
 Our [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) definition is focused on speeding up this process by giving developers faster feedback.
 
@@ -26,7 +26,7 @@ The [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) builds your package
 
 This provides you with instant feedback about any problems the changes you made may have created or solved, without the need to do a push to the archive, speeding up your development cycle and improving the quality of packages uploaded to Debian.
 
-While the pipeline is a Work-In-Progess project, it will always try to replicate the tests run by Debian QA.
+While the pipeline is a Work-In-Progress project, it will always try to replicate the tests run by Debian QA.
 The services we got working are the following:
 
  * Building the package from the source (only gbp is supported)
@@ -37,7 +37,7 @@ The services we got working are the following:
  * [Buildd Log Scanner](https://qa.debian.org/bls/)
 
 Those services are enabled by something we called `salsa-pipeline` and it will be shared for all Salsa projects who adopt it.
-Having this on Gitlab CI ensures that every package accomplishes the minimum quality to be in the archive and if we improve or add a new service the project will get the benefit instantaneously.
+Having this on GitLab CI ensures that every package accomplishes the minimum quality to be in the archive and if we improve or add a new service the project will get the benefit instantaneously.
 
 
 ## Basic Use
@@ -256,7 +256,7 @@ be set on the salsa-ci.yml file.
 You can set these and other similar variables when launching a new pipeline in different ways:
  * Using the web interface under CI/CD, Run Pipeline, and setting the
 desired variables.
- * Using the [gitlab API](https://docs.gitlab.com/ce/api/). For example,  check the script
+ * Using the [GitLab API](https://docs.gitlab.com/ce/api/). For example,  check the script
 [salsa_drive_build.py](https://salsa.debian.org/maxy/qt-kde-ci/blob/tooling/salsa_drive_build.py),
 in particular the function
 [launch_pipelines](https://salsa.debian.org/maxy/qt-kde-ci/blob/tooling/salsa_drive_build.py#L538).
