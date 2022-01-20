@@ -197,6 +197,19 @@ reprotest:
 ```
 
 
+### Set build timeout
+At times your job may fail because it reached its max duration (either job timeout, or runner timeout).
+In that case, the job would stop immediately without entering the `after_script` phase, and without saving the cache and without saving the artifacts.
+
+To prevent this, the build phase of the build job and the build phase of the reprotest job have a timeout of `2.75h` (the runner's timeout is 3h). This permits also to save the cache of ccache. That way, on the next run, there is more chance to finish the job since it can use ccache's cache.
+
+You can set the `SALSA_CI_BUILD_TIMEOUT_ARGS` variable to override this. The arguments can be any valid argument used by the `timeout` command. For example, you may set:
+
+```
+  SALSA_CI_BUILD_TIMEOUT_ARGS: "0.75h"
+```
+
+
 ### Enabling the pipeline for tags
 By default, the pipeline is run only for commits, tags are ignored. To run the pipeline against tags as well, export the `SALSA_CI_ENABLE_PIPELINE_ON_TAGS` variable and set it to one of "1", "yes" or "true", like in the following example:
 
