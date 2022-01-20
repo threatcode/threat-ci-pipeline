@@ -29,8 +29,10 @@ images:
 
 check license + contributor:
   stage: test
-  image: ${CI_REGISTRY_IMAGE}/base:latest
+  image: ${CI_REGISTRY_IMAGE}/base:${IMAGE_VERSION}
   dependencies: []
+  variables:
+    RELEASE: sid
   before_script:
     - apt-get update && apt-get install -y licensecheck
   script:
@@ -49,6 +51,13 @@ check license + contributor:
         (echo "ERROR: ${GITLAB_USER_NAME} <${GITLAB_USER_EMAIL}> missing in the CONTRIBUTORS file"; exit 1) || \
         PROBLEMS=$(($PROBLEMS + 1))
     - exit $PROBLEMS
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      variables:
+        IMAGE_VERSION: latest
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+      variables:
+        IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
 
 test-pipeline:
   variables:
