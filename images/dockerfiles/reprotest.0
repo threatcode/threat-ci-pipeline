@@ -5,7 +5,8 @@
 # this notice are preserved. This file is offered as-is, without any warranty.
 
 RUN apt-get update && eatmydata apt-get install reprotest patch faketime locales-all \
- disorderfs sudo xxd unzip --no-install-recommends -y && rm -rf /var/lib/apt
+ disorderfs sudo xxd unzip diffoscope-minimal --no-install-recommends -y
+RUN rm -rf /var/lib/apt
 
 COPY patches/reprotest/build.patch /tmp/build.patch
 RUN patch /usr/lib/python3/dist-packages/reprotest/build.py /tmp/build.patch
