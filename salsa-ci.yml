@@ -491,7 +491,7 @@ stages:
           SALSA_CI_REPROTEST_ARGS="${SALSA_CI_REPROTEST_ARGS} --no-diffoscope"
         fi
     - |
-        timeout ${SALSA_CI_BUILD_TIMEOUT_ARGS} eatmydata reprotest \
+        timeout ${SALSA_CI_BUILD_TIMEOUT_ARGS} reprotest \
           --min-cpus $(nproc --all) \
           --store-dir ${WORKING_DIR}/reprotest \
           --verbosity=2  \
