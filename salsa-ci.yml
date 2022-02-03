@@ -445,7 +445,7 @@ stages:
         else
             SALSA_CI_LINTIAN_FAIL_ARG=''
         fi
-    - lintian --suppress-tags "${SALSA_CI_LINTIAN_SUPPRESS_TAGS}" --display-info --pedantic ${SALSA_CI_LINTIAN_FAIL_ARG} --allow-root ${WORKING_DIR}/*.changes | tee lintian.output || ECODE=$?
+    - lintian --suppress-tags "${SALSA_CI_LINTIAN_SUPPRESS_TAGS}" --display-info --pedantic ${SALSA_CI_LINTIAN_FAIL_ARG} --allow-root --show-overrides ${WORKING_DIR}/*.changes | tee lintian.output || ECODE=$?
     - |
         if echo "${SALSA_CI_LINTIAN_FAIL_WARNING}" | grep -qE '^(1|yes|true)$'; then
             grep -q '^W: ' lintian.output && ECODE=3
