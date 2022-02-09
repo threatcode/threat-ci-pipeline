@@ -493,4 +493,11 @@ To disable this behavior set the `SALSA_CI_PERSIST_IMAGES` to 1, 'yes' or
 'true' on a CI variable (*CI/CD Settings*).
 
 ## Support
-Write us on \#salsaci @ OFTC or open an [issue here](https://salsa.debian.org/salsa-ci-team/pipeline/issues) :)
+
+We have different support media:
+
+* IRC: \#salsaci @ OFTC
+* Mailing list: [debian-salsa-ci _at_ alioth-lists.debian.net](mailto:debian-salsa-ci _at_ alioth-lists.debian.net)
+* [Issue tracker](https://salsa.debian.org/salsa-ci-team/pipeline/issues)
+
+:-)
