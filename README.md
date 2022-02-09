@@ -340,6 +340,7 @@ By default the Lintian jobs fails either if a Lintian run-time error occurs or i
 
 To also fail the job on findings of the category warning, set `SALSA_CI_LINTIAN_FAIL_WARNING` to 1 (or "yes" or "true").
 
+To make Lintian shows overridden tags, set `SALSA_CI_LINTIAN_SHOW_OVERRIDES` to 1 (or "yes" or "true").
 
 ```yaml
 ---
