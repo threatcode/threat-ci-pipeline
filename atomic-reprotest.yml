@@ -4,6 +4,11 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
+variables:
+  SALSA_CI_ENABLE_ATOMIC_REPROTEST:
+    description: "Set to 1 to run one job per reprotest variation"
+    value: 0
+
 .atomic-reprotest: &atomic-reprotest
   extends: .test-reprotest
   only:
