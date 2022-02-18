@@ -28,7 +28,9 @@ variables:
   WORKING_DIR: $CI_PROJECT_DIR/debian/output
   SOURCE_DIR: 'source_dir'
   VENDOR: 'debian'
-  RELEASE: 'unstable'
+  RELEASE:
+    description: "The Debian release to build for"
+    value: 'unstable'
   # the architecture of the builder
   BUILD_ARCH: 'amd64'
   # only set this for cross-compiling
@@ -46,11 +48,16 @@ variables:
   SALSA_CI_IMAGES_LINTIAN: ${SALSA_CI_IMAGES}/lintian:${RELEASE}
   SALSA_CI_IMAGES_PIUPARTS: ${SALSA_CI_IMAGES}/piuparts:latest
   SALSA_CI_IMAGES_REPROTEST: ${SALSA_CI_IMAGES}/reprotest:latest
+  SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE:
+    description: "Set this to 1 to produce an in-depth comparision of reprotest results"
+    value: 0
   SALSA_CI_AUTOPKGTEST_LXC: https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc
   SALSA_CI_BLHC_ARGS: ''
   SALSA_CI_LINTIAN_SUPPRESS_TAGS: ""
   SALSA_CI_LINTIAN_FAIL_WARNING: ""
-  SALSA_CI_LINTIAN_SHOW_OVERRIDES: 0
+  SALSA_CI_LINTIAN_SHOW_OVERRIDES:
+    description: "To make Lintian show overridden tags, set this to 1"
+    value: 0
   SALSA_CI_PIUPARTS_ARGS: ''
   SALSA_CI_DPKG_BUILDPACKAGE_ARGS: ''
   SALSA_CI_GBP_BUILDPACKAGE_ARGS: ''
