@@ -17,6 +17,7 @@ variables:
   - buster-backports
   - bullseye
   - bullseye-backports
+  - bookworm
   - sid
   - experimental
 
