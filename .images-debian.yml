@@ -43,22 +43,11 @@ images-prod:
           - autopkgtest
           - blhc
           - gbp
+          - lintian
           - piuparts
           - reprotest
         ARCH: amd64
         RELEASE: sid
-      # Lintian is not built for experimental
-      - IMAGE_NAME: lintian
-        ARCH: amd64
-        RELEASE:
-          - stretch
-          - stretch-backports
-          - buster
-          - buster-backports
-          - bullseye
-          - bullseye-backports
-          - bookworm
-          - sid
   only:
     variables:
       - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
