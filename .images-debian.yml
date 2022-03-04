@@ -57,6 +57,7 @@ images-prod:
           - buster-backports
           - bullseye
           - bullseye-backports
+          - bookworm
           - sid
   only:
     variables:
