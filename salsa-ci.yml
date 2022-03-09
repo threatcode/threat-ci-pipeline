@@ -405,7 +405,8 @@ stages:
     - umount -R /sys/fs/cgroup && mount -a
     - /etc/init.d/lxc-net start
     - /etc/init.d/lxc start
-    - debci localtest $CI_PROJECT_DIR/debian/output/*.changes --suite ${RELEASE} --logs-dir ${DEBCI_LOG_PATH} || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
+    - chown -R debci. ${WORKING_DIR}
+    - su debci -c "debci localtest $WORKING_DIR/*.changes --suite ${RELEASE} --logs-dir ${DEBCI_LOG_PATH}" || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
     - rm -rf ${WORKING_DIR}/debci/binaries
   variables:
     GIT_STRATEGY: none
