@@ -239,7 +239,7 @@ git push --push-option=ci.skip    # using git 2.10+
 git push -o ci.skip               # using git 2.18+
 ```
 
-See also https://docs.gitlab.com/ee/ci/yaml/#skipping-jobs
+See also https://docs.gitlab.com/ee/ci/pipelines/#skip-a-pipeline
 
 ### Adding your private repositories to the builds
 
