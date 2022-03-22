@@ -81,6 +81,7 @@ clean images:
     - docker:20.10.12-dind
   variables:
     IMAGES_LIST: 'aptly autopkgtest base i386/base blhc gbp piuparts reprotest lintian generic_tests'
+    RELEASE: sid
   before_script:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
     - wget -O /usr/bin/reg https://github.com/genuinetools/reg/releases/download/v0.13.0/reg-linux-amd64
