@@ -53,6 +53,28 @@ images-prod:
       - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
       - $BUILD_ALL_IMAGES
 
+# ARM images built on main branch
+# We need a separate matrix. If we place the ARM build jobs on images-prod, we
+# exceed the maximum jobs limit by matrix (50)
+images-prod-arm:
+  stage: build
+  extends: .build_template
+  tags:
+    - arm64
+  parallel:
+    matrix:
+      # Base image, all releases, all arches
+      - IMAGE_NAME: base
+        ARCH:
+          - arm32v5
+          - arm32v7
+          - arm64v8
+        RELEASE: *all-supported-releases
+  only:
+    variables:
+      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      - $BUILD_ALL_IMAGES
+
 # Images built on branches.
 # This is a subset of all the images, and are the only ones
 # built for branches != main.
@@ -75,6 +97,25 @@ image-staging:
         RELEASE: sid
       - IMAGE_NAME: base
         ARCH: i386
+        RELEASE: sid
+  except:
+    variables:
+      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      - $BUILD_ALL_IMAGES
+
+image-staging-arm:
+  extends: .build_template
+  stage: build
+  tags:
+    - arm64
+  parallel:
+    matrix:
+      - IMAGE_NAME:
+          - base
+        ARCH:
+          - arm32v5
+          - arm32v7
+          - arm64v8
         RELEASE: sid
   except:
     variables:

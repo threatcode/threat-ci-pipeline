@@ -473,6 +473,21 @@ Replace `{TEAM}`, `${PROJECT}` and `${JOB_ID}` with the correct values in the la
 By default, the build job will increase the release number using the +salsaci suffix.
 To disable this behavior set the `SALSA_CI_DISABLE_VERSION_BUMP` to 1, 'yes' or 'true'.
 
+### Build jobs on ARM
+
+Salsa CI includes builds jobs for armel, armhf and arm64, but those are
+disabled by default. You can enable them for your project if you have an ARM
+gitlab runner available. For that, you need to register your runner, tagging it
+as `arm64`, and set the related variables to anything different than 1, 'yes'
+or 'true':
+
+```yaml
+variables:
+  SALSA_CI_DISABLE_BUILD_PACKAGE_ARMEL: 0
+  SALSA_CI_DISABLE_BUILD_PACKAGE_ARMHF: 0
+  SALSA_CI_DISABLE_BUILD_PACKAGE_ARM64: 0
+```
+
 ## Hacking
 
 To contribute, forking the project and opening a merge request should be straight forward.

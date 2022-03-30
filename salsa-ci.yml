@@ -42,6 +42,9 @@ variables:
   SALSA_CI_IMAGES_AUTOPKGTEST: ${SALSA_CI_IMAGES}/autopkgtest
   SALSA_CI_IMAGES_BASE: ${SALSA_CI_IMAGES}/base:${RELEASE}
   SALSA_CI_IMAGES_BASE_I386: ${SALSA_CI_IMAGES}/i386/base:${RELEASE}
+  SALSA_CI_IMAGES_BASE_ARM32V5: ${SALSA_CI_IMAGES}/arm32v5/base:${RELEASE}
+  SALSA_CI_IMAGES_BASE_ARM32V7: ${SALSA_CI_IMAGES}/arm32v7/base:${RELEASE}
+  SALSA_CI_IMAGES_BASE_ARM64: ${SALSA_CI_IMAGES}/arm64v8/base:${RELEASE}
   SALSA_CI_IMAGES_GENERIC_TESTS: ${SALSA_CI_IMAGES}/generic_tests:${RELEASE}
   SALSA_CI_IMAGES_BLHC: ${SALSA_CI_IMAGES}/blhc:latest
   SALSA_CI_IMAGES_GBP: ${SALSA_CI_IMAGES}/gbp:latest
@@ -63,6 +66,11 @@ variables:
   SALSA_CI_GBP_BUILDPACKAGE_ARGS: ''
   DOCKER_TLS_CERTDIR: ""
   SALSA_CI_DISABLE_APTLY: 1
+  # These three ARM-related build jobs are disabled by default while there
+  # isn't an ARM shared runner available
+  SALSA_CI_DISABLE_BUILD_PACKAGE_ARMEL: 1
+  SALSA_CI_DISABLE_BUILD_PACKAGE_ARMHF: 1
+  SALSA_CI_DISABLE_BUILD_PACKAGE_ARM64: 1
   SALSA_CI_DISABLE_MISSING_BREAKS: 1
   SALSA_CI_DISABLE_RC_BUGS: 1
   SALSA_CI_IGNORED_BRANCHES: ''
@@ -283,6 +291,45 @@ stages:
     variables:
       - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       - $SALSA_CI_DISABLE_BUILD_PACKAGE_I386 =~ /^(1|yes|true)$/
+
+.build-package-armel: &build-package-armel
+  extends:
+    - .build-package
+  image: $SALSA_CI_IMAGES_BASE_ARM32V5
+  variables:
+    BUILD_ARCH: 'armel'
+  tags:
+    - arm64
+  except:
+    variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
+      - $SALSA_CI_DISABLE_BUILD_PACKAGE_ARMEL =~ /^(1|yes|true)$/
+
+.build-package-armhf: &build-package-armhf
+  extends:
+    - .build-package
+  image: $SALSA_CI_IMAGES_BASE_ARM32V7
+  variables:
+    BUILD_ARCH: 'armhf'
+  tags:
+    - arm64
+  except:
+    variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
+      - $SALSA_CI_DISABLE_BUILD_PACKAGE_ARMHF =~ /^(1|yes|true)$/
+
+.build-package-arm64: &build-package-arm64
+  extends:
+    - .build-package
+  image: $SALSA_CI_IMAGES_BASE_ARM64
+  variables:
+    BUILD_ARCH: 'arm64'
+  tags:
+    - arm64
+  except:
+    variables:
+      - $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
+      - $SALSA_CI_DISABLE_BUILD_PACKAGE_ARM64 =~ /^(1|yes|true)$/
 
 .build-source-only: &build-source-only
   extends:
