@@ -17,12 +17,12 @@ The Salsa CI Team work aims to improve the Debian packaging lifecycle by providi
 
 Currently all the building and testing performed by Debian QA is run asynchronously and takes a long time to give feedback because it is only accessible after pushing a release to the archive.
 
-Our [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) definition is focused on speeding up this process by giving developers faster feedback.
+Our [pipeline](https://salsa.debian.org/help/ci/pipelines/index.md) definition is focused on speeding up this process by giving developers faster feedback.
 
 
 ## What does this _pipeline_ provide for my project/package?
 
-The [pipeline](https://docs.gitlab.com/ee/ci/pipelines.html) builds your package(s) and runs multiple checks on them after every push to Salsa.
+The [pipeline](https://salsa.debian.org/help/ci/pipelines/index.md) builds your package(s) and runs multiple checks on them after every push to Salsa.
 
 This provides you with instant feedback about any problems the changes you made may have created or solved, without the need to do a push to the archive, speeding up your development cycle and improving the quality of packages uploaded to Debian.
 
@@ -239,7 +239,7 @@ git push --push-option=ci.skip    # using git 2.10+
 git push -o ci.skip               # using git 2.18+
 ```
 
-See also https://docs.gitlab.com/ee/ci/pipelines/#skip-a-pipeline
+See also https://salsa.debian.org/help/ci/pipelines/index.md#skip-a-pipeline
 
 ### Adding your private repositories to the builds
 
@@ -247,7 +247,7 @@ The variables `SALSA_CI_EXTRA_REPOSITORY` and `SALSA_CI_EXTRA_REPOSITORY_KEY` ca
 used to add private apt repositories to the sources.list, to be
 used by the build and tests, and (optionally) the signing key for the
 repositories in armor format. These variables are of
-[type file](https://docs.gitlab.com/ce/ci/variables/#variable-types),
+[type file](https://salsa.debian.org/help/ci/variables/index.md#cicd-variable-types),
 which ease the multiline handling, but have the disadvantage that they can't
 be set on the salsa-ci.yml file.
 
@@ -256,10 +256,10 @@ be set on the salsa-ci.yml file.
 You can set these and other similar variables when launching a new pipeline in different ways:
  * Using the web interface under CI/CD, Run Pipeline, and setting the
 desired variables.
- * Using the [GitLab API](https://docs.gitlab.com/ce/api/). For example,  check the script
+ * Using the [GitLab API](https://salsa.debian.org/help/api/index.md). For example,  check the script
 [salsa_drive_build.py](https://salsa.debian.org/maxy/qt-kde-ci/blob/tooling/salsa_drive_build.py),
 in particular the function
-[launch_pipelines](https://salsa.debian.org/maxy/qt-kde-ci/blob/tooling/salsa_drive_build.py#L538).
+[launch_pipelines](https://salsa.debian.org/maxy/qt-kde-ci/blob/tooling/salsa_drive_build.py#L568).
  * Setting them as part of a pipeline triggered build.
 
 ### Only running selected jobs
@@ -449,7 +449,7 @@ triggering the pipeline, without the need of creating a specific commit.
 ### Using automatically built apt repository
 The [Aptly](https://www.aptly.info/) task runs in the publish stage and will save published apt repository files as its artifacts, so downstream CI tasks may access built binary/source packages directly through artifacts url via apt. This is currently disabled by default. Set `SALSA_CI_DISABLE_APTLY` to anything other than 1, 'yes' or 'true' to enable it.
 
-To specify repository signing key, export the gpg key/passphrase as CI / CD [Variables](https://salsa.debian.org/help/ci/variables/README#variables) `SALSA_CI_APTLY_GPG_KEY` and `SALSA_CI_APTLY_GPG_PASSPHRASE`. Otherwise, an automatically generated one will be used.
+To specify repository signing key, export the gpg key/passphrase as CI / CD [Variables](https://salsa.debian.org/help/ci/variables/index.md) `SALSA_CI_APTLY_GPG_KEY` and `SALSA_CI_APTLY_GPG_PASSPHRASE`. Otherwise, an automatically generated one will be used.
 
 For example to let package `src:pkgA` of team `${TEAM}` and project `${PROJECT}` setup an aptly repository and let package `src:pkgB` use the repository, add the following to `debian/salsa-ci.yml` of `src:pkgA`:
 
