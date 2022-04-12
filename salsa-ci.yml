@@ -75,6 +75,8 @@ variables:
   SALSA_CI_DISABLE_RC_BUGS: 1
   SALSA_CI_IGNORED_BRANCHES: ''
   SALSA_CI_BUILD_TIMEOUT_ARGS: "2.75h"
+  # Use fastzip to fix https://salsa.debian.org/salsa-ci-team/pipeline/-/issues/177
+  FF_USE_FASTZIP: 'true'
   # Backward compatibility
   SALSA_CI_EXTRA_REPOSITORY: ${EXTRA_REPOSITORY}
   SALSA_CI_EXTRA_REPOSITORY_KEY: ${EXTRA_REPOSITORY_KEY}
