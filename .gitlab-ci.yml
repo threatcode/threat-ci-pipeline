@@ -40,16 +40,16 @@ check license + contributor:
     # check files without any license
     - BAD_FILES=$(licensecheck -r . | grep -Ev '(images/files)|(images/patches)|(README.md)|(CONTRIBUTORS)' | grep UNKNOWN) || true
     - |
-        [ -z "$BAD_FILES" ] || \
-        (echo "ERROR: Missing license statement in the following files:"; \
-         echo "$BAD_FILES"; exit 1) || \
-        PROBLEMS=$(($PROBLEMS + 1))
+      [ -z "$BAD_FILES" ] || \
+      (echo "ERROR: Missing license statement in the following files:"; \
+      echo "$BAD_FILES"; exit 1) || \
+      PROBLEMS=$(($PROBLEMS + 1))
     # check email or name is in the list of contributors
     - |
-        grep -q "${GITLAB_USER_EMAIL}" CONTRIBUTORS || \
-        grep -q "${GITLAB_USER_NAME}" CONTRIBUTORS || \
-        (echo "ERROR: ${GITLAB_USER_NAME} <${GITLAB_USER_EMAIL}> missing in the CONTRIBUTORS file"; exit 1) || \
-        PROBLEMS=$(($PROBLEMS + 1))
+      grep -q "${GITLAB_USER_EMAIL}" CONTRIBUTORS || \
+      grep -q "${GITLAB_USER_NAME}" CONTRIBUTORS || \
+      (echo "ERROR: ${GITLAB_USER_NAME} <${GITLAB_USER_EMAIL}> missing in the CONTRIBUTORS file"; exit 1) || \
+      PROBLEMS=$(($PROBLEMS + 1))
     - exit $PROBLEMS
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
@@ -88,14 +88,14 @@ clean images:
     - chmod +x /usr/bin/reg
   script:
     - |
-        # If not master, use REF as staging tag.
-        if ! [ "${CI_COMMIT_REF_NAME}" = "master" ]; then
-          STAGING_TAG="_${CI_COMMIT_REF_NAME}"
-        fi
+      # If not master, use REF as staging tag.
+      if ! [ "${CI_COMMIT_REF_NAME}" = "master" ]; then
+        STAGING_TAG="_${CI_COMMIT_REF_NAME}"
+      fi
     - |
-        for IMAGE in $IMAGES_LIST; do
-          reg --registry ${CI_REGISTRY} rm ${CI_PROJECT_PATH}/${IMAGE}:${RELEASE}${STAGING_TAG} || true
-        done
+      for IMAGE in $IMAGES_LIST; do
+        reg --registry ${CI_REGISTRY} rm ${CI_PROJECT_PATH}/${IMAGE}:${RELEASE}${STAGING_TAG} || true
+      done
   when: always
   except:
     variables:
