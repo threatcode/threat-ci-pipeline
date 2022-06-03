@@ -445,6 +445,12 @@ variables:
 You can also set the `SALSA_CI_ENABLE_ATOMIC_REPROTEST` variable when
 triggering the pipeline, without the need of creating a specific commit.
 
+#### Faketime is currently disabled
+
+Note that reprotest's faketime support is currently disabled, as it causes false
+positives on files touched by quilt. It will be re-enabled once this is fixed.
+https://salsa.debian.org/salsa-ci-team/pipeline/-/issues/251
+
 
 ### Using automatically built apt repository
 The [Aptly](https://www.aptly.info/) task runs in the publish stage and will save published apt repository files as its artifacts, so downstream CI tasks may access built binary/source packages directly through artifacts url via apt. This is currently disabled by default. Set `SALSA_CI_DISABLE_APTLY` to anything other than 1, 'yes' or 'true' to enable it.

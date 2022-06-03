@@ -553,6 +553,7 @@ stages:
         --min-cpus $(nproc --all) \
         --store-dir ${WORKING_DIR}/reprotest \
         --verbosity=2  \
+        --vary=-time \
         ${SALSA_CI_REPROTEST_ARGS} \
         ${WORKING_DIR}/*.dsc -- null |& OUTPUT_FILENAME=reprotest.log filter-output
   variables:
