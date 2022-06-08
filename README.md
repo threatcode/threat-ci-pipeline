@@ -179,6 +179,7 @@ variables:
   SALSA_CI_DISABLE_REPROTEST: 1
   SALSA_CI_DISABLE_BUILD_PACKAGE_ALL: 1
   SALSA_CI_DISABLE_BUILD_PACKAGE_ANY: 1
+  SALSA_CI_DISABLE_CROSSBUILD_ARM64: 1
 ```
 
 
@@ -284,6 +285,9 @@ test-build-any:
 
 test-build-all:
   extends: .test-build-package-all
+
+test-crossbuild-arm64:
+  extends: .test-crossbuild-package-arm64
 
 reprotest:
   extends: .test-reprotest
