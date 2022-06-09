@@ -393,6 +393,34 @@ variables:
   SALSA_CI_REPROTEST_ARGS: --variations=-build_path
 ```
 
+#### Adding extra arguments to autopkgtest
+
+Sometimes it is desirable to add arguments to autopkgtest.
+
+You can do this by setting the arguments in the `SALSA_CI_AUTOPKGTEST_ARGS` variable.
+
+```yaml
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  SALSA_CI_AUTOPKGTEST_ARGS: '--debug'
+```
+
+Note that autopkgtest can access the repository in the current directory, making it possible for `--setup-commands` to read commands from a file. For example:
+
+```yaml
+----
+include
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  SALSA_CI_AUTOPKGTEST_ARGS: '--setup-commands=ci/pin-django-from-backports.sh'
+```
+
 #### Adding extra arguments to dpkg-buildpackage
 
 Sometimes it is desirable to add direct options to the dpkg-buildpackage that is run for the package building.
