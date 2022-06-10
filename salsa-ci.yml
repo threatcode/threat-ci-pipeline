@@ -55,6 +55,9 @@ variables:
     description: "Set this to 1 to produce an in-depth comparision of reprotest results"
     value: 0
   SALSA_CI_AUTOPKGTEST_LXC: https://salsa.debian.org/salsa-ci-team/autopkgtest-lxc
+  SALSA_CI_AUTOPKGTEST_ARGS:
+    description: "debci_autopkgtest_args is set to this variable and used by autopkgtest"
+    value: ''
   SALSA_CI_BLHC_ARGS: ''
   SALSA_CI_LINTIAN_SUPPRESS_TAGS: ""
   SALSA_CI_LINTIAN_FAIL_WARNING: ""
@@ -455,10 +458,11 @@ stages:
     - /etc/init.d/lxc-net start
     - /etc/init.d/lxc start
     - chown -R debci. ${WORKING_DIR}
+    - export debci_autopkgtest_args="${SALSA_CI_AUTOPKGTEST_ARGS}"
     - su debci -c "debci localtest $WORKING_DIR/*.changes --suite ${RELEASE} --logs-dir ${DEBCI_LOG_PATH}" || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
     - rm -rf ${WORKING_DIR}/debci/binaries
   variables:
-    GIT_STRATEGY: none
+    GIT_STRATEGY: fetch
     SCI_LXC_PATH: ${CI_PROJECT_DIR}/lxc
     DEBCI_LOG_PATH: ${WORKING_DIR}/debci
   artifacts:
