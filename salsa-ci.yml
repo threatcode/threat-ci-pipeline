@@ -459,7 +459,9 @@ stages:
     - /etc/init.d/lxc start
     - chown -R debci. ${WORKING_DIR}
     - export debci_autopkgtest_args="${SALSA_CI_AUTOPKGTEST_ARGS}"
-    - su debci -c "debci localtest $WORKING_DIR/*.changes --suite ${RELEASE} --logs-dir ${DEBCI_LOG_PATH}" || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
+    # su's -P is required to have ownership over /dev/stderr, /dev/stdout and
+    # /dev/stdin, and then fix #256
+    - su -P debci -c "debci localtest $WORKING_DIR/*.changes --suite ${RELEASE} --logs-dir ${DEBCI_LOG_PATH}" || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
     - rm -rf ${WORKING_DIR}/debci/binaries
   variables:
     GIT_STRATEGY: fetch
