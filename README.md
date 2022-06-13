@@ -453,6 +453,37 @@ variables:
   SALSA_CI_GBP_BUILDPACKAGE_ARGS: --your-option
 ```
 
+#### Executing a pre-install / post-install script in piuparts
+
+Sometimes it is desirable to execute a pre-install or post-install scripts in piuparts.
+
+You can do this using the `SALSA_CI_PIUPARTS_PRE_INSTALL_SCRIPT` and `SALSA_CI_PIUPARTS_POST_INSTALL_SCRIPT` variables, that may point to the path of scripts in the project repository. This could be used, for instance, to pin dependencies. For example, if you had a `ci/pin-django-from-backports.sh` script:
+
+```yaml
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  SALSA_CI_PIUPARTS_PRE_INSTALL_SCRIPT: 'ci/pin-django-from-backports.sh'
+```
+
+The `ci/pin-django-from-backports.sh`:
+```shell
+#!/bin/sh
+
+set -e
+
+# Ensure that python3-django from bullseye-backports will be
+# installed as needed (bullseye has too old version)
+cat >/etc/apt/preferences.d/99django-backports <<EOT
+Package: python3-django
+Pin: release a=bullseye-backports
+Pin-Priority: 900
+EOT
+```
+
 #### Breaking up the reprotest job into the different variations
 
 By default, reprotest applies all the known variations (`--variations=+all`,

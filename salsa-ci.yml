@@ -65,6 +65,8 @@ variables:
     description: "To make Lintian show overridden tags, set this to 1"
     value: 0
   SALSA_CI_PIUPARTS_ARGS: ''
+  SALSA_CI_PIUPARTS_PRE_INSTALL_SCRIPT: ''
+  SALSA_CI_PIUPARTS_POST_INSTALL_SCRIPT: ''
   SALSA_CI_DPKG_BUILDPACKAGE_ARGS: ''
   SALSA_CI_GBP_BUILDPACKAGE_ARGS: ''
   DOCKER_TLS_CERTDIR: ""
@@ -597,6 +599,8 @@ stages:
     - cp -aTLv /etc/apt/preferences.d  ${CHROOT_PATH}/etc-target/apt/preferences.d
     - cp -aTLv /srv/local-apt-repository ${CHROOT_PATH}/srv/local-apt-repository
     - cp -aTLv /var/lib/local-apt-repository/ ${CHROOT_PATH}/var/lib/local-apt-repository/
+    - test -n "${SALSA_CI_PIUPARTS_PRE_INSTALL_SCRIPT}" && cp -aTLv "${SALSA_CI_PIUPARTS_PRE_INSTALL_SCRIPT}" /etc/piuparts/scripts/pre_install_salsa_ci && chmod 755 /etc/piuparts/scripts/pre_install_salsa_ci
+    - test -n "${SALSA_CI_PIUPARTS_POST_INSTALL_SCRIPT}" && cp -aTLv "${SALSA_CI_PIUPARTS_POST_INSTALL_SCRIPT}" /etc/piuparts/scripts/post_install_salsa_ci && chmod 755 /etc/piuparts/scripts/post_install_salsa_ci
     - add_extra_repository.sh -v -e "${SALSA_CI_EXTRA_REPOSITORY}"
       -k "${SALSA_CI_EXTRA_REPOSITORY_KEY}" -t "${CHROOT_PATH}/etc-target"
     - sed  '/127.0.0.1/s/localhost/pipeline.salsa.debian.org localhost/' /etc/hosts > ${CHROOT_PATH}/etc/hosts
@@ -611,7 +615,9 @@ stages:
         piuparts --mirror "${SALSA_CI_MIRROR} ${SALSA_CI_COMPONENTS}" ${SALSA_CI_PIUPARTS_ARGS} --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PIUPARTS_DISTRIBUTION_ARG} ${PACKAGE}
       done) | filter-output
   variables:
-    GIT_STRATEGY: none
+    GIT_STRATEGY: fetch  # To make the repository available in this job,
+                         # so SALSA_CI_PIUPARTS_{PRE,POST}_INSTALL_SCRIPT
+                         # can refer to committed scripts
   needs:
     - job: build
       artifacts: true
