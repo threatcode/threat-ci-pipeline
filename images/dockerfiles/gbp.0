@@ -5,8 +5,12 @@
 # this notice are preserved. This file is offered as-is, without any warranty.
 
 # Add deb-src entries
-RUN \
-    sed -n '/^deb\s/s//deb-src /p' /etc/apt/sources.list > /etc/apt/sources.list.d/deb-src.list
+RUN if [ -f /etc/apt/sources.list ]; then \
+      sed -n '/^deb\s/s//deb-src /p' /etc/apt/sources.list > /etc/apt/sources.list.d/deb-src.list; \
+    fi
+RUN if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
+      sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/debian.sources; \
+    fi
 
 RUN apt-get update && eatmydata apt-get install --no-install-recommends -y \
     git-buildpackage \
