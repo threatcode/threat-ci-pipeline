@@ -452,7 +452,7 @@ Note that reprotest's faketime support is currently disabled, as it causes false
 positives on files touched by quilt. It will be re-enabled once this is fixed.
 https://salsa.debian.org/salsa-ci-team/pipeline/-/issues/251
 
-#### Adding extra arguments to dpkg-buildpackage
+### Adding extra arguments to dpkg-buildpackage
 
 Sometimes it is desirable to add direct options to the dpkg-buildpackage that is run for the package building.
 
@@ -468,7 +468,7 @@ variables:
   SALSA_CI_DPKG_BUILDPACKAGE_ARGS: --your-option
 ```
 
-#### Adding extra arguments to gbp-buildpackage
+### Adding extra arguments to gbp-buildpackage
 
 Sometimes it is desirable to add direct options to the `gbp buildpackage` command.
 
@@ -484,7 +484,7 @@ variables:
   SALSA_CI_GBP_BUILDPACKAGE_ARGS: --your-option
 ```
 
-#### Executing a pre-install / post-install script in piuparts
+### Executing a pre-install / post-install script in piuparts
 
 Sometimes it is desirable to execute a pre-install or post-install scripts in piuparts.
 
