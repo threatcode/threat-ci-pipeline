@@ -5,7 +5,7 @@ Build and test on reproducible environments on every push.
 
 ## Table of contents
 * [Introduction](#introduction)
-* [What does this pipeline gives to my project?](#what-does-this-pipeline-gives-to-my-project)
+* [What does this pipeline gives to my project?](#what-does-this-pipeline-provide-for-my-projectpackage)
 * [Basic Use](#basic-use)
 * [Advanced Use](#advanced-use)
 * [Support](#support)
