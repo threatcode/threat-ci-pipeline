@@ -422,6 +422,36 @@ variables:
   SALSA_CI_AUTOPKGTEST_ARGS: '--setup-commands=ci/pin-django-from-backports.sh'
 ```
 
+#### Breaking up the reprotest job into the different variations
+
+By default, reprotest applies all the known variations (`--variations=+all`,
+see the full list at
+[reprotest(1)](https://manpages.debian.org/buster/reprotest/reprotest.1.en.html)).
+One way to debug a failing reprotest job and find out what variations are
+producing unreproducibility issues is to run the variations independently.
+
+If you want to run multiple reprotest jobs, one for each variation, set the
+`SALSA_CI_ENABLE_ATOMIC_REPROTEST` variable to 1, 'yes' or 'true':
+
+```yaml
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  SALSA_CI_ENABLE_ATOMIC_REPROTEST: 1
+```
+
+You can also set the `SALSA_CI_ENABLE_ATOMIC_REPROTEST` variable when
+triggering the pipeline, without the need of creating a specific commit.
+
+#### Faketime is currently disabled
+
+Note that reprotest's faketime support is currently disabled, as it causes false
+positives on files touched by quilt. It will be re-enabled once this is fixed.
+https://salsa.debian.org/salsa-ci-team/pipeline/-/issues/251
+
 #### Adding extra arguments to dpkg-buildpackage
 
 Sometimes it is desirable to add direct options to the dpkg-buildpackage that is run for the package building.
@@ -484,37 +514,6 @@ Pin: release a=bullseye-backports
 Pin-Priority: 900
 EOT
 ```
-
-#### Breaking up the reprotest job into the different variations
-
-By default, reprotest applies all the known variations (`--variations=+all`,
-see the full list at
-[reprotest(1)](https://manpages.debian.org/buster/reprotest/reprotest.1.en.html)).
-One way to debug a failing reprotest job and find out what variations are
-producing unreproducibility issues is to run the variations independently.
-
-If you want to run multiple reprotest jobs, one for each variation, set the
-`SALSA_CI_ENABLE_ATOMIC_REPROTEST` variable to 1, 'yes' or 'true':
-
-```yaml
----
-include:
-  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
-  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
-
-variables:
-  SALSA_CI_ENABLE_ATOMIC_REPROTEST: 1
-```
-
-You can also set the `SALSA_CI_ENABLE_ATOMIC_REPROTEST` variable when
-triggering the pipeline, without the need of creating a specific commit.
-
-#### Faketime is currently disabled
-
-Note that reprotest's faketime support is currently disabled, as it causes false
-positives on files touched by quilt. It will be re-enabled once this is fixed.
-https://salsa.debian.org/salsa-ci-team/pipeline/-/issues/251
-
 
 ### Using automatically built apt repository
 The [Aptly](https://www.aptly.info/) task runs in the publish stage and will save published apt repository files as its artifacts, so downstream CI tasks may access built binary/source packages directly through artifacts url via apt. This is currently disabled by default. Set `SALSA_CI_DISABLE_APTLY` to anything other than 1, 'yes' or 'true' to enable it.
