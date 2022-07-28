@@ -2,7 +2,6 @@
 
 Build and test on reproducible environments on every push.
 
-
 ## Table of contents
 * [Introduction](#introduction)
 * [What does this pipeline gives to my project?](#what-does-this-pipeline-provide-for-my-projectpackage)
@@ -11,7 +10,6 @@ Build and test on reproducible environments on every push.
 * [Hacking](#hacking)
 * [Support](#support)
 
-
 ## Introduction
 
 The Salsa CI Team work aims to improve the Debian packaging lifecycle by providing [Continuous Integration](https://about.gitlab.com/product/continuous-integration/) fully compatible with Debian packaging.
@@ -19,7 +17,6 @@ The Salsa CI Team work aims to improve the Debian packaging lifecycle by providi
 Currently all the building and testing performed by Debian QA is run asynchronously and takes a long time to give feedback because it is only accessible after pushing a release to the archive.
 
 Our [pipeline](https://salsa.debian.org/help/ci/pipelines/index.md) definition is focused on speeding up this process by giving developers faster feedback.
-
 
 ## What does this _pipeline_ provide for my project/package?
 
@@ -40,7 +37,6 @@ The services we got working are the following:
 Those services are enabled by something we called `salsa-pipeline` and it will be shared for all Salsa projects who adopt it.
 Having this on GitLab CI ensures that every package accomplishes the minimum quality to be in the archive and if we improve or add a new service the project will get the benefit instantaneously.
 
-
 ## Basic Use
 
 To use the Salsa Pipeline, the first thing to do is to enable the project's Pipeline. Go to `Settings` (General), expand `Visibility, project features, permissions`, and in `Repository`, enable `CI/CD`. This makes the `CI/CD` settings and menu available.
@@ -60,17 +56,14 @@ include:
 
 > :warning: **Note:** On Debian projects, you would normally want to put this file under the `debian/` folder.
 
-
 ## Advanced Use
 
 Following the basic instructions will allow you to add all the building and testing stages as provided by the salsa-ci-team.
 However, customization of the scripts is possible.
 
-
 The [`salsa-ci.yml`](https://salsa.debian.org/salsa-ci-team/pipeline/blob/master/salsa-ci.yml) template delivers the jobs definitions.
 Including only this file, no job will be added to the pipeline.
 On the other hand, [`pipeline-jobs.yml`](https://salsa.debian.org/salsa-ci-team/pipeline/blob/master/pipeline-jobs.yml) includes all the jobs' instances.
-
 
 ### Changing the Debian Release
 
@@ -98,7 +91,6 @@ The following releases are currently supported:
 * unstable
 * experimental
 
-
 ### Avoid running CI on certain branches
 
 It is possible to configure the pipeline to skip branches you don't want CI to be run on.
@@ -115,7 +107,6 @@ include:
 variables:
   SALSA_CI_IGNORED_BRANCHES: 'some-branch|another-ref'
 ```
-
 
 ### Building with non-free dependencies
 By default, only `main` repositories are used.
@@ -183,7 +174,6 @@ variables:
   SALSA_CI_DISABLE_CROSSBUILD_ARM64: 1
 ```
 
-
 ### Allowing a job to fail
 Without completely disabling a job, you can allow it to fail without failing the whole pipeline. That way, if the job fails, the pipeline will pass and show an orange warning telling you something went wrong.
 
@@ -198,7 +188,6 @@ reprotest:
   allow_failure: true
 ```
 
-
 ### Set build timeout
 At times your job may fail because it reached its max duration (either job timeout, or runner timeout).
 In that case, the job would stop immediately without entering the `after_script` phase, and without saving the cache and without saving the artifacts.
@@ -210,7 +199,6 @@ You can set the `SALSA_CI_BUILD_TIMEOUT_ARGS` variable to override this. The arg
 ```
   SALSA_CI_BUILD_TIMEOUT_ARGS: "0.75h"
 ```
-
 
 ### Enabling the pipeline for tags
 By default, the pipeline is run only for commits, tags are ignored. To run the pipeline against tags as well, export the `SALSA_CI_ENABLE_PIPELINE_ON_TAGS` variable and set it to one of "1", "yes" or "true", like in the following example:
@@ -224,7 +212,6 @@ include:
 variables:
   SALSA_CI_ENABLE_PIPELINE_ON_TAGS: 1
 ```
-
 
 ### Skipping the whole pipeline on push
 
@@ -358,7 +345,6 @@ variables:
   SALSA_CI_LINTIAN_SUPPRESS_TAGS: 'orig-tarball-missing-upstream-signature'
 ```
 
-
 ### Adding extra arguments to autopkgtest
 
 Sometimes it is desirable to add arguments to autopkgtest.
@@ -471,7 +457,6 @@ before_script:
 ```
 
 Replace `{TEAM}`, `${PROJECT}` and `${JOB_ID}` with the correct values in the last snippet. Now you can use the binary packages produced by `src:pkgA` in `src:pkgB`. Note, that when you make changes to `src:pkgA`, `src:pkgB` will continue using the old repository that the job number points to. If you want `src:pkgB` to use the updated binary packages, you have to retrieve the job number of the `aptly` job from `src:pkgA` and update the `${JOB_ID}` of `src:pkgB`.
-
 
 ### Debian release bump
 By default, the build job will increase the release number using the +salsaci suffix.
