@@ -394,34 +394,6 @@ variables:
   SALSA_CI_REPROTEST_ARGS: --variations=-build_path
 ```
 
-#### Adding extra arguments to autopkgtest
-
-Sometimes it is desirable to add arguments to autopkgtest.
-
-You can do this by setting the arguments in the `SALSA_CI_AUTOPKGTEST_ARGS` variable.
-
-```yaml
----
-include:
-  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
-  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
-
-variables:
-  SALSA_CI_AUTOPKGTEST_ARGS: '--debug'
-```
-
-Note that autopkgtest can access the repository in the current directory, making it possible for `--setup-commands` to read commands from a file. For example:
-
-```yaml
-----
-include
-  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
-  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
-
-variables:
-  SALSA_CI_AUTOPKGTEST_ARGS: '--setup-commands=ci/pin-django-from-backports.sh'
-```
-
 #### Breaking up the reprotest job into the different variations
 
 By default, reprotest applies all the known variations (`--variations=+all`,
@@ -451,6 +423,34 @@ triggering the pipeline, without the need of creating a specific commit.
 Note that reprotest's faketime support is currently disabled, as it causes false
 positives on files touched by quilt. It will be re-enabled once this is fixed.
 https://salsa.debian.org/salsa-ci-team/pipeline/-/issues/251
+
+### Adding extra arguments to autopkgtest
+
+Sometimes it is desirable to add arguments to autopkgtest.
+
+You can do this by setting the arguments in the `SALSA_CI_AUTOPKGTEST_ARGS` variable.
+
+```yaml
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  SALSA_CI_AUTOPKGTEST_ARGS: '--debug'
+```
+
+Note that autopkgtest can access the repository in the current directory, making it possible for `--setup-commands` to read commands from a file. For example:
+
+```yaml
+----
+include
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  SALSA_CI_AUTOPKGTEST_ARGS: '--setup-commands=ci/pin-django-from-backports.sh'
+```
 
 ### Adding extra arguments to dpkg-buildpackage
 
