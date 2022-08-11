@@ -4,6 +4,17 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
+# Adding testing and pinning autopkgtest from it as a temporary workaround to
+# solve https://salsa.debian.org/salsa-ci-team/pipeline/-/issues/270
+# autopkgtest 5.23 seems to be broken
+RUN sed -i '/Suites:/s/$/ testing/' /etc/apt/sources.list.d/debian.sources
+
+RUN echo "\
+Package: autopkgtest \n\
+Pin: release a=testing \n\
+Pin-Priority: 900 \
+" > /etc/apt/preferences.d/99autopkgtest-270
+
 RUN apt-get update && \
     eatmydata apt-get install -y \
         dnsmasq-base debci libvirt-clients libvirt-daemon-system libvirt-daemon-system-sysv \
