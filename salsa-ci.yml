@@ -529,7 +529,7 @@ stages:
         fi
       else
         SALSA_CI_LINTIAN_FAIL_ARG=''
-      fi  
+      fi
       if echo "${SALSA_CI_LINTIAN_SHOW_OVERRIDES}" | grep -qE '^(1|yes|true)$'; then
         SALSA_CI_LINTIAN_SHOW_OVERRIDES_ARG='--show-overrides'
       fi
@@ -634,9 +634,10 @@ stages:
         piuparts --mirror "${SALSA_CI_MIRROR} ${SALSA_CI_COMPONENTS}" ${SALSA_CI_PIUPARTS_ARGS} --scriptsdir /etc/piuparts/scripts --allow-database --warn-on-leftovers-after-purge --hard-link -e ${CHROOT_PATH} ${PIUPARTS_DISTRIBUTION_ARG} ${PACKAGE}
       done) | filter-output
   variables:
-    GIT_STRATEGY: fetch  # To make the repository available in this job,
-                         # so SALSA_CI_PIUPARTS_{PRE,POST}_INSTALL_SCRIPT
-                         # can refer to committed scripts
+    # To make the repository available in this job,
+    # so SALSA_CI_PIUPARTS_{PRE,POST}_INSTALL_SCRIPT
+    # can refer to committed scripts
+    GIT_STRATEGY: fetch
   needs:
     - job: build
       artifacts: true

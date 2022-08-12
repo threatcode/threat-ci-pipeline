@@ -86,4 +86,3 @@ reprotest-umask:
   extends: .atomic-reprotest
   variables:
     VARIATION: 'umask'
-

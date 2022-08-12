@@ -64,15 +64,15 @@ image-staging:
   parallel:
     matrix:
       - IMAGE_NAME:
-        - aptly
-        - autopkgtest
-        - base
-        - blhc
-        - gbp
-        - generic_tests
-        - lintian
-        - piuparts
-        - reprotest
+          - aptly
+          - autopkgtest
+          - base
+          - blhc
+          - gbp
+          - generic_tests
+          - lintian
+          - piuparts
+          - reprotest
         RELEASE: kali-dev
   except:
     variables:
