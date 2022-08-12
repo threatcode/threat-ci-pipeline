@@ -554,6 +554,12 @@ Avoid branch names like `something/other`.
 
 1. Your fork should have 'Public' visibility for the pipeline to be shown on the merge request.
 
+1. Please sign your commits. Debian relies on OpenPGP to guarantee the
+authenticity and integrity of contributions.
+
+1. YAML files follow a two-space indentation. Scripts in other languages should
+follow their language-wide coding style.
+
 ### Allow images to be persistent
 
 By default all images are deleted when the pipeline is finished. This is to avoid images
