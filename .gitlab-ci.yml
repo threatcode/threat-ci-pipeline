@@ -59,6 +59,42 @@ check license + contributor:
       variables:
         IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
 
+check gpg signature:
+  stage: test
+  image: ${CI_REGISTRY_IMAGE}/base:${IMAGE_VERSION}
+  dependencies: []
+  variables:
+    RELEASE: sid
+  before_script:
+    - apt-get update && apt-get install -y git gpg
+  script:
+    - git show --show-signature HEAD | grep gpg || exit "please sign your commit"
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      variables:
+        IMAGE_VERSION: latest
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+      variables:
+        IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
+
+check yaml lint:
+  stage: test
+  image: ${CI_REGISTRY_IMAGE}/base:${IMAGE_VERSION}
+  dependencies: []
+  variables:
+    RELEASE: sid
+  before_script:
+    - apt-get update && apt-get install -y yamllint
+  script:
+    - yamllint .
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      variables:
+        IMAGE_VERSION: latest
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+      variables:
+        IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
+
 test-pipeline:
   variables:
     RELEASE: sid
