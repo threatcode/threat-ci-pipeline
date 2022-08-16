@@ -70,6 +70,8 @@ check gpg signature:
   script:
     - git show --show-signature HEAD | grep gpg || exit "please sign your commit"
   rules:
+    - if: $CI_MERGE_REQUEST_ID == "null"
+      when: never
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
       variables:
         IMAGE_VERSION: latest
