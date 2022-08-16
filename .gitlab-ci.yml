@@ -68,7 +68,10 @@ check gpg signature:
   before_script:
     - apt-get update && apt-get install -y git gpg
   script:
-    - git show --show-signature HEAD | grep gpg || exit "please sign your commit"
+    - mkdir -p ${HOME}/.gnupg
+    - echo "keyserver hkp://keyserver.ubuntu.com:80" >> ${HOME}/.gnupg/gpg.conf
+    - echo "keyserver-options auto-key-retrieve" >> ${HOME}/.gnupg/gpg.conf
+    - git verify-commit HEAD --raw --verbose || (echo "please sign your commit" && exit 1)
   rules:
     - if: $CI_MERGE_REQUEST_ID == "null"
       when: never
