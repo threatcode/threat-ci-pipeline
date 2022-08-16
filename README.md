@@ -2,6 +2,12 @@
 
 Build and test on reproducible environments on every push.
 
+TL;DR: Use this CI/CD configuration file setting:
+
+```
+recipes/debian.yml@salsa-ci-team/pipeline
+```
+
 ## Table of contents
 * [Introduction](#introduction)
 * [What does this pipeline gives to my project?](#what-does-this-pipeline-provide-for-my-projectpackage)
@@ -41,9 +47,9 @@ Having this on GitLab CI ensures that every package accomplishes the minimum qua
 
 To use the Salsa Pipeline, the first thing to do is to enable the project's Pipeline. Go to `Settings` (General), expand `Visibility, project features, permissions`, and in `Repository`, enable `CI/CD`. This makes the `CI/CD` settings and menu available.
 Then, change the project's setting to make it point to the pipeline's config file.
-This can be done on `Settings` -> `CI/CD` (on the expanded menu, don't click on the CI / CD rocket) -> `General Pipelines` -> `Custom CI config path`.
+This can be done on `Settings` -> `CI/CD` (on the expanded menu, don't click on the CI / CD rocket) -> `General Pipelines` -> `CI/CD configuration file`.
 
-If the base pipeline configuration fits your needs without further modifications, the recommended way is to use `recipes/debian.yml@salsa-ci-team/pipeline` as config path, which refers to a file kept in this repository.
+If the base pipeline configuration fits your needs without further modifications, the recommended way is to use `recipes/debian.yml@salsa-ci-team/pipeline` as config path, which refers to a file kept in the salsa-ci-team/pipeline repository.
 
 On the other hand, if you want to use the base configuration and apply customizations on top, the recommended path to create this file is `debian/salsa-ci.yml`.
 It should contain at least the following lines:
@@ -197,6 +203,7 @@ To prevent this, the build phase of the build job and the build phase of the rep
 You can set the `SALSA_CI_BUILD_TIMEOUT_ARGS` variable to override this. The arguments can be any valid argument used by the `timeout` command. For example, you may set:
 
 ```
+variables:
   SALSA_CI_BUILD_TIMEOUT_ARGS: "0.75h"
 ```
 
