@@ -29,7 +29,7 @@ variables:
 extract-source:
   extends: .provisioning-extract-source
   before_script:
-    - test -d repo_test || ( apt-get update && apt-get install git -y; git clone https://salsa.debian.org/salsa-ci-team/dummypackage repo_test)
+    - test -d repo_test || ( apt-get update && apt-get install git -y; git clone https://salsa.debian.org/debian/grep repo_test)
     - cd repo_test
 
 aptly with passphrase:
