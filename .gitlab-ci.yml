@@ -59,6 +59,50 @@ check license + contributor:
       variables:
         IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
 
+check gpg signature:
+  stage: test
+  image: ${CI_REGISTRY_IMAGE}/base:${IMAGE_VERSION}
+  dependencies: []
+  variables:
+    RELEASE: sid
+  before_script:
+    - apt-get update && apt-get install -y --no-install-recommends git gpg debian-keyring
+  script:
+    - mkdir -p ${HOME}/.gnupg
+    - echo "keyring /usr/share/keyrings/debian-keyring.gpg" >> ${HOME}/.gnupg/gpg.conf
+    - echo "keyring /usr/share/keyrings/debian-maintainers.gpg" >> ${HOME}/.gnupg/gpg.conf
+    - echo "keyring /usr/share/keyrings/debian-nonupload.gpg" >> ${HOME}/.gnupg/gpg.conf
+    - echo "keyserver hkp://keyserver.ubuntu.com:80" >> ${HOME}/.gnupg/gpg.conf
+    - echo "auto-key-retrieve" >> ${HOME}/.gnupg/gpg.conf
+    - git verify-commit HEAD --raw --verbose || (echo "please sign your commit" && exit 1)
+  rules:
+    - if: $CI_MERGE_REQUEST_ID == "null"
+      when: never
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      variables:
+        IMAGE_VERSION: latest
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+      variables:
+        IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
+
+check yaml lint:
+  stage: test
+  image: ${CI_REGISTRY_IMAGE}/base:${IMAGE_VERSION}
+  dependencies: []
+  variables:
+    RELEASE: sid
+  before_script:
+    - apt-get update && apt-get install -y yamllint
+  script:
+    - yamllint .
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      variables:
+        IMAGE_VERSION: latest
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
+      variables:
+        IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
+
 test-pipeline:
   variables:
     RELEASE: sid
