@@ -117,6 +117,10 @@ test-pipeline:
     - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
       variables:
         IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
+  parallel:
+    matrix:
+      - PROJECT_URL:
+          - https://salsa.debian.org/debian/grep
 
 clean images:
   stage: clean
