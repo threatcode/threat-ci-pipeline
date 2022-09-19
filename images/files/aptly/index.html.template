@@ -12,6 +12,19 @@ $ echo | sudo tee /etc/apt/sources.list.d/${CI_PROJECT_PATH_SLUG}-${CI_JOB_ID}.l
 deb <a href="${REPO_URL}">${REPO_URL}</a> ${RELEASE} main
 # deb-src <a href="${REPO_URL}">${REPO_URL}</a> ${RELEASE} main
 EOF</pre><br/>
+
+Since bookworm, you can use deb822-style instead:
+<br/>
+
+<pre>$ wget -O - <a href="${REPO_PUBKEY_URL}">${REPO_PUBKEY_URL}</a> | sudo tee /etc/apt/keyrings/${CI_PROJECT_PATH_SLUG}-${CI_JOB_ID}.asc
+$ echo | sudo tee /etc/apt/sources.list.d/${CI_PROJECT_PATH_SLUG}-${CI_JOB_ID}.sources &lt;&lt;EOF
+Types: deb
+URIs: ${REPO_URL}
+Suites: ${RELEASE}
+Components: main
+Signed-By: /etc/apt/keyrings/${CI_PROJECT_PATH_SLUG}-${CI_JOB_ID}.asc
+EOF</pre><br/>
+
 <a href="${CI_JOB_URL}/artifacts/browse">Browse all files</a>
 </body>
 </html>
