@@ -76,7 +76,7 @@ check gpg signature:
     - echo "auto-key-retrieve" >> ${HOME}/.gnupg/gpg.conf
     - git verify-commit HEAD --raw --verbose || (echo "please sign your commit" && exit 1)
   rules:
-    - if: $CI_MERGE_REQUEST_ID == "null"
+    - if: $CI_MERGE_REQUEST_ID == null
       when: never
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
       variables:
