@@ -4,9 +4,6 @@
 # permitted in any medium without royalty provided the copyright notice and
 # this notice are preserved. This file is offered as-is, without any warranty.
 
-include:
-  - 'https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/atomic-reprotest.yml'
-
 extract-source:
   extends: .provisioning-extract-source
 
@@ -61,3 +58,28 @@ rc-bugs:
 
 aptly:
   extends: .publish-aptly
+
+atomic-reprotest:
+  extends: .test-reprotest
+  only:
+    variables:
+      - $SALSA_CI_ENABLE_ATOMIC_REPROTEST =~ /^(1|yes|true)$/
+  variables:
+    SALSA_CI_REPROTEST_ARGS: '--variations=-all --variations=${VARIATION}'
+  parallel:
+    matrix:
+      - VARIATION:
+          - aslr
+          - build_path
+          - domain_host
+          - environment
+          - exec_path
+          - fileordering
+          - home
+          - kernel
+          - locales
+          - num_cpus
+          - time
+          - timezone
+          - umask
+          - user_group
