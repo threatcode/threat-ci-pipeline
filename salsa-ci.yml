@@ -16,6 +16,9 @@ workflow:
     # Avoid duplicated pipelines, do not run detached pipelines.
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: never
+    # Do not create a pipeline for tags unless SALSA_CI_ENABLE_PIPELINE_ON_TAGS is set
+    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
+      when: never
     # Otherwise, if there's a debian/ folder, run.
     - exists:
         - debian/**
@@ -116,10 +119,6 @@ stages:
     - .artifacts-default-expire
   variables:
     DB_BUILD_PARAM: ${SALSA_CI_DPKG_BUILDPACKAGE_ARGS}
-  rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
-    - when: always
   script:
     - mkdir -p ${WORKING_DIR}
 
@@ -307,10 +306,6 @@ stages:
   extends:
     - .build-definition
     - .artifacts-default-expire
-  rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
-    - when: always
 
 .build-package-i386: &build-package-i386
   extends:
@@ -319,8 +314,6 @@ stages:
   variables:
     BUILD_ARCH: 'i386'
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_BUILD_PACKAGE_I386 !~ /^(1|yes|true)$/
 
 .build-package-armel: &build-package-armel
@@ -332,8 +325,6 @@ stages:
   tags:
     - arm64
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_BUILD_PACKAGE_ARMEL !~ /^(1|yes|true)$/
 
 .build-package-armhf: &build-package-armhf
@@ -345,8 +336,6 @@ stages:
   tags:
     - arm64
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_BUILD_PACKAGE_ARMHF !~ /^(1|yes|true)$/
 
 .build-package-arm64: &build-package-arm64
@@ -358,8 +347,6 @@ stages:
   tags:
     - arm64
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_BUILD_PACKAGE_ARM64 !~ /^(1|yes|true)$/
 
 .build-source-only: &build-source-only
@@ -371,10 +358,6 @@ stages:
   variables:
     DB_BUILD_TYPE: source
     SALSA_CI_DISABLE_VERSION_BUMP: 1
-  rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
-    - when: always
 
 .test-build-package-any: &test-build-package-any
   extends:
@@ -400,8 +383,6 @@ stages:
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_BUILD_PACKAGE_ANY !~ /^(1|yes|true)$/
 
 .test-build-package-all: &test-build-package-all
@@ -428,8 +409,6 @@ stages:
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_BUILD_PACKAGE_ALL !~ /^(1|yes|true)$/
 
 .test-crossbuild-package-arm64: &test-crossbuild-package-arm64
@@ -457,8 +436,6 @@ stages:
   variables:
     HOST_ARCH: arm64
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_CROSSBUILD_ARM64 =~ /^(1|yes|true)$/
       when: never
     - if: $BUILD_ARCH != $HOST_ARCH && $HOST_ARCH != ""
@@ -467,8 +444,6 @@ stages:
   stage: test
   image: $SALSA_CI_IMAGES_AUTOPKGTEST
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_AUTOPKGTEST !~ /^(1|yes|true)$/
   script:
     - wget --progress=dot:giga ${SALSA_CI_AUTOPKGTEST_LXC}/-/jobs/artifacts/master/raw/artifacts/lxc.tar?job=${RELEASE} -O lxc.tar
@@ -505,8 +480,6 @@ stages:
   stage: test
   image: $SALSA_CI_IMAGES_BLHC
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_BLHC !~ /^(1|yes|true)$/
   script:
     - blhc --debian --line-numbers --color ${SALSA_CI_BLHC_ARGS} ${WORKING_DIR}/*.build || [ $? -eq 1 ]
@@ -520,8 +493,6 @@ stages:
   stage: test
   image: $SALSA_CI_IMAGES_LINTIAN
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_LINTIAN !~ /^(1|yes|true)$/
   script:
     - lintian --version
@@ -563,8 +534,6 @@ stages:
   stage: test
   image: $SALSA_CI_IMAGES_REPROTEST
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_REPROTEST !~ /^(1|yes|true)$/
   artifacts:
     name: "$CI_JOB_NAME:$CI_COMMIT_REF_NAME"
@@ -605,8 +574,6 @@ stages:
   stage: test
   image: $SALSA_CI_IMAGES_PIUPARTS
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_PIUPARTS !~ /^(1|yes|true)$/
   services:
     - docker:20.10.12-dind
@@ -651,8 +618,6 @@ stages:
   stage: test
   image: $SALSA_CI_IMAGES_GENERIC_TESTS
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_RC_BUGS !~ /^(1|yes|true)$/
   script:
     - check_rc_bugs.py -v -o ${WORKING_DIR}/rc_bugs.xml --changes-file ${WORKING_DIR}/*.changes
@@ -669,8 +634,6 @@ stages:
   stage: test
   image: $SALSA_CI_IMAGES_GENERIC_TESTS
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_MISSING_BREAKS !~ /^(1|yes|true)$/
   script:
     - apt-get update
@@ -692,8 +655,6 @@ stages:
     REPO_PATH: 'aptly'
     PUBKEY_FILENAME: 'public-key.asc'
   rules:
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
-      when: never
     - if: $SALSA_CI_DISABLE_APTLY !~ /^(1|yes|true)$/
   script:
     - export REPO_URL="${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/${REPO_PATH}"
