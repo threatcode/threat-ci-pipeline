@@ -144,7 +144,7 @@ Expand the section on Variables and add a **File** type variable:
 
 > Key: SALSA_CI_EXTRA_REPOSITORY
 
-> Value: deb https://deb.debian.org/debian/ sid contrib non-free
+> Value: deb [signed-by=/usr/share/keyrings/debian-archive-keyring.gpg] https://deb.debian.org/debian/ sid contrib non-free
 
 The apt source should reference `sid` or `unstable`.
 
