@@ -138,8 +138,6 @@ clean images:
       for IMAGE in $IMAGES_LIST; do
         reg --registry ${CI_REGISTRY} rm ${CI_PROJECT_PATH}/${IMAGE}:${RELEASE}${STAGING_TAG} || true
       done
-  when: always
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-      - $SALSA_CI_PERSIST_IMAGES =~ /^(1|yes|true)$/
+  rules:
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH && $SALSA_CI_PERSIST_IMAGES !~ /^(1|yes|true)$/
+      when: always
