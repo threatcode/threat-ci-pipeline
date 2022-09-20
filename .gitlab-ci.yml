@@ -65,6 +65,7 @@ check gpg signature:
   dependencies: []
   variables:
     RELEASE: sid
+    IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
   before_script:
     - apt-get update && apt-get install -y --no-install-recommends git gpg debian-keyring
   script:
@@ -77,12 +78,6 @@ check gpg signature:
     - git verify-commit HEAD --raw --verbose || (echo "please sign your commit" && exit 1)
   rules:
     - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
-    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-      variables:
-        IMAGE_VERSION: latest
-    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
-      variables:
-        IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
 
 check yaml lint:
   stage: test
