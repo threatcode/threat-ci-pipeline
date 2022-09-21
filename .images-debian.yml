@@ -48,10 +48,9 @@ images-prod:
           - reprotest
         ARCH: amd64
         RELEASE: sid
-  only:
-    variables:
-      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-      - $BUILD_ALL_IMAGES
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    - if: $BUILD_ALL_IMAGES
 
 # ARM images built on main branch
 # We need a separate matrix. If we place the ARM build jobs on images-prod, we
@@ -70,10 +69,9 @@ images-prod-arm:
           - arm32v7
           - arm64v8
         RELEASE: *all-supported-releases
-  only:
-    variables:
-      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-      - $BUILD_ALL_IMAGES
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    - if: $BUILD_ALL_IMAGES
 
 # Images built on branches.
 # This is a subset of all the images, and are the only ones
@@ -98,10 +96,10 @@ image-staging:
       - IMAGE_NAME: base
         ARCH: i386
         RELEASE: sid
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-      - $BUILD_ALL_IMAGES
+  rules:
+    - if: $BUILD_ALL_IMAGES
+      when: never
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
 
 image-staging-arm:
   extends: .build_template
@@ -121,7 +119,7 @@ image-staging-arm:
   # to fail to don't block pipelines on MRs.
   allow_failure: true
   when: manual
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-      - $BUILD_ALL_IMAGES
+  rules:
+    - if: $BUILD_ALL_IMAGES
+      when: never
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH

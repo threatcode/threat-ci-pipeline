@@ -50,10 +50,9 @@ images-prod:
           - reprotest
         ARCH: amd64
         RELEASE: kali-dev
-  only:
-    variables:
-      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-      - $BUILD_ALL_IMAGES
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+    - if: $BUILD_ALL_IMAGES
 
 # Images built on branches.
 # This is a subset of all the images, and are the only ones
@@ -74,7 +73,7 @@ image-staging:
           - piuparts
           - reprotest
         RELEASE: kali-dev
-  except:
-    variables:
-      - $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-      - $BUILD_ALL_IMAGES
+  rules:
+    - if: $BUILD_ALL_IMAGES
+      when: never
+    - if: $CI_COMMIT_REF_NAME != $CI_DEFAULT_BRANCH
