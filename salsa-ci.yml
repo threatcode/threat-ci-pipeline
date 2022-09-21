@@ -17,7 +17,7 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: never
     # Do not create a pipeline for tags unless SALSA_CI_ENABLE_PIPELINE_ON_TAGS is set
-    - if: CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
+    - if: $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       when: never
     # Otherwise, if there's a debian/ folder, run.
     - exists:
