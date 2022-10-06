@@ -89,6 +89,7 @@ variables:
   SALSA_CI_DISABLE_RC_BUGS: 1
   SALSA_CI_IGNORED_BRANCHES: ''
   SALSA_CI_BUILD_TIMEOUT_ARGS: "2.75h"
+  SALSA_CI_DISABLE_BUILD_DBGSYM: 1
   # Use fastzip to fix https://salsa.debian.org/salsa-ci-team/pipeline/-/issues/177
   FF_USE_FASTZIP: 'true'
   # Backward compatibility
@@ -227,6 +228,12 @@ stages:
       crossbuild-essential-${HOST_ARCH}
   # when cross-compiling, add 'nocheck' to the DEB_BUILD_OPTIONS
   - test -z "${HOST_ARCH}" || export DEB_BUILD_OPTIONS=nocheck${DEB_BUILD_OPTIONS:+ }${DEB_BUILD_OPTIONS}
+
+  # Disable autogeneration of dbgsym packages. (See #273)
+  - |
+    if echo "$SALSA_CI_DISABLE_BUILD_DBGSYM" | grep -qE '^(1|yes|true)$'; then
+      export DEB_BUILD_OPTIONS=noautodbgsym ${DEB_BUILD_OPTIONS}
+    fi
 
   # Enter source package dir
   - cd ${WORKING_DIR}/${SOURCE_DIR}

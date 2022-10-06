@@ -334,6 +334,18 @@ test-build-all:
 
 `.test-build-package-all` does the opposite and runs `dpkg-buildpackage` with the option `--build=all` building only arch-indep packages.
 
+### Enable generation of dbgsym packages
+
+To reduce the size of the artifacts produced by the build jobs, auto generation
+of dbgsym packages is disabled by default. This behaviour can be controlled by
+the `SALSA_CI_DISABLE_BUILD_DBGSYM`. Set it to anything different than 1, 'yes'
+or 'true', to generate those packages.
+
+```yaml
+variables:
+  SALSA_CI_DISABLE_BUILD_DBGSYM: 0
+```
+
 ### Customizing Lintian
 
 The Lintian job can be customized to ignore certain tags.
