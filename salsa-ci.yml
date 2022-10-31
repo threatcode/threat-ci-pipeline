@@ -115,6 +115,7 @@ stages:
 .provisioning-extract-source: &provisioning-extract-source
   stage: provisioning
   image: $SALSA_CI_IMAGES_GBP
+  dependencies: []
   extends:
     - .artifacts-default-expire
   variables:
