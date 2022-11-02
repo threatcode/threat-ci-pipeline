@@ -276,21 +276,21 @@ stages:
   # Build package as user salsaci
   - su salsaci -c "timeout ${SALSA_CI_BUILD_TIMEOUT_ARGS} eatmydata dpkg-buildpackage ${HOST_ARCH:+--host-arch ${HOST_ARCH} -Pcross,nocheck} --build=${DB_BUILD_TYPE} ${DB_BUILD_PARAM}" |& OUTPUT_FILENAME=${BUILD_LOGFILE} filter-output
 
-  # Print size of artifacts after build
-  - ls -lh ${WORKING_DIR}
-
-  # Warn if file exceeds artifact file size limit (initially 256MB)
-  - |
-    if [ "$(du -s | cut -f1)" -gt 262144 ]; then
-      echo -e "\e[91m WARNING: Your Build artifacts exceed the size limit of 256MB which may cause build failure.\e[39m"
-    fi
-
   # Restore PWD to ${WORKING_DIR}
   - cd ${WORKING_DIR}
   - rm -rf ${WORKING_DIR}/${SOURCE_DIR}
 
   # Print ccache stats on job log
   - ccache -s
+
+  # Print size of artifacts after build
+  - du -sh
+
+  # Warn if file exceeds artifact file size limit (initially 256MB)
+  - |
+    if [ "$(du -s | cut -f1)" -gt 262144 ]; then
+      echo -e "\e[91m WARNING: Your Build artifacts exceed the size limit of 256MB which may cause build failure.\e[39m"
+    fi
 
 .build-definition: &build-definition
   stage: build
