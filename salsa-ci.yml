@@ -115,6 +115,7 @@ stages:
 .provisioning-extract-source: &provisioning-extract-source
   stage: provisioning
   image: $SALSA_CI_IMAGES_GBP
+  dependencies: []
   extends:
     - .artifacts-default-expire
   variables:
@@ -272,6 +273,9 @@ stages:
   - BUILD_LOGFILE_VERSION=${BUILD_LOGFILE_VERSION#*:}
   - BUILD_LOGFILE_ARCH=${HOST_ARCH:-${BUILD_ARCH}}
   - BUILD_LOGFILE="${WORKING_DIR}/${BUILD_LOGFILE_SOURCE}_${BUILD_LOGFILE_VERSION}_${BUILD_LOGFILE_ARCH}.build"
+
+  # Print the build environment
+  - printenv
 
   # Build package as user salsaci
   - su salsaci -c "timeout ${SALSA_CI_BUILD_TIMEOUT_ARGS} eatmydata dpkg-buildpackage ${HOST_ARCH:+--host-arch ${HOST_ARCH} -Pcross,nocheck} --build=${DB_BUILD_TYPE} ${DB_BUILD_PARAM}" |& OUTPUT_FILENAME=${BUILD_LOGFILE} filter-output
