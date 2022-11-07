@@ -67,15 +67,18 @@ check gpg signature:
     RELEASE: sid
     IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
   before_script:
-    - apt-get update && apt-get install -y --no-install-recommends git gpg debian-keyring
+    - apt-get update && apt-get install -y --no-install-recommends debian-keyring dirmngr git gpg gpg-agent
   script:
     - mkdir -p ${HOME}/.gnupg
+    - chmod 600 ${HOME}/.gnupg
     - echo "keyring /usr/share/keyrings/debian-keyring.gpg" >> ${HOME}/.gnupg/gpg.conf
     - echo "keyring /usr/share/keyrings/debian-maintainers.gpg" >> ${HOME}/.gnupg/gpg.conf
     - echo "keyring /usr/share/keyrings/debian-nonupload.gpg" >> ${HOME}/.gnupg/gpg.conf
-    - echo "keyserver hkp://keyserver.ubuntu.com:80" >> ${HOME}/.gnupg/gpg.conf
+    - echo "keyserver hkps://keyserver.ubuntu.com:443" >> ${HOME}/.gnupg/gpg.conf
     - echo "auto-key-retrieve" >> ${HOME}/.gnupg/gpg.conf
-    - git verify-commit HEAD --raw --verbose || (echo "please sign your commit" && exit 1)
+    - SIGNING_KEY=$(git log --show-signature HEAD~1..HEAD | grep "using.*key" | awk '{print $NF}')
+    - gpg --recv-key $SIGNING_KEY
+    - GIT_TRACE2=true git verify-commit HEAD --raw --verbose || (echo "please sign your commit" && exit 1)
   rules:
     - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
 
