@@ -290,10 +290,10 @@ stages:
   # Print size of artifacts after build
   - du -sh
 
-  # Warn if file exceeds artifact file size limit (initially 256MB)
+  # Warn if file exceeds artifact file size limit (initially 250MB)
   - |
-    if [ "$(du -s | cut -f1)" -gt 262144 ]; then
-      echo -e "\e[91m WARNING: job artifacts exceed the size limit of 256MB which may prevent the job to succeed.\e[39m"
+    if [ "$(du -s | cut -f1)" -gt 256000 ]; then
+      echo -e "\e[91m WARNING: job artifacts exceed the size limit of 250MB which may prevent the job to succeed.\e[39m"
     fi
 
 .build-definition: &build-definition
