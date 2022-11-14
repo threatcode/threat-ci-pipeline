@@ -92,6 +92,7 @@ The following releases are currently supported:
 * buster
 * buster-backports
 * bullseye
+* bullseye-backports
 * stable
 * testing
 * unstable
