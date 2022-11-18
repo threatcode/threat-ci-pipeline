@@ -255,7 +255,8 @@ stages:
   # If not disabled, bump package version
   - |
     if ! echo "$SALSA_CI_DISABLE_VERSION_BUMP" | grep -qE '^(1|yes|true)$'; then
-      sed -i -e '1 s/)/+salsaci)/' debian/changelog
+      DATESTAMP=$(date +"%Y%m%d")
+      sed -i -e "1 s/)/+salsaci+${DATESTAMP}+${CI_PIPELINE_IID})/" debian/changelog
     fi
 
   # Generate ccache links
