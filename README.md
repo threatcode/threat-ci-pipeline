@@ -150,16 +150,10 @@ Expand the section on Variables and add a **File** type variable:
 The apt source should reference `sid` or `unstable`.
 
 Many `contrib` and `non-free` packages only build on `amd64`, so the
-32 bit build should be disabled in the `variables` block:
-
-```yaml
-
-variables:
-  SALSA_CI_DISABLE_BUILD_PACKAGE_I386: 1
-```
+32-bit x86 build (`build i386`) should be disabled. (refer to the [Disabling building on i386](#Disabling-building-on-i386) Section).
 
 ### Skipping a job
-There are many ways to skip a certain job. The recommended way is to set to 1 (or "yes" or "true") the `SALSA_CI_DISABLE_*` variables that have been created for this purpose.
+There are many ways to skip a certain job. The recommended way is to set to `1` (or "`yes`" or "`true`") the `SALSA_CI_DISABLE_*` variables that have been created for this purpose.
 
 ```yaml
 ---
@@ -178,7 +172,17 @@ variables:
   SALSA_CI_DISABLE_REPROTEST: 1
   SALSA_CI_DISABLE_BUILD_PACKAGE_ALL: 1
   SALSA_CI_DISABLE_BUILD_PACKAGE_ANY: 1
+  SALSA_CI_DISABLE_BUILD_PACKAGE_I386: 1
   SALSA_CI_DISABLE_CROSSBUILD_ARM64: 1
+```
+
+### Disabling building on i386
+The `build i386` job builds packages against the 32-bit x86 architecture. If for any reason you need to skip this job, set the `SALSA_CI_DISABLE_BUILD_PACKAGE_I386` in the variables' block to `1`, '`yes`' or '`true`'.  i.e;
+
+```yaml
+
+variables:
+  SALSA_CI_DISABLE_BUILD_PACKAGE_I386: 1
 ```
 
 ### Allowing a job to fail
@@ -445,18 +449,20 @@ EOT
 ```
 
 ### Using automatically built apt repository
-The [Aptly](https://www.aptly.info/) task runs in the publish stage and will save published apt repository files as its artifacts, so downstream CI tasks may access built binary/source packages directly through artifacts url via apt. This is currently disabled by default. Set `SALSA_CI_DISABLE_APTLY` to anything other than 1, 'yes' or 'true' to enable it.
+The [Aptly](https://www.aptly.info/) task runs in the publish stage and will save published apt repository files as its artifacts, so downstream CI tasks may access built binary/source packages directly through artifacts url via apt. This is currently disabled by default. To enable it, set the `SALSA_CI_DISABLE_APTLY` variable of the repository whose artifacts you want to use to anything other than `1`, '`yes`' or '`true`'. (check example below)
 
 To specify repository signing key, export the gpg key/passphrase as CI / CD [Variables](https://salsa.debian.org/help/ci/variables/index.md) `SALSA_CI_APTLY_GPG_KEY` and `SALSA_CI_APTLY_GPG_PASSPHRASE`. Otherwise, an automatically generated one will be used.
 
-For example to let package `src:pkgA` of team `${TEAM}` and project `${PROJECT}` setup an aptly repository and let package `src:pkgB` use the repository, add the following to `debian/salsa-ci.yml` of `src:pkgA`:
+For example, to let package `src:pkgA` of team `${TEAM}` and project `${PROJECT}` setup an aptly repository and let package `src:pkgB` use the repository, enable the `aptly` job by adding the following line to the `debian/salsa-ci.yml` of `src:pkgA`:
 
 ```yaml
 variables:
   SALSA_CI_DISABLE_APTLY: 0
 ```
 
-The next time the pipeline of `src:pkgA` is run, a new job called `aptly` will be part of the "Publish" stage of the pipeline. Click on the job to obtain the job number which you need `debian/salsa-ci.yml` of `src:pkgB`:
+The next time the pipeline of `src:pkgA` is run, a new job called `aptly` will be part of the "Publish" stage of the pipeline. Click on the job to obtain the job number which will be needed in the `debian/salsa-ci.yml` file of `src:pkgB`:
+
+In the `debian/salsa-ci.yml` file of `src:pkgB` add the following lines after the `variables` section
 
 ```yaml
 before_script:
@@ -464,7 +470,8 @@ before_script:
   - apt-get update
 ```
 
-Replace `{TEAM}`, `${PROJECT}` and `${JOB_ID}` with the correct values in the last snippet. Now you can use the binary packages produced by `src:pkgA` in `src:pkgB`. Note, that when you make changes to `src:pkgA`, `src:pkgB` will continue using the old repository that the job number points to. If you want `src:pkgB` to use the updated binary packages, you have to retrieve the job number of the `aptly` job from `src:pkgA` and update the `${JOB_ID}` of `src:pkgB`.
+Replace `{TEAM}`, `${PROJECT}` with appropriate `team` and `project` name respectively and `${JOB_ID}` with the aptly job number of `src:pkgA` pipeline. Now you can use the binary packages produced by `src:pkgA` in `src:pkgB`. \
+**Note:** When you make changes to `src:pkgA`, `src:pkgB` will continue using the old repository that the job number points to. If you want `src:pkgB` to use the updated binary packages, you have to retrieve the job number of the `aptly` job from `src:pkgA` and update the `${JOB_ID}` of `src:pkgB`.
 
 ### Debian release bump
 By default, the build job will increase the release number using the +salsaci suffix.
