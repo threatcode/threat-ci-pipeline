@@ -55,9 +55,7 @@ images-prod:
 # ARM images built on main branch
 # We need a separate matrix. If we place the ARM build jobs on images-prod, we
 # exceed the maximum jobs limit by matrix (50)
-# Temporarily "hidden": salsaci-arm64-runner-01 is unavailable from 2022-11-14
-# to 2022-11-17 (included)
-.images-prod-arm:
+images-prod-arm:
   stage: build
   extends: .build_template
   tags:
