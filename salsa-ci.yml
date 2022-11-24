@@ -566,13 +566,14 @@ stages:
         SALSA_CI_REPROTEST_ARGS="${SALSA_CI_REPROTEST_ARGS} --no-diffoscope"
       fi
     - |
-      timeout ${SALSA_CI_BUILD_TIMEOUT_ARGS} reprotest \
+      su salsa-ci -c "timeout ${SALSA_CI_BUILD_TIMEOUT_ARGS} reprotest \
         --min-cpus $(nproc --all) \
         --store-dir ${WORKING_DIR}/reprotest \
         --verbosity=2  \
         --vary=-time \
+        --variations=user_group.available+=salsa-ci,domain_host.use_sudo=1 \
         ${SALSA_CI_REPROTEST_ARGS} \
-        ${WORKING_DIR}/*.dsc -- null |& OUTPUT_FILENAME=reprotest.log filter-output
+        ${WORKING_DIR}/*.dsc -- null" |& OUTPUT_FILENAME=reprotest.log filter-output
   variables:
     GIT_STRATEGY: none
   needs:
