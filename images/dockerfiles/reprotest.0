@@ -6,10 +6,14 @@
 
 RUN apt-get update && eatmydata apt-get install reprotest patch faketime \
  locales-all disorderfs sudo xxd unzip diffoscope-minimal binutils-multiarch \
- xz-utils --no-install-recommends -y
+ xz-utils fakeroot --no-install-recommends -y
 RUN rm -rf /var/lib/apt
 
 COPY patches/reprotest/build.patch /tmp/build.patch
 RUN patch /usr/lib/python3/dist-packages/reprotest/build.py /tmp/build.patch
 
 ENV PYTHONIOENCODING utf-8
+
+RUN useradd --gid 100 -m salsa-ci
+
+RUN su salsa-ci -c "reprotest --print-sudoers --variations=user_group.available+=salsa-ci,domain_host.use_sudo=1" | EDITOR=tee visudo -f /etc/sudoers.d/local-reprotest
