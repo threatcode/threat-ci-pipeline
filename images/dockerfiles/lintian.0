@@ -6,10 +6,10 @@
 
 RUN \
 set -eux; \
-apt-get update; \
-apt-get upgrade -y; \
 printf 'Package: *\nPin: release a=%s\nPin-Priority: 900\n' "$RELEASE" \
   | tee /etc/apt/preferences.d/salsa-ci; \
+apt-get update; \
+apt-get upgrade -y; \
 eatmydata apt-get -y install git lintian; \
 if [ -z "$(apt-cache search --names-only ^python3-junit\\.xml\$)" ]; then \
     eatmydata apt-get -y install python3-pip; \
