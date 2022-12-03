@@ -227,12 +227,12 @@ stages:
       libstdc++-dev:${HOST_ARCH} \
       crossbuild-essential-${HOST_ARCH}
   # when cross-compiling, add 'nocheck' to the DEB_BUILD_OPTIONS
-  - test -z "${HOST_ARCH}" || export DEB_BUILD_OPTIONS=nocheck${DEB_BUILD_OPTIONS:+ }${DEB_BUILD_OPTIONS}
+  - test -z "${HOST_ARCH}" || export DEB_BUILD_OPTIONS="nocheck ${DEB_BUILD_OPTIONS}"
 
   # Disable autogeneration of dbgsym packages. (See #273)
   - |
     if echo "$SALSA_CI_DISABLE_BUILD_DBGSYM" | grep -qE '^(1|yes|true)$'; then
-      export DEB_BUILD_OPTIONS=noautodbgsym ${DEB_BUILD_OPTIONS}
+      export DEB_BUILD_OPTIONS="noautodbgsym ${DEB_BUILD_OPTIONS}"
     fi
 
   # Enter source package dir
