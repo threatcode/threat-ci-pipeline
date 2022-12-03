@@ -7,7 +7,8 @@
 RUN \
 set -eux; \
 apt-get update --quiet; \
-eatmydata apt-get install --no-install-recommends --yes \
+apt-get upgrade --assume-yes --quiet; \
+eatmydata apt-get install --no-install-recommends --assume-yes \
     aptly \
     gettext-base \
     rng-tools \

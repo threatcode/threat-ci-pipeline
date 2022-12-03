@@ -5,6 +5,7 @@
 # this notice are preserved. This file is offered as-is, without any warranty.
 
 RUN apt-get update && \
+    apt-get upgrade -y && \
     eatmydata apt-get install -y \
         dnsmasq-base debci libvirt-clients libvirt-daemon-system libvirt-daemon-system-sysv \
         autopkgtest lxc wget && \

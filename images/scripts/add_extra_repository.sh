@@ -55,6 +55,7 @@ if [[ -n "${SALSA_CI_EXTRA_REPOSITORY}" ]]; then
             "${TARGET_ETC}"/apt/trusted.gpg.d/extra_repository.asc
     fi
     apt-get update
+    apt-get upgrade --assume-yes
     apt-get --assume-yes install ca-certificates
 fi
 

@@ -34,7 +34,8 @@ check license + contributor:
   variables:
     RELEASE: sid
   before_script:
-    - apt-get update && apt-get install -y licensecheck
+    - apt-get update && apt-get upgrade -y
+    - apt-get install -y licensecheck
   script:
     - PROBLEMS=0
     # check files without any license
@@ -67,7 +68,8 @@ check gpg signature:
     RELEASE: sid
     IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
   before_script:
-    - apt-get update && apt-get install -y --no-install-recommends debian-keyring dirmngr git gpg gpg-agent
+    - apt-get update && apt-get upgrade -y
+    - apt-get install -y --no-install-recommends debian-keyring dirmngr git gpg gpg-agent
   script:
     - mkdir -p ${HOME}/.gnupg
     - chmod 600 ${HOME}/.gnupg
@@ -89,7 +91,8 @@ check yaml lint:
   variables:
     RELEASE: sid
   before_script:
-    - apt-get update && apt-get install -y yamllint
+    - apt-get update && apt-get upgrade -y
+    - apt-get install -y yamllint
   script:
     - yamllint .
   rules:

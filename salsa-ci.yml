@@ -212,7 +212,7 @@ stages:
       sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/debian.sources
     fi
 
-  - apt-get update && eatmydata apt-get -y upgrade
+  - apt-get update && eatmydata apt-get upgrade -y
   - |
     eatmydata apt-get install --no-install-recommends -y \
       ccache \
@@ -566,7 +566,7 @@ stages:
     when: always
   script:
     - add_extra_repository.sh -v -e "${SALSA_CI_EXTRA_REPOSITORY}" -k "${SALSA_CI_EXTRA_REPOSITORY_KEY}"
-    - apt-get update && eatmydata apt-get -y upgrade
+    - apt-get update && eatmydata apt-get upgrade -y
     - eatmydata apt-get build-dep -y ${WORKING_DIR}/*.dsc
     - |
       if ! echo "${SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE}" | grep -q -E '^(1|yes|true)$'; then
