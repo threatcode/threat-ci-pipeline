@@ -13,7 +13,7 @@ recipes/debian.yml@salsa-ci-team/pipeline
 * [What does this pipeline gives to my project?](#what-does-this-pipeline-provide-for-my-projectpackage)
 * [Basic Use](#basic-use)
 * [Advanced Use](#advanced-use)
-* [Hacking](#hacking)
+* [Contributing](#Contributing)
 * [Support](#support)
 
 ## Introduction
@@ -569,23 +569,9 @@ Note that reprotest's faketime support is currently disabled, as it causes false
 positives on files touched by quilt. It will be re-enabled once this is fixed.
 https://salsa.debian.org/salsa-ci-team/pipeline/-/issues/251
 
-## Hacking
+## Contributing
 
-To contribute, forking the project and opening a merge request should be straight forward.
-
-Things to take into consideration:
-
-1. The branch name is used as a staging tag on the generated images.
-Because of this, slashes (`/`) are not allowed, otherwise CI will fail.
-Avoid branch names like `something/other`.
-
-1. Your fork should have 'Public' visibility for the pipeline to be shown on the merge request.
-
-1. Please sign your commits. Debian relies on OpenPGP to guarantee the
-authenticity and integrity of contributions.
-
-1. YAML files follow a two-space indentation. Scripts in other languages should
-follow their language-wide coding style.
+To contribute to this project, follow the detailed guidelines in the [CONTRIBUTING file](CONTRIBUTING.md)
 
 ### Allow images to be persistent
 
