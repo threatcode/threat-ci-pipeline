@@ -10,17 +10,17 @@ recipes/debian.yml@salsa-ci-team/pipeline
 
 ## Table of contents
 * [Introduction](#introduction)
-* [What does this pipeline gives to my project?](#what-does-this-pipeline-provide-for-my-projectpackage)
+* [What does this pipeline give to my project?](#what-does-this-pipeline-provide-for-my-projectpackage)
 * [Basic Use](#basic-use)
 * [Advanced Use](#advanced-use)
-* [Contributing](#Contributing)
+* [Contributing](#contributing)
 * [Support](#support)
 
 ## Introduction
 
-The Salsa CI Team work aims to improve the Debian packaging lifecycle by providing [Continuous Integration](https://about.gitlab.com/product/continuous-integration/) fully compatible with Debian packaging.
+The Salsa CI Team's work aims to improve the Debian packaging lifecycle by providing [Continuous Integration](https://about.gitlab.com/product/continuous-integration/) fully compatible with Debian packaging.
 
-Currently all the building and testing performed by Debian QA is run asynchronously and takes a long time to give feedback because it is only accessible after pushing a release to the archive.
+Currently, all the building and testing performed by Debian QA is run asynchronously and takes a long time to give feedback because it is only accessible after pushing a release to the archive.
 
 Our [pipeline](https://salsa.debian.org/help/ci/pipelines/index.md) definition is focused on speeding up this process by giving developers faster feedback.
 
@@ -49,7 +49,7 @@ To use the Salsa Pipeline, the first thing to do is to enable the project's Pipe
 Then, change the project's setting to make it point to the pipeline's config file.
 This can be done on `Settings` -> `CI/CD` (on the expanded menu, don't click on the CI / CD rocket) -> `General Pipelines` -> `CI/CD configuration file`.
 
-If the base pipeline configuration fits your needs without further modifications, the recommended way is to use `recipes/debian.yml@salsa-ci-team/pipeline` as config path, which refers to a file kept in the salsa-ci-team/pipeline repository.
+If the base pipeline configuration fits your needs without further modifications, the recommended way is to use `recipes/debian.yml@salsa-ci-team/pipeline` as the config path, which refers to a file kept in the salsa-ci-team/pipeline repository.
 
 On the other hand, if you want to use the base configuration and apply customizations on top, the recommended path to create this file is `debian/salsa-ci.yml`.
 It should contain at least the following lines:
@@ -100,7 +100,7 @@ The following releases are currently supported:
 
 ### Avoid running CI on certain branches
 
-It is possible to configure the pipeline to skip branches you don't want CI to be run on.
+It is possible to configure the pipeline to skip branches you don't want CI to run on.
 The `SALSA_CI_IGNORED_BRANCHES` variable can be set to a regex that will be compared against the ref name and will decide if a pipeline is created.
 
 By default, pipelines are only created for branches that contain a `debian/` folder.
@@ -203,7 +203,7 @@ reprotest:
 At times your job may fail because it reached its max duration (either job timeout, or runner timeout).
 In that case, the job would stop immediately without entering the `after_script` phase, and without saving the cache and without saving the artifacts.
 
-To prevent this, the build phase of the build job and the build phase of the reprotest job have a timeout of `2.75h` (the runner's timeout is 3h). This permits also to save the cache of ccache. That way, on the next run, there is more chance to finish the job since it can use ccache's cache.
+To prevent this, the build phase of the build job and the build phase of the reprotest job have a timeout of `2.75h` (the runner's timeout is 3h). This permits also saving the cache of ccache. That way, on the next run, there is more chance to finish the job since it can use ccache's cache.
 
 You can set the `SALSA_CI_BUILD_TIMEOUT_ARGS` variable to override this. The arguments can be any valid argument used by the `timeout` command. For example, you may set:
 
@@ -227,7 +227,7 @@ variables:
 
 ### Skipping the whole pipeline on push
 
-There may be reasons to skip the whole pipeline for a `git push`, for example when you are adding `salsa-ci.yml` to hundreds of repositories or doing other mass-changes.
+There may be reasons to skip the whole pipeline for a `git push`, for example when you are adding `salsa-ci.yml` to hundreds of repositories or doing other mass changes.
 
 You can achieve this in two ways:
 
@@ -249,7 +249,7 @@ used to add private apt repositories to the sources.list, to be
 used by the build and tests, and (optionally) the signing key for the
 repositories in armor format. These variables are of
 [type file](https://salsa.debian.org/help/ci/variables/index.md#cicd-variable-types),
-which ease the multiline handling, but have the disadvantage that they can't
+which eases the multiline handling, but have the disadvantage that they can't
 be set on the salsa-ci.yml file.
 
 ### Setting variables on pipeline creation
@@ -261,7 +261,7 @@ desired variables.
 [salsa_drive_build.py](https://salsa.debian.org/maxy/qt-kde-ci/blob/tooling/salsa_drive_build.py),
 in particular the function
 [launch_pipelines](https://salsa.debian.org/maxy/qt-kde-ci/blob/tooling/salsa_drive_build.py#L568).
- * Setting them as part of a pipeline triggered build.
+ * Setting them as part of a pipeline-triggered build.
 
 ### Only running selected jobs
 
@@ -316,7 +316,7 @@ Please consider if [skipping jobs](#skipping-a-job) meets your needs instead.
 
 ### Testing build of arch=any and arch=all packages
 
-If your package contains binary packages for `all` or `any`, you may want to test if those can be build in isolation from the full build normally done.
+If your package contains binary packages for `all` or `any`, you may want to test if those can be built in isolation from the full build normally done.
 
 This verifies the Debian buildds can build your package correctly when building for other architectures that the one you uploaded in or in case a binNMU is needed or you want to do source-only uploads.
 
@@ -336,7 +336,7 @@ test-build-all:
 
 ### Enable generation of dbgsym packages
 
-To reduce the size of the artifacts produced by the build jobs, auto generation
+To reduce the size of the artifacts produced by the build jobs, auto-generation
 of dbgsym packages is disabled by default. This behaviour can be controlled by
 the `SALSA_CI_DISABLE_BUILD_DBGSYM`. Set it to anything different than 1, 'yes'
 or 'true', to generate those packages.
@@ -352,7 +352,7 @@ The Lintian job can be customized to ignore certain tags.
 
 To ignore a tag, add it to the setting `SALSA_CI_LINTIAN_SUPPRESS_TAGS`.
 
-By default the Lintian jobs fails either if a Lintian run-time error occurs or if Lintian finds a tag of the error category.
+By default, the Lintian jobs fail either if a Lintian run-time error occurs or if Lintian finds a tag of the error category.
 
 To also fail the job on findings of the category warning, set `SALSA_CI_LINTIAN_FAIL_WARNING` to 1 (or "yes" or "true").
 
@@ -571,22 +571,12 @@ https://salsa.debian.org/salsa-ci-team/pipeline/-/issues/251
 
 ## Contributing
 
-To contribute to this project, follow the detailed guidelines in the [CONTRIBUTING file](CONTRIBUTING.md)
-
-### Allow images to be persistent
-
-By default all images are deleted when the pipeline is finished. This is to avoid images
-being created and stored in the registry when the project is forked.
-
-To disable this behavior set the `SALSA_CI_PERSIST_IMAGES` to 1, 'yes' or
-'true' on a CI variable (*CI/CD Settings*).
+The success of this project comes from meaningful contributions that are made by interested contributors like you. If you want to contribute to this project, follow the detailed guidelines in the [CONTRIBUTING file](CONTRIBUTING.md)
 
 ## Support
 
 We have different support media:
 
 * IRC: \#salsaci @ OFTC
-* Mailing list: [debian-salsa-ci _at_ alioth-lists.debian.net](mailto:debian-salsa-ci _at_ alioth-lists.debian.net)
+* Mailing list: [debian-salsa-ci_at_alioth-lists.debian.net](mailto:debian-salsa-ci_at_alioth-lists.debian.net)
 * [Issue tracker](https://salsa.debian.org/salsa-ci-team/pipeline/issues)
-
-:-)
