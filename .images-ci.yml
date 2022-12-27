@@ -24,7 +24,11 @@ stages:
       fi
     - |
       if [ -z ${BASE_IMAGE} ]; then
-        BASE_IMAGE=${VENDOR}:${RELEASE}
+        if [ ${VENDOR} = kali ]; then
+          BASE_IMAGE=${RELEASE}:latest
+        else
+          BASE_IMAGE=${VENDOR}:${RELEASE}
+        fi
       fi
     - IMAGE_NAME_WITH_TAG=${IMAGE_NAME}:${RELEASE}${STAGING_TAG}
     - |

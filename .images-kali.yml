@@ -9,7 +9,6 @@ include:
 
 variables:
   VENDOR: kali
-  BASE_IMAGE: "debian:testing"
 
 # Images built on main branch
 images-prod:
