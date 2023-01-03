@@ -27,8 +27,14 @@ stages:
         STAGING_TAG="_${CI_COMMIT_REF_NAME}"
       fi
     - |
-      if [ -z ${BASE_IMAGE} ]; then
-        BASE_IMAGE=${VENDOR}:${RELEASE}
+      # Set BASE_IMAGE, unless already set.
+      if [ -z "${BASE_IMAGE}" ]; then
+        case "${VENDOR}" in
+          kali) BASE_IMAGE=kalilinux/${RELEASE}:${ARCH} ;;
+          *) BASE_IMAGE=${ARCH}/${VENDOR}:${RELEASE} ;;
+        esac
+      else
+        BASE_IMAGE=${ARCH}/${BASE_IMAGE}
       fi
     - IMAGE_NAME_WITH_TAG=${IMAGE_NAME}:${RELEASE}${STAGING_TAG}
     - |
@@ -78,7 +84,6 @@ stages:
         --build-arg VENDOR=${VENDOR} \
         --build-arg RELEASE=${RELEASE} \
         --build-arg BASE_IMAGE=${BASE_IMAGE} \
-        --build-arg ARCH=${ARCH} \
         --destination ${IMAGE_URL} \
         ${ALIASES_DESTINATION} \
         --cache=false  # Do not use cache. See 7788516d
