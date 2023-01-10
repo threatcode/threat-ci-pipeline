@@ -38,7 +38,7 @@ check license + contributor:
   script:
     - PROBLEMS=0
     # check files without any license
-    - BAD_FILES=$(licensecheck -r . | grep -Ev '(images/files)|(images/patches)|(README.md)|(CONTRIBUTORS)' | grep UNKNOWN) || true
+    - BAD_FILES=$(licensecheck -r . | grep -Ev '(images/files)|(images/patches)|(README.md)|(CONTRIBUTING.md)|(CONTRIBUTORS)'| grep UNKNOWN) || true
     - |
       [ -z "$BAD_FILES" ] || \
       (echo "ERROR: Missing license statement in the following files:"; \
