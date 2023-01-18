@@ -8,7 +8,7 @@
 variables:
   VENDOR: 'kali'
   RELEASE: 'kali-dev'
-  SALSA_CI_MIRROR: 'http://http.kali.org/kali'
+  SALSA_CI_MIRROR: 'http://kali.download/kali'
   SALSA_CI_COMPONENTS: 'main contrib non-free non-free-firmware'
   SALSA_CI_IMAGES: 'registry.gitlab.com/kalilinux/tools/kali-ci-pipeline'
   SALSA_CI_AUTOPKGTEST_LXC: 'https://gitlab.com/kalilinux/tools/kali-ci-autopkgtest-lxc'
