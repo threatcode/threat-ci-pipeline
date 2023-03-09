@@ -21,8 +21,8 @@ clear_apt_sources() {
 }
 
 add_apt_sources() {
-    for RELEASE in "$@"; do
-	echo "deb $MIRROR $RELEASE ${COMPONENTS:-main}"
+    for rel in "$@"; do
+	echo "deb $MIRROR $rel ${COMPONENTS:-main}"
     done >>/etc/apt/sources.list
 }
 
