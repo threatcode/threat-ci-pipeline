@@ -16,10 +16,14 @@ configure_apt() {
     echo "Acquire::Retries 5;" > /etc/apt/apt.conf.d/salsa-ci
 }
 
-configure_apt_sources() {
+clear_apt_sources() {
+    : > /etc/apt/sources.list
+}
+
+add_apt_sources() {
     for RELEASE in "$@"; do
 	echo "deb $MIRROR $RELEASE ${COMPONENTS:-main}"
-    done >/etc/apt/sources.list
+    done >>/etc/apt/sources.list
 }
 
 apt_update() {
@@ -88,7 +92,8 @@ case "$VENDOR" in
 	esac
 	MIRROR=http://http.kali.org/kali
 	COMPONENTS="main contrib non-free"
-	configure_apt_sources $RELEASE $EXTRA_RELEASE
+	clear_apt_sources
+	add_apt_sources $RELEASE $EXTRA_RELEASE
 	apt_update
 	apt_install kali-archive-keyring
 	remove_apt_key
