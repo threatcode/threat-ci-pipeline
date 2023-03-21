@@ -405,7 +405,7 @@ stages:
     - *build-before-script
     - LOCAL_ARCH=$(dpkg --print-architecture)
     - |
-      if egrep -q "^Architecture:.*(any|[^\!]${LOCAL_ARCH})" debian/control; then
+      if grep -qE "^Architecture:.*(any|[^\!]${LOCAL_ARCH})" debian/control; then
         DB_BUILD_TYPE="any"
       else
         echo "###########################################"
@@ -479,7 +479,7 @@ stages:
   script:
     - *build-before-script
     - |
-      if test -n ${HOST_ARCH} && egrep -q "^Architecture:.*(any|[^\!]${HOST_ARCH})" debian/control; then
+      if test -n ${HOST_ARCH} && grep -qE "^Architecture:.*(any|[^\!]${HOST_ARCH})" debian/control; then
         DB_BUILD_TYPE="any"
       else
         echo "###########################################"
