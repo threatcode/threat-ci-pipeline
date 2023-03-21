@@ -432,7 +432,6 @@ stages:
   stage: test
   script:
     - *build-before-script
-    - LOCAL_ARCH=$(dpkg --print-architecture)
     - |
       if grep -q "^Architecture: all" debian/control; then
         DB_BUILD_TYPE="all"
