@@ -445,7 +445,7 @@ stages:
         echo "variables:"
         echo "  SALSA_CI_DISABLE_BUILD_PACKAGE_ALL: '1'"
         mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
-        exit 0;
+        exit 0
       fi
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
