@@ -202,9 +202,6 @@ stages:
   - mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
   - add_extra_repository.sh -v -e "${SALSA_CI_EXTRA_REPOSITORY}" -k "${SALSA_CI_EXTRA_REPOSITORY_KEY}"
 
-  # are we cross-compiling? if not, unset HOST_ARCH
-  - test "${BUILD_ARCH}" != "${HOST_ARCH}" || HOST_ARCH=""
-
 .build-script: &build-script
   - export CCACHE_DIR=${CCACHE_TMP_DIR}
 
