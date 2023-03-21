@@ -409,8 +409,8 @@ stages:
         DB_BUILD_TYPE="any"
       else
         echo "###########################################"
-        echo "### No binary package of type any or ${LOCAL_ARCH} found"
-        echo "### Stopping test-build-any test."
+        echo "### No binary package of type any or ${LOCAL_ARCH} found."
+        echo "### Stopping ${CI_JOB_NAME} test."
         echo "###########################################"
         echo "You should disable this job via:"
         echo "variables:"
@@ -437,8 +437,8 @@ stages:
         DB_BUILD_TYPE="all"
       else
         echo "###########################################"
-        echo "### No binary package of type all found"
-        echo "### Stopping test-build-all test."
+        echo "### No binary package of type all found."
+        echo "### Stopping ${CI_JOB_NAME} test."
         echo "###########################################"
         echo "You should disable this job via:"
         echo "variables:"
@@ -482,7 +482,7 @@ stages:
         DB_BUILD_TYPE="any"
       else
         echo "###########################################"
-        echo "### No binary package of type any or ${HOST_ARCH} found"
+        echo "### No binary package of type any or ${HOST_ARCH} found."
         echo "### Stopping ${CI_JOB_NAME} test."
         echo "###########################################"
         echo "You should disable this job via:"
