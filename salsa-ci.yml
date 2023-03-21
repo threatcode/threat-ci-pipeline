@@ -396,7 +396,6 @@ stages:
     - .build-definition
   stage: test
   script:
-    - *build-before-script
     - cd ${WORKING_DIR}/${SOURCE_DIR}
     - LOCAL_ARCH=$(dpkg --print-architecture)
     - |
@@ -410,10 +409,10 @@ stages:
         echo "You should disable this job via:"
         echo "variables:"
         echo "  SALSA_CI_DISABLE_BUILD_PACKAGE_ANY: '1'"
-        mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
         exit 0
       fi
     - cd ${OLDPWD}
+    - *build-before-script
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   rules:
@@ -427,7 +426,6 @@ stages:
     - .build-definition
   stage: test
   script:
-    - *build-before-script
     - cd ${WORKING_DIR}/${SOURCE_DIR}
     - |
       if grep -q "^Architecture: all" debian/control; then
@@ -440,10 +438,10 @@ stages:
         echo "You should disable this job via:"
         echo "variables:"
         echo "  SALSA_CI_DISABLE_BUILD_PACKAGE_ALL: '1'"
-        mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
         exit 0
       fi
     - cd ${OLDPWD}
+    - *build-before-script
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   rules:
@@ -474,7 +472,6 @@ stages:
     - .build-definition
   stage: test
   script:
-    - *build-before-script
     - cd ${WORKING_DIR}/${SOURCE_DIR}
     - |
       if test -n "${HOST_ARCH}" && grep -qE "^Architecture:.*(any|[^\!]${HOST_ARCH})" debian/control; then
@@ -487,10 +484,10 @@ stages:
         echo "You should disable this job via:"
         echo "variables:"
         echo "  SALSA_CI_DISABLE_CROSSBUILD_ARM64: '1'"
-        mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
         exit 0
       fi
     - cd ${OLDPWD}
+    - *build-before-script
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   variables:
