@@ -478,7 +478,7 @@ stages:
   script:
     - *build-before-script
     - |
-      if test -n ${HOST_ARCH} && grep -qE "^Architecture:.*(any|[^\!]${HOST_ARCH})" debian/control; then
+      if test -n "${HOST_ARCH}" && grep -qE "^Architecture:.*(any|[^\!]${HOST_ARCH})" debian/control; then
         DB_BUILD_TYPE="any"
       else
         echo "###########################################"
