@@ -403,6 +403,7 @@ stages:
   stage: test
   script:
     - *build-before-script
+    - cd ${WORKING_DIR}/${SOURCE_DIR}
     - LOCAL_ARCH=$(dpkg --print-architecture)
     - |
       if grep -qE "^Architecture:.*(any|[^\!]${LOCAL_ARCH})" debian/control; then
@@ -418,6 +419,7 @@ stages:
         mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
         exit 0
       fi
+    - cd ${OLDPWD}
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   rules:
@@ -432,6 +434,7 @@ stages:
   stage: test
   script:
     - *build-before-script
+    - cd ${WORKING_DIR}/${SOURCE_DIR}
     - |
       if grep -q "^Architecture: all" debian/control; then
         DB_BUILD_TYPE="all"
@@ -446,6 +449,7 @@ stages:
         mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
         exit 0
       fi
+    - cd ${OLDPWD}
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   rules:
@@ -477,6 +481,7 @@ stages:
   stage: test
   script:
     - *build-before-script
+    - cd ${WORKING_DIR}/${SOURCE_DIR}
     - |
       if test -n "${HOST_ARCH}" && grep -qE "^Architecture:.*(any|[^\!]${HOST_ARCH})" debian/control; then
         DB_BUILD_TYPE="any"
@@ -491,6 +496,7 @@ stages:
         mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
         exit 0
       fi
+    - cd ${OLDPWD}
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   variables:
