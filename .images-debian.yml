@@ -34,7 +34,9 @@ images-prod:
           - amd64
         RELEASE: *all-supported-releases
       # All releases only amd64
-      - IMAGE_NAME: generic_tests
+      - IMAGE_NAME:
+          - generic_tests
+          - lintian
         ARCH: amd64
         RELEASE: *all-supported-releases
       # Images in sid only amd64
@@ -43,7 +45,6 @@ images-prod:
           - autopkgtest
           - blhc
           - gbp
-          - lintian
           - piuparts
           - reprotest
         ARCH: amd64
