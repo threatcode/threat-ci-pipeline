@@ -11,6 +11,24 @@ RELEASE=$2
 
 set -x
 
+fix_apt_sources_for_archived_releases() {
+    # Only for Debian's archived releases
+    if ! grep -E -q "^deb .* (jessie|stretch) " /etc/apt/sources.list; then
+	return
+    fi
+
+    # Update mirror url to point to archive.debian.org
+    sed -E -i "s/(deb|security)\.debian\.org/archive.debian.org/" \
+	/etc/apt/sources.list
+    if [ -e /etc/apt/sources.list.d/backports.list ]; then
+	sed -E -i "s/deb\.debian\.org/archive.debian.org/" \
+	    /etc/apt/sources.list.d/backports.list
+    fi
+
+    # Drop the updates suite, as it's not present in archive.d.o
+    sed -E -i '/^deb .* [a-z]+-updates /d' /etc/apt/sources.list
+}
+
 configure_apt() {
     # Try to not fail with temporary network issues
     echo "Acquire::Retries 5;" > /etc/apt/apt.conf.d/salsa-ci
@@ -70,6 +88,7 @@ fix_vendor_symlink() {
 }
 
 # Main code
+fix_apt_sources_for_archived_releases
 configure_apt
 apt_update
 apt_install eatmydata
