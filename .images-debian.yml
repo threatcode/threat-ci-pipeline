@@ -9,6 +9,8 @@ include:
 
 variables:
   VENDOR: debian
+  DEBIAN_MIRROR: "https://deb.debian.org/debian"
+  DEBIAN_ARCHIVE_MIRROR: "https://archive.debian.org/debian"
 
 .all-supported-releases: &all-supported-releases
   - stretch
