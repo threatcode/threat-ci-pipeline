@@ -44,7 +44,7 @@ stages:
       if [ "${CI_COMMIT_REF_NAME}" = "master" ]; then
         case "$VENDOR" in
           debian)
-            if [[ "$RELEASE" =~ ^stretch.* ]]; then
+            if [[ "$RELEASE" =~ ^stretch.* ]]; then
               MIRROR=${DEBIAN_ARCHIVE_MIRROR}
             else
               MIRROR=${DEBIAN_MIRROR}
