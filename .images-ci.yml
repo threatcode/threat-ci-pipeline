@@ -44,11 +44,14 @@ stages:
       if [ "${CI_COMMIT_REF_NAME}" = "master" ]; then
         case "$VENDOR" in
           debian)
-            if [[ "$RELEASE" =~ ^stretch.* ]]; then
-              MIRROR=${DEBIAN_ARCHIVE_MIRROR}
-            else
-              MIRROR=${DEBIAN_MIRROR}
-            fi
+            case "$RELEASE" in
+              stretch*)
+                MIRROR=${DEBIAN_ARCHIVE_MIRROR}
+              ;;
+              *)
+                MIRROR=${DEBIAN_MIRROR}
+              ;;
+            esac
             ALIASES=$(wget -O - ${MIRROR}/dists/${RELEASE}/Release | awk "/^Suite:/ { if (\$2 !~ /${RELEASE}/) print \$2 }")
             test "$ALIASES" != 'unstable' || ALIASES="${ALIASES} latest"
           ;;
