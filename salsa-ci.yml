@@ -124,6 +124,8 @@ stages:
   script:
     - mkdir -p ${WORKING_DIR}
 
+    - gbp setup-gitattributes
+
     - gbp pull --ignore-branch --pristine-tar --track-missing
 
     - apt-get update && eatmydata apt-get upgrade -y
