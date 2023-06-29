@@ -124,7 +124,7 @@ stages:
   script:
     - mkdir -p ${WORKING_DIR}
 
-    - gbp setup-gitattributes
+    - test -r .gitattributes && gbp setup-gitattributes
 
     - gbp pull --ignore-branch --pristine-tar --track-missing
 
