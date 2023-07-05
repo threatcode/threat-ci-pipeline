@@ -21,6 +21,7 @@ variables:
   - bullseye-backports
   - bookworm
   - bookworm-backports
+  - trixie
   - sid
   - experimental
 
