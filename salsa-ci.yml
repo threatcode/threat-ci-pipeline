@@ -276,7 +276,7 @@ stages:
   - ccache -z
 
   # Create salsaci user and fix permissions
-  - useradd salsaci
+  - useradd --create-home salsaci
   - chown -R salsaci. ${WORKING_DIR} ${CCACHE_DIR}
 
   # Define buildlog filename
