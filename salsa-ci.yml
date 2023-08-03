@@ -759,7 +759,10 @@ stages:
     - export GPG_TTY=$(tty)
     - export PUBKEY_BINARY_FILENAME=${PUBKEY_FILENAME%.asc}.gpg
     - aptly repo create -distribution ${RELEASE} -component main ${CI_PROJECT_NAME}
-    - aptly repo add ${CI_PROJECT_NAME} "${WORKING_DIR}"
+    # this can deal with multiple $WORKING_DIR* directories,
+    # Thus, if one `needs:` more than just the build job, one can then insert additional packages.
+    # One just has to make sure that each such job adds a differing suffix
+    - for d in "${WORKING_DIR}"*; do aptly repo add ${CI_PROJECT_NAME} "$d"; done
     - aptly repo show -with-packages ${CI_PROJECT_NAME}
     # accept miss-spelled var for backwards-compatibility (see https://salsa.debian.org/salsa-ci-team/pipeline/issues/114)
     - export SALSA_CI_APTLY_GPG_PASSPHRASE="${SALSA_CI_APTLY_GPG_PASSPHRASE:=${SALSA_CI_APTLY_GPG_PASSPHASE}}"
