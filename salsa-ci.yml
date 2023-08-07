@@ -7,23 +7,23 @@
 
 workflow:
   rules:
-    # If the branch matches the ones it should not run on, ignore it.
+    # If the branch matches the ones it should not run on, ignore it
     - if: $SALSA_CI_IGNORED_BRANCHES && $CI_COMMIT_REF_NAME =~ $SALSA_CI_IGNORED_BRANCHES
       when: never
     # Avoid running on gbp pq's patch-queue branches
     - if: $CI_COMMIT_REF_NAME =~ /^patch-queue\/.*/
       when: never
-    # Avoid duplicated pipelines, do not run detached pipelines.
+    # Avoid duplicated pipelines, do not run detached pipelines
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: never
     # Do not create a pipeline for tags unless SALSA_CI_ENABLE_PIPELINE_ON_TAGS is set
     - if: $CI_COMMIT_TAG != null && $SALSA_CI_ENABLE_PIPELINE_ON_TAGS !~ /^(1|yes|true)$/
       when: never
-    # Otherwise, if there's a debian/ folder, run.
+    # Otherwise, if there's a debian/ folder, run
     - exists:
         - debian/**
       when: always
-    # Fallback to not running.
+    # Fallback to not running
     - when: never
 
 variables:
@@ -574,7 +574,7 @@ stages:
           grep -q '^W: ' lintian.output && ECODE=3
         fi
     - lintian2junit.py --lintian-file lintian.output > ${WORKING_DIR}/lintian.xml
-    # 🗂️ Generate HTML report.
+    # 🗂️ Generate HTML report
     - lintian --suppress-tags "${SALSA_CI_LINTIAN_SUPPRESS_TAGS}"  --display-info --pedantic --allow-root ${SALSA_CI_LINTIAN_SHOW_OVERRIDES_ARG} --exp-output format=html ${WORKING_DIR}/*.changes > ${WORKING_DIR}/lintian.html || true
     - exit ${ECODE-0}
   variables:
