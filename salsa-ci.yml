@@ -238,7 +238,7 @@ stages:
 .build-script: &build-script
   - export CCACHE_DIR=${CCACHE_TMP_DIR}
 
-  # add target architecture if cross-compiliing
+  # add target architecture if cross-compiling
   - test -z "${HOST_ARCH}" || dpkg --add-architecture ${HOST_ARCH}
 
   # Add deb-src entries
