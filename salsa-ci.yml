@@ -128,7 +128,7 @@ stages:
   variables:
     DB_BUILD_PARAM: ${SALSA_CI_DPKG_BUILDPACKAGE_ARGS}
   script:
-    - mkdir -p ${WORKING_DIR}
+    - mkdir -vp ${WORKING_DIR}
 
     - test -r .gitattributes && gbp setup-gitattributes
 
@@ -149,7 +149,7 @@ stages:
         if ! gbp export-orig --tarball-dir=${WORKING_DIR}; then
           # Fallback using origtargz
           origtargz -dt
-          cp ../*orig*tar* ${WORKING_DIR}
+          cp -v ../*orig*tar* ${WORKING_DIR}
           SALSA_CI_GBP_BUILDPACKAGE_ARGS="--git-overlay ${SALSA_CI_GBP_BUILDPACKAGE_ARGS}"
         fi
 
@@ -179,7 +179,7 @@ stages:
         exit 1
       fi
 
-    - mv ${DEBIANIZED_SOURCE} ${SOURCE_DIR}
+    - mv -v ${DEBIANIZED_SOURCE} ${SOURCE_DIR}
 
     # Print size of artifacts
     - du -sh
@@ -225,14 +225,14 @@ stages:
 
 .build-before-script: &build-before-script
   # salsa-ci-team/pipeline#107
-  - rm -rf ${CI_PROJECT_DIR}/debian/output/.ccache
+  - rm -vrf ${CI_PROJECT_DIR}/debian/output/.ccache
 
-  - mkdir -p ${WORKING_DIR} ${CCACHE_WORK_DIR}
+  - mkdir -vp ${WORKING_DIR} ${CCACHE_WORK_DIR}
 
   # https://salsa.debian.org/salsa-ci-team/pipeline/-/merge_requests/230
-  - rm -rf ${CCACHE_TMP_DIR}
+  - rm -vrf ${CCACHE_TMP_DIR}
 
-  - mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
+  - mv -v ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
   - add_extra_repository.sh -v -e "${SALSA_CI_EXTRA_REPOSITORY}" -k "${SALSA_CI_EXTRA_REPOSITORY_KEY}"
 
 .build-script: &build-script
@@ -363,7 +363,7 @@ stages:
   script:
     - *build-before-script
     - *build-script
-    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+    - mv -v ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   dependencies:
     - extract-source
 
@@ -432,7 +432,7 @@ stages:
     - *check-architecture-is-buildable
     - *build-before-script
     - *build-script
-    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+    - mv -v ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
 
 .test-build-package-any: &test-build-package-any
   extends:
@@ -464,7 +464,7 @@ stages:
     - *build-before-script
     - LOCAL_ARCH=$(dpkg --print-architecture)
     - *build-script
-    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+    - mv -v ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   variables:
     BUILD_TWICE: 'true'
   rules:
@@ -500,7 +500,7 @@ stages:
     - LXC_JOB_NAME="${RELEASE}"
     - test "${LOCAL_ARCH}" = "amd64" || LXC_JOB_NAME="${RELEASE}_${LOCAL_ARCH}"
     - wget --progress=dot:giga ${SALSA_CI_AUTOPKGTEST_LXC}/-/jobs/artifacts/master/raw/artifacts/lxc-${LOCAL_ARCH}.tar?job=${LXC_JOB_NAME} -O lxc.tar
-    - mkdir -p ${SCI_LXC_PATH} && tar xf lxc.tar -C ${SCI_LXC_PATH}
+    - mkdir -vp ${SCI_LXC_PATH} && tar xf lxc.tar -C ${SCI_LXC_PATH}
     - sed -i "/lxc.rootfs.path/ s@dir:.*/lxc/@dir:${SCI_LXC_PATH}/@" ${SCI_LXC_PATH}/autopkgtest-${RELEASE}-${LOCAL_ARCH}/config
     - |
       cat >/etc/lxc/lxc.conf <<EOT
@@ -516,7 +516,7 @@ stages:
     # su's -P is required to have ownership over /dev/stderr, /dev/stdout and
     # /dev/stdin, and then fix #256
     - su -P debci -c "debci localtest $WORKING_DIR/*.changes --suite ${RELEASE} --logs-dir ${DEBCI_LOG_PATH}" || ( ret=$?; [ $ret -eq 8 ] || [ $ret -eq 2 ] )
-    - rm -rf ${WORKING_DIR}/debci/binaries
+    - rm -vrf ${WORKING_DIR}/debci/binaries
   variables:
     GIT_STRATEGY: fetch
     SCI_LXC_PATH: ${CI_PROJECT_DIR}/lxc
@@ -648,11 +648,11 @@ stages:
     - CONTAINER_ID=$(docker run --rm -d "${SALSA_CI_IMAGES_BASE}" sleep infinity)
     - docker exec ${CONTAINER_ID} bash -c "apt-get update && apt-get upgrade -y"
     - docker exec ${CONTAINER_ID} bash -c "apt-get install eatmydata -y"
-    - mkdir -p ${CHROOT_PATH}
+    - mkdir -vp ${CHROOT_PATH}
     - docker export ${CONTAINER_ID} | tar -C ${CHROOT_PATH} -xf -
     - mknod -m 666 ${CHROOT_PATH}/dev/urandom c 1 9
-    - mkdir -p /srv/local-apt-repository/ && cp -a ${WORKING_DIR}/*.deb /srv/local-apt-repository/ && /usr/lib/local-apt-repository/rebuild
-    - mkdir -p ${CHROOT_PATH}/etc-target/apt/sources.list.d ${CHROOT_PATH}/etc-target/apt/preferences.d
+    - mkdir -vp /srv/local-apt-repository/ && cp -av ${WORKING_DIR}/*.deb /srv/local-apt-repository/ && /usr/lib/local-apt-repository/rebuild
+    - mkdir -vp ${CHROOT_PATH}/etc-target/apt/sources.list.d ${CHROOT_PATH}/etc-target/apt/preferences.d
     - cp -Hv /etc/apt/sources.list.d/local-apt-repository.list ${CHROOT_PATH}/etc-target/apt/sources.list.d/
     - cp -aTLv /etc/apt/preferences.d  ${CHROOT_PATH}/etc-target/apt/preferences.d
     - cp -aTLv /srv/local-apt-repository ${CHROOT_PATH}/srv/local-apt-repository
@@ -765,8 +765,8 @@ stages:
         ${SALSA_CI_APTLY_GPG_PASSPHRASE:+ -passphrase="${SALSA_CI_APTLY_GPG_PASSPHRASE}"} \
         ${CI_PROJECT_NAME}
     - |
-      mkdir -p "${CI_PROJECT_DIR}/${REPO_PATH}"
-        cp -a ~/.aptly/public/. "${CI_PROJECT_DIR}/${REPO_PATH}"
+      mkdir -vp "${CI_PROJECT_DIR}/${REPO_PATH}"
+        cp -av ~/.aptly/public/. "${CI_PROJECT_DIR}/${REPO_PATH}"
         mv "${PUBKEY_FILENAME}" "${CI_PROJECT_DIR}/${REPO_PATH}/${PUBKEY_FILENAME}"
         mv "${PUBKEY_BINARY_FILENAME}" "${CI_PROJECT_DIR}/${REPO_PATH}/${PUBKEY_BINARY_FILENAME}"
         envsubst < /etc/aptly/index.html.template > "${CI_PROJECT_DIR}/${REPO_PATH}/index.html"
