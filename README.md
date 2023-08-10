@@ -176,6 +176,21 @@ variables:
   SALSA_CI_DISABLE_CROSSBUILD_ARM64: 1
 ```
 
+Alternatively, it is possible to disable all tests, and then enable only the
+ones you want, which is good when testing a specific test:
+
+```yaml
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+# This sample disables all default tests, and then enables just autopkgtest
+variables:
+  SALSA_CI_DISABLE_ALL_TESTS: 1
+  SALSA_CI_ENABLE_AUTOPKGTEST: 1
+```
+
 ### Disabling building on i386
 The `build i386` job builds packages against the 32-bit x86 architecture. If for any reason you need to skip this job, set the `SALSA_CI_DISABLE_BUILD_PACKAGE_I386` in the variables' block to `1`, '`yes`' or '`true`'.  i.e;
 
