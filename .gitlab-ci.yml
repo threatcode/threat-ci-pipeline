@@ -132,7 +132,7 @@ clean images:
   services:
     - docker:20.10.12-dind
   variables:
-    IMAGES_LIST: 'aptly autopkgtest base arm32v5/base arm32v7/base arm64v8/base i386/base blhc gbp piuparts reprotest lintian generic_tests'
+    IMAGES_LIST: 'aptly autopkgtest base armel/base armhf/base arm64/base i386/base blhc gbp piuparts reprotest lintian generic_tests'
     RELEASE: kali-dev
   before_script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
