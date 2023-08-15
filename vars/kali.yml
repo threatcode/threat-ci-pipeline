@@ -24,3 +24,5 @@ variables:
   SALSA_CI_DISABLE_BUILD_PACKAGE_ARMEL: 0
   SALSA_CI_DISABLE_BUILD_PACKAGE_ARMHF: 0
   SALSA_CI_DISABLE_BUILD_PACKAGE_ARM64: 0
+  # gitlab.com maximum artifacts size is higher than salsa.debian.org
+  SALSA_CI_MAX_ARTIFACTS_SIZE: 1024000 # 1000 MiB
