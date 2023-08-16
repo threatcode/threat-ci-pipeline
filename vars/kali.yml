@@ -13,3 +13,5 @@ variables:
   SALSA_CI_IMAGES: 'registry.gitlab.com/kalilinux/tools/kali-ci-pipeline'
   SALSA_CI_AUTOPKGTEST_LXC: 'https://gitlab.com/kalilinux/tools/kali-ci-autopkgtest-lxc'
   SALSA_CI_PIUPARTS_ARGS: '--defaults debian --keyring /usr/share/keyrings/kali-archive-keyring.gpg'
+  # We don't crossbuild Kali packages
+  SALSA_CI_DISABLE_CROSSBUILD_ARM64: 1
