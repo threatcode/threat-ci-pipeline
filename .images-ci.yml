@@ -10,7 +10,7 @@ stages:
 .build_template: &build_template
   stage: images
   image:
-    name: gcr.io/kaniko-project/executor:v1.7.0-debug
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
   before_script:
     - mkdir -p /kaniko/.docker
