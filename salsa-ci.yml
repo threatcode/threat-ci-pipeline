@@ -424,6 +424,16 @@ stages:
     DB_BUILD_TYPE: source
     SALSA_CI_DISABLE_VERSION_BUMP: 1
 
+.test-build-package: &test-build-package
+  stage: test
+  extends:
+    - .build-definition
+  script:
+    - *check-architecture-is-buildable
+    - *build-before-script
+    - *build-script
+    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+
 .test-build-package-any: &test-build-package-any
   extends:
     - .build-definition
