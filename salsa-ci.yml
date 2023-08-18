@@ -436,15 +436,9 @@ stages:
 
 .test-build-package-any: &test-build-package-any
   extends:
-    - .build-definition
-  stage: test
+    - .test-build-package
   variables:
     DB_BUILD_TYPE: any
-  script:
-    - *check-architecture-is-buildable
-    - *build-before-script
-    - *build-script
-    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   rules:
     - if: $SALSA_CI_ENABLE_BUILD_PACKAGE_ANY =~ /^(1|yes|true)$/
     - if: $SALSA_CI_DISABLE_ALL_TESTS =~ /^(1|yes|true)$/
@@ -453,15 +447,9 @@ stages:
 
 .test-build-package-all: &test-build-package-all
   extends:
-    - .build-definition
-  stage: test
+    - .test-build-package
   variables:
     DB_BUILD_TYPE: all
-  script:
-    - *check-architecture-is-buildable
-    - *build-before-script
-    - *build-script
-    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   rules:
     - if: $SALSA_CI_ENABLE_BUILD_PACKAGE_ALL =~ /^(1|yes|true)$/
     - if: $SALSA_CI_DISABLE_ALL_TESTS =~ /^(1|yes|true)$/
@@ -487,16 +475,10 @@ stages:
 
 .test-crossbuild-package-arm64: &test-crossbuild-package-arm64
   extends:
-    - .build-definition
-  stage: test
+    - .test-build-package
   variables:
     DB_BUILD_TYPE: any
     HOST_ARCH: arm64
-  script:
-    - *check-architecture-is-buildable
-    - *build-before-script
-    - *build-script
-    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   rules:
     - if: $BUILD_ARCH == $HOST_ARCH
       when: never
