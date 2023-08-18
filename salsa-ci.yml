@@ -194,19 +194,19 @@ stages:
   - cd ${WORKING_DIR}/${SOURCE_DIR}
   - |
     if [ "${DB_BUILD_TYPE}" = all ]; then
-      pattern="^Architecture: all"
+      pattern="all"
     elif [ "${DB_BUILD_TYPE}" = any ]; then
       if [ -n "${HOST_ARCH}" ]; then
-        pattern="^Architecture:.*(any|[^\!]${HOST_ARCH})"
+        pattern=".*(any|[^\!]${HOST_ARCH})"
       else
-        pattern="^Architecture:.*(any|[^\!]$(dpkg --print-architecture))"
+        pattern=".*(any|[^\!]$(dpkg --print-architecture))"
       fi
     else
       echo "Error: Unexpected DB_BUILD_TYPE: ${DB_BUILD_TYPE}."
       exit 1
     fi
   - |
-    if ! grep -qE "${pattern}" debian/control; then
+    if ! grep -qE "^Architecture:\s*${pattern}" debian/control; then
       echo "###########################################"
       echo "### No binary package matched: '${pattern}'."
       echo "### Stopping ${CI_JOB_NAME} test."
