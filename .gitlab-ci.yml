@@ -79,6 +79,7 @@ check gpg signature:
     - echo "keyring /usr/share/keyrings/debian-maintainers.gpg" >> ${HOME}/.gnupg/gpg.conf
     - echo "keyring /usr/share/keyrings/debian-nonupload.gpg" >> ${HOME}/.gnupg/gpg.conf
     - echo "keyserver hkps://keyserver.ubuntu.com:443" >> ${HOME}/.gnupg/gpg.conf
+    - echo "keyserver hkps://keys.openpgp.org:443" >> ${HOME}/.gnupg/gpg.conf
     - echo "auto-key-retrieve" >> ${HOME}/.gnupg/gpg.conf
     - SIGNING_KEY=$(git log --show-signature HEAD~1..HEAD | grep "using.*key" | awk '{print $NF}')
     - gpg --recv-key $SIGNING_KEY
