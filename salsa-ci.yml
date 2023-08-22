@@ -95,6 +95,7 @@ variables:
   # Backward compatibility
   SALSA_CI_EXTRA_REPOSITORY: ${EXTRA_REPOSITORY}
   SALSA_CI_EXTRA_REPOSITORY_KEY: ${EXTRA_REPOSITORY_KEY}
+  SALSA_CI_MAX_ARTIFACTS_SIZE: 256000 # 250MB
   PYTHONIOENCODING: utf-8
 
 stages:
@@ -174,6 +175,15 @@ stages:
       fi
 
     - mv ${DEBIANIZED_SOURCE} ${SOURCE_DIR}
+
+    # Print size of artifacts
+    - du -sh
+
+    # Warn if job artifacts size limit exceeded
+    - |
+      if [ "$(du -s | cut -f1)" -gt ${SALSA_CI_MAX_ARTIFACTS_SIZE} ]; then
+        echo -e "\e[91m WARNING: job artifacts exceed the size limit of $(( ${SALSA_CI_MAX_ARTIFACTS_SIZE} / 1024 ))MB which may prevent the job to succeed.\e[39m"
+      fi
 
 .build-before-script: &build-before-script
   # Reported in https://salsa.debian.org/salsa-ci-team/pipeline/issues/104,
@@ -302,10 +312,10 @@ stages:
   # Print size of artifacts after build
   - du -sh
 
-  # Warn if file exceeds artifact file size limit (initially 250MB)
+  # Warn if job artifacts size limit exceeded
   - |
-    if [ "$(du -s | cut -f1)" -gt 256000 ]; then
-      echo -e "\e[91m WARNING: job artifacts exceed the size limit of 250MB which may prevent the job to succeed.\e[39m"
+    if [ "$(du -s | cut -f1)" -gt ${SALSA_CI_MAX_ARTIFACTS_SIZE} ]; then
+      echo -e "\e[91m WARNING: job artifacts exceed the size limit of $(( ${SALSA_CI_MAX_ARTIFACTS_SIZE} / 1024 ))MB which may prevent the job to succeed.\e[39m"
     fi
 
 .build-definition: &build-definition
