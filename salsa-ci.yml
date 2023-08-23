@@ -298,6 +298,9 @@ stages:
   - BUILD_LOGFILE_ARCH=${HOST_ARCH:-${BUILD_ARCH}}
   - BUILD_LOGFILE="${WORKING_DIR}/${BUILD_LOGFILE_SOURCE}_${BUILD_LOGFILE_VERSION}_${BUILD_LOGFILE_ARCH}.build"
 
+  # Define build command
+  - export BUILD_COMMAND="eatmydata dpkg-buildpackage ${HOST_ARCH:+--host-arch ${HOST_ARCH} -Pcross,nocheck} --build=${DB_BUILD_TYPE} ${DB_BUILD_PARAM}"
+
   # Print the build environment
   - printenv
 
@@ -332,7 +335,6 @@ stages:
     CCACHE_WORK_DIR: ${CI_PROJECT_DIR}/.ccache
     DB_BUILD_PARAM: ${SALSA_CI_DPKG_BUILDPACKAGE_ARGS}
     DB_BUILD_TYPE: full
-    BUILD_COMMAND: eatmydata dpkg-buildpackage ${HOST_ARCH:+--host-arch ${HOST_ARCH} -Pcross,nocheck} --build=${DB_BUILD_TYPE} ${DB_BUILD_PARAM}
   script:
     - *build-before-script
     - *build-script
