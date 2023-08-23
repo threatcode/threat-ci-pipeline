@@ -403,14 +403,15 @@ stages:
   stage: test
   script:
     - *build-before-script
+    - cd ${WORKING_DIR}/${SOURCE_DIR}
     - LOCAL_ARCH=$(dpkg --print-architecture)
     - |
-      if egrep -q "^Architecture:.*(any|[^\!]${LOCAL_ARCH})" debian/control; then
+      if grep -qE "^Architecture:.*(any|[^\!]${LOCAL_ARCH})" debian/control; then
         DB_BUILD_TYPE="any"
       else
         echo "###########################################"
-        echo "### No binary package of type any or ${LOCAL_ARCH} found"
-        echo "### Stopping test-build-any test."
+        echo "### No binary package of type any or ${LOCAL_ARCH} found."
+        echo "### Stopping ${CI_JOB_NAME} test."
         echo "###########################################"
         echo "You should disable this job via:"
         echo "variables:"
@@ -418,6 +419,7 @@ stages:
         mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
         exit 0
       fi
+    - cd ${OLDPWD}
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   rules:
@@ -432,21 +434,22 @@ stages:
   stage: test
   script:
     - *build-before-script
-    - LOCAL_ARCH=$(dpkg --print-architecture)
+    - cd ${WORKING_DIR}/${SOURCE_DIR}
     - |
       if grep -q "^Architecture: all" debian/control; then
         DB_BUILD_TYPE="all"
       else
         echo "###########################################"
-        echo "### No binary package of type all found"
-        echo "### Stopping test-build-all test."
+        echo "### No binary package of type all found."
+        echo "### Stopping ${CI_JOB_NAME} test."
         echo "###########################################"
         echo "You should disable this job via:"
         echo "variables:"
         echo "  SALSA_CI_DISABLE_BUILD_PACKAGE_ALL: '1'"
         mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
-        exit 0;
+        exit 0
       fi
+    - cd ${OLDPWD}
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   rules:
@@ -478,12 +481,13 @@ stages:
   stage: test
   script:
     - *build-before-script
+    - cd ${WORKING_DIR}/${SOURCE_DIR}
     - |
-      if test -n ${HOST_ARCH} && egrep -q "^Architecture:.*(any|[^\!]${HOST_ARCH})" debian/control; then
+      if test -n "${HOST_ARCH}" && grep -qE "^Architecture:.*(any|[^\!]${HOST_ARCH})" debian/control; then
         DB_BUILD_TYPE="any"
       else
         echo "###########################################"
-        echo "### No binary package of type any or ${HOST_ARCH} found"
+        echo "### No binary package of type any or ${HOST_ARCH} found."
         echo "### Stopping ${CI_JOB_NAME} test."
         echo "###########################################"
         echo "You should disable this job via:"
@@ -492,6 +496,7 @@ stages:
         mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
         exit 0
       fi
+    - cd ${OLDPWD}
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
   variables:
