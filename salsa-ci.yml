@@ -518,19 +518,9 @@ stages:
     - if: $SALSA_CI_DISABLE_AUTOPKGTEST !~ /^(1|yes|true)$/
   script:
     - LOCAL_ARCH="$(dpkg --print-architecture)"
-    # Assume that the job name for amd64 is never architecture-qualified and
-    # is just ${RELEASE} and all other architectures are named
-    # ${RELEASE}-${ARCH}.
-    # The fallback in the first if-clause allows for the (hopefully) short
-    # transition period in which the autopkgtest-lxc project still ships
-    # lxc.tar instead of lxc-${ARCH}.tar. This can be removed once
-    # autopkgtest-lxc was updated.
-    - |
-      if [ "${LOCAL_ARCH}" = "amd64" ]; then
-        wget --progress=dot:giga ${SALSA_CI_AUTOPKGTEST_LXC}/-/jobs/artifacts/master/raw/artifacts/lxc-${LOCAL_ARCH}.tar?job=${RELEASE} -O lxc.tar || wget --progress=dot:giga ${SALSA_CI_AUTOPKGTEST_LXC}/-/jobs/artifacts/master/raw/artifacts/lxc.tar?job=${RELEASE} -O lxc.tar
-      else
-        wget --progress=dot:giga ${SALSA_CI_AUTOPKGTEST_LXC}/-/jobs/artifacts/master/raw/artifacts/lxc-${LOCAL_ARCH}.tar?job=${RELEASE}-${LOCAL_ARCH} -O lxc.tar
-      fi
+    - LXC_JOB_NAME="${RELEASE}"
+    - test "${LOCAL_ARCH}" = "amd64" || LXC_JOB_NAME="${RELEASE}_${LOCAL_ARCH}"
+    - wget --progress=dot:giga ${SALSA_CI_AUTOPKGTEST_LXC}/-/jobs/artifacts/master/raw/artifacts/lxc-${LOCAL_ARCH}.tar?job=${LXC_JOB_NAME} -O lxc.tar
     - mkdir ${SCI_LXC_PATH} && tar xf lxc.tar -C ${SCI_LXC_PATH}
     - sed -i "/lxc.rootfs.path/ s@dir:.*/lxc/@dir:${SCI_LXC_PATH}/@" ${SCI_LXC_PATH}/autopkgtest-${RELEASE}-${LOCAL_ARCH}/config
     - |
