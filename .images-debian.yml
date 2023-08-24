@@ -73,6 +73,14 @@ images-prod-arm:
           - arm32v7
           - arm64v8
         RELEASE: *all-supported-releases
+      # Images in sid only arm64
+      - IMAGE_NAME:
+          - autopkgtest
+          - blhc
+          - piuparts
+          - reprotest
+        ARCH: arm64v8
+        RELEASE: sid
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
     - if: $BUILD_ALL_IMAGES
@@ -112,6 +120,13 @@ image-staging-arm:
     - arm64
   parallel:
     matrix:
+      - IMAGE_NAME:
+          - autopkgtest
+          - blhc
+          - piuparts
+          - reprotest
+        ARCH: arm64v8
+        RELEASE: sid
       - IMAGE_NAME:
           - base
         ARCH:
