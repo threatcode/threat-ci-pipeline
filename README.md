@@ -361,6 +361,19 @@ variables:
   SALSA_CI_DISABLE_BUILD_DBGSYM: 0
 ```
 
+### Enable building packages twice in a row
+
+The job `test-build-twice` can be used to check whether it is possible to run
+`dpkg-buildpackage` twice in a row. To enable this check, either run your
+pipeline manually with `SALSA_CI_DISABLE_BUILD_PACKAGE_TWICE` set to anything
+different than 1, 'yes' or 'true' or by adding the following to your
+`debian/salsaci.yml`:
+
+```yaml
+variables:
+  SALSA_CI_DISABLE_BUILD_PACKAGE_TWICE: 0
+```
+
 ### Customizing Lintian
 
 The Lintian job can be customized to ignore certain tags.
