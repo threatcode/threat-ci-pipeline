@@ -757,6 +757,7 @@ stages:
     - export REPO_URL="${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/raw/${REPO_PATH}"
     - export REPO_PUBKEY_URL="${REPO_URL}/${PUBKEY_FILENAME}"
     - export GPG_TTY=$(tty)
+    - export PUBKEY_BINARY_FILENAME=${PUBKEY_FILENAME%.asc}.gpg
     - aptly repo create -distribution ${RELEASE} -component main ${CI_PROJECT_NAME}
     - aptly repo add ${CI_PROJECT_NAME} "${WORKING_DIR}"
     - aptly repo show -with-packages ${CI_PROJECT_NAME}
@@ -773,7 +774,7 @@ stages:
         gpg --batch --gen-key; \
       fi
       gpg --export --armor > "${PUBKEY_FILENAME}"
-    - export INLINE_ARMORED_PUBKEY="$(sed 's/^$/./;s/^/ /' "${PUBKEY_FILENAME}")"
+      gpg --export > "${PUBKEY_BINARY_FILENAME}"
     - |
       ARCHITECTURES=$(aptly repo show -with-packages ${CI_PROJECT_NAME} | \
         awk 'BEGIN {FS="_"} /^Packages:/ {x=NR} (x && NR>x) {print $3}' | \
@@ -787,10 +788,18 @@ stages:
       mkdir -p "${CI_PROJECT_DIR}/${REPO_PATH}"
         cp -a ~/.aptly/public/. "${CI_PROJECT_DIR}/${REPO_PATH}"
         mv "${PUBKEY_FILENAME}" "${CI_PROJECT_DIR}/${REPO_PATH}/${PUBKEY_FILENAME}"
+        mv "${PUBKEY_BINARY_FILENAME}" "${CI_PROJECT_DIR}/${REPO_PATH}/${PUBKEY_BINARY_FILENAME}"
         envsubst < /etc/aptly/index.html.template > "${CI_PROJECT_DIR}/${REPO_PATH}/index.html"
+    - |
+      printf "APTLY_REPO=%s\nAPTLY_REPO_KEY_BASE64=%s\n" \
+        "${CI_SERVER_URL}/${CI_PROJECT_PATH}/-/jobs/${CI_JOB_ID}/artifacts/raw/${REPO_PATH}/ ${RELEASE} main" \
+        "$(base64 -w0 ${CI_PROJECT_DIR}/${REPO_PATH}/${PUBKEY_BINARY_FILENAME})" \
+        >> aptly.env
   artifacts:
     paths:
       - ${CI_PROJECT_DIR}/${REPO_PATH}
+    reports:
+      dotenv: aptly.env
   needs:
     - job: build
       artifacts: true
