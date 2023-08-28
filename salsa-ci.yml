@@ -775,6 +775,7 @@ stages:
       fi
       gpg --export --armor > "${PUBKEY_FILENAME}"
       gpg --export > "${PUBKEY_BINARY_FILENAME}"
+    - export INLINE_ARMORED_PUBKEY="$(sed 's/^$/./;s/^/ /' "${PUBKEY_FILENAME}")"
     - |
       ARCHITECTURES=$(aptly repo show -with-packages ${CI_PROJECT_NAME} | \
         awk 'BEGIN {FS="_"} /^Packages:/ {x=NR} (x && NR>x) {print $3}' | \
