@@ -40,9 +40,24 @@ images-prod:
       # All releases only amd64
       - IMAGE_NAME:
           - generic_tests
-          - lintian
         ARCH: amd64
         RELEASE: *all-supported-releases
+      # Temporarily disable lintian:experimental.
+      # See https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1050344
+      - IMAGE_NAME:
+          - lintian
+        ARCH: amd64
+        RELEASE:
+          - stretch
+          - stretch-backports
+          - buster
+          - buster-backports
+          - bullseye
+          - bullseye-backports
+          - bookworm
+          - bookworm-backports
+          - trixie
+          - sid
       # Images in sid only amd64
       - IMAGE_NAME:
           - aptly
