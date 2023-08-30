@@ -11,36 +11,36 @@ variables:
   VENDOR: kali
   BASE_IMAGE: "debian:testing"
 
+.all-supported-releases: &all-supported-releases
+  - kali-rolling
+  - kali-dev
+  - kali-experimental
+
 # Images built on main branch
 images-prod:
   stage: build
   extends: .build_template
   parallel:
     matrix:
-      # All releases, all arches
+      # Base image, all releases, all arches
       - IMAGE_NAME: base
         ARCH:
           - i386
           - amd64
-        RELEASE:
-          - kali-dev
-          - kali-experimental
-          - kali-rolling
-      # All releases, only amd64
-      - IMAGE_NAME: generic_tests
+        RELEASE: *all-supported-releases
+      # All releases only amd64
+      - IMAGE_NAME:
+          - generic_tests
         ARCH: amd64
-        RELEASE:
-          - kali-dev
-          - kali-experimental
-          - kali-rolling
+        RELEASE: *all-supported-releases
       # All but experimental, only amd64
       - IMAGE_NAME:
           - lintian
         ARCH: amd64
         RELEASE:
-          - kali-dev
           - kali-rolling
-      # Only kali-dev, only amd64
+          - kali-dev
+      # Images in kali-dev only amd64
       - IMAGE_NAME:
           - aptly
           - autopkgtest
@@ -72,6 +72,7 @@ image-staging:
           - lintian
           - piuparts
           - reprotest
+        ARCH: amd64
         RELEASE: kali-dev
   rules:
     - if: $BUILD_ALL_IMAGES

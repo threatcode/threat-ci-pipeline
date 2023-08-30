@@ -9,7 +9,11 @@ variables:
   VENDOR: 'kali'
   RELEASE: 'kali-dev'
   SALSA_CI_MIRROR: 'http://http.kali.org/kali'
-  SALSA_CI_COMPONENTS: 'main contrib non-free'
+  SALSA_CI_COMPONENTS: 'main contrib non-free non-free-firmware'
   SALSA_CI_IMAGES: 'registry.gitlab.com/kalilinux/tools/kali-ci-pipeline'
   SALSA_CI_AUTOPKGTEST_LXC: 'https://gitlab.com/kalilinux/tools/kali-ci-autopkgtest-lxc'
   SALSA_CI_PIUPARTS_ARGS: '--defaults debian --keyring /usr/share/keyrings/kali-archive-keyring.gpg'
+  # We don't crossbuild Kali packages
+  SALSA_CI_DISABLE_CROSSBUILD_ARM64: 1
+  # We build packages with gbp, we don't care about a functional clean target
+  SALSA_CI_DISABLE_BUILD_PACKAGE_TWICE: 1
