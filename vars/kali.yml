@@ -15,3 +15,5 @@ variables:
   SALSA_CI_PIUPARTS_ARGS: '--defaults debian --keyring /usr/share/keyrings/kali-archive-keyring.gpg'
   # We don't crossbuild Kali packages
   SALSA_CI_DISABLE_CROSSBUILD_ARM64: 1
+  # This is already the default, why redefine it here?
+  SALSA_CI_BUILD_TIMEOUT_ARGS: "2.75h" # REF: https://gitlab.com/kalilinux/tools/packaging/-/blob/main/salsa.d/packages.conf
