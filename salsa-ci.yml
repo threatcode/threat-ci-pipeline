@@ -507,9 +507,12 @@ stages:
   variables:
     HOST_ARCH: arm64
   rules:
-    - if: $SALSA_CI_ENABLE_CROSSBUILD_ARM64 !~ /^(1|yes|true)$/ && ($SALSA_CI_DISABLE_CROSSBUILD_ARM64 =~ /^(1|yes|true)$/ || $SALSA_CI_DISABLE_ALL_TESTS =~ /^(1|yes|true)$/)
+    - if: $BUILD_ARCH == $HOST_ARCH
       when: never
-    - if: $BUILD_ARCH != $HOST_ARCH && $HOST_ARCH != ""
+    - if: $SALSA_CI_ENABLE_CROSSBUILD_ARM64 =~ /^(1|yes|true)$/
+    - if: $SALSA_CI_DISABLE_ALL_TESTS =~ /^(1|yes|true)$/
+      when: never
+    - if: $SALSA_CI_DISABLE_CROSSBUILD_ARM64 !~ /^(1|yes|true)$/
 
 .test-autopkgtest: &test-autopkgtest
   stage: test
