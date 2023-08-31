@@ -15,5 +15,3 @@ variables:
   SALSA_CI_PIUPARTS_ARGS: '--defaults debian --keyring /usr/share/keyrings/kali-archive-keyring.gpg'
   # We don't crossbuild Kali packages
   SALSA_CI_DISABLE_CROSSBUILD_ARM64: 1
-  # We build packages with gbp, we don't care about a functional clean target
-  SALSA_CI_DISABLE_BUILD_PACKAGE_TWICE: 1
