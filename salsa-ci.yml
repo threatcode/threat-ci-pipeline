@@ -190,15 +190,40 @@ stages:
         echo -e "\e[91m WARNING: job artifacts exceed the size limit of $(( ${SALSA_CI_MAX_ARTIFACTS_SIZE} / 1024 ))MB which may prevent the job to succeed.\e[39m"
       fi
 
-.build-before-script: &build-before-script
-  # Reported in https://salsa.debian.org/salsa-ci-team/pipeline/issues/104,
-  # GitLab can only expand variables once. So at the beginning CCACHE_WORK_DIR
-  # was assigned to `${WORKING_DIR}/.ccache`, and it will be expanded as
-  # `$CI_PROJECT_DIR/debian/output/.ccache`, so it creates a folder named
-  # "\$CI_PROJECT_DIR", which is then saved as build cache. To allow smooth
-  # transition, that wrongly named folder has to be removed:
-  - rm -rf '$CI_PROJECT_DIR'
+.check-architecture-is-buildable: &check-architecture-is-buildable
+  - cd ${WORKING_DIR}/${SOURCE_DIR}
+  - |
+    if [ "${DB_BUILD_TYPE}" = all ]; then
+      pattern="all"
+    elif [ "${DB_BUILD_TYPE}" = any ]; then
+      if [ -n "${HOST_ARCH}" ]; then
+        pattern=".*(any|[^\!]${HOST_ARCH})"
+      else
+        pattern=".*(any|[^\!]$(dpkg --print-architecture))"
+      fi
+    else
+      echo "Error: Unexpected DB_BUILD_TYPE: ${DB_BUILD_TYPE}."
+      exit 1
+    fi
+  - |
+    if ! grep -qE "^Architecture:\s*${pattern}" debian/control; then
+      echo "###########################################"
+      echo "### No binary package matched: '${pattern}'."
+      echo "### Stopping ${CI_JOB_NAME} test."
+      echo "###########################################"
+      echo "You should disable this job via:"
+      echo "variables:"
+      if [ -n "${HOST_ARCH}" ]; then
+        echo "  SALSA_CI_DISABLE_CROSSBUILD_${HOST_ARCH^^}: '1'"
+      else
+        echo "  SALSA_CI_DISABLE_BUILD_PACKAGE_${DB_BUILD_TYPE^^}: '1'"
+      fi
+      exit 0
+    fi
+  - unset pattern
+  - cd ${OLDPWD}
 
+.build-before-script: &build-before-script
   # salsa-ci-team/pipeline#107
   - rm -rf ${CI_PROJECT_DIR}/debian/output/.ccache
 
@@ -209,9 +234,6 @@ stages:
 
   - mv ${CCACHE_WORK_DIR} ${CCACHE_TMP_DIR}
   - add_extra_repository.sh -v -e "${SALSA_CI_EXTRA_REPOSITORY}" -k "${SALSA_CI_EXTRA_REPOSITORY_KEY}"
-
-  # are we cross-compiling? if not, unset HOST_ARCH
-  - test "${BUILD_ARCH}" != "${HOST_ARCH}" || HOST_ARCH=""
 
 .build-script: &build-script
   - export CCACHE_DIR=${CCACHE_TMP_DIR}
@@ -402,31 +424,21 @@ stages:
     DB_BUILD_TYPE: source
     SALSA_CI_DISABLE_VERSION_BUMP: 1
 
-.test-build-package-any: &test-build-package-any
+.test-build-package: &test-build-package
+  stage: test
   extends:
     - .build-definition
-  stage: test
   script:
+    - *check-architecture-is-buildable
     - *build-before-script
-    - cd ${WORKING_DIR}/${SOURCE_DIR}
-    - LOCAL_ARCH=$(dpkg --print-architecture)
-    - |
-      if grep -qE "^Architecture:.*(any|[^\!]${LOCAL_ARCH})" debian/control; then
-        DB_BUILD_TYPE="any"
-      else
-        echo "###########################################"
-        echo "### No binary package of type any or ${LOCAL_ARCH} found."
-        echo "### Stopping ${CI_JOB_NAME} test."
-        echo "###########################################"
-        echo "You should disable this job via:"
-        echo "variables:"
-        echo "  SALSA_CI_DISABLE_BUILD_PACKAGE_ANY: '1'"
-        mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
-        exit 0
-      fi
-    - cd ${OLDPWD}
     - *build-script
     - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+
+.test-build-package-any: &test-build-package-any
+  extends:
+    - .test-build-package
+  variables:
+    DB_BUILD_TYPE: any
   rules:
     - if: $SALSA_CI_ENABLE_BUILD_PACKAGE_ANY =~ /^(1|yes|true)$/
     - if: $SALSA_CI_DISABLE_ALL_TESTS =~ /^(1|yes|true)$/
@@ -435,28 +447,9 @@ stages:
 
 .test-build-package-all: &test-build-package-all
   extends:
-    - .build-definition
-  stage: test
-  script:
-    - *build-before-script
-    - cd ${WORKING_DIR}/${SOURCE_DIR}
-    - |
-      if grep -q "^Architecture: all" debian/control; then
-        DB_BUILD_TYPE="all"
-      else
-        echo "###########################################"
-        echo "### No binary package of type all found."
-        echo "### Stopping ${CI_JOB_NAME} test."
-        echo "###########################################"
-        echo "You should disable this job via:"
-        echo "variables:"
-        echo "  SALSA_CI_DISABLE_BUILD_PACKAGE_ALL: '1'"
-        mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
-        exit 0
-      fi
-    - cd ${OLDPWD}
-    - *build-script
-    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+    - .test-build-package
+  variables:
+    DB_BUILD_TYPE: all
   rules:
     - if: $SALSA_CI_ENABLE_BUILD_PACKAGE_ALL =~ /^(1|yes|true)$/
     - if: $SALSA_CI_DISABLE_ALL_TESTS =~ /^(1|yes|true)$/
@@ -482,29 +475,9 @@ stages:
 
 .test-crossbuild-package-arm64: &test-crossbuild-package-arm64
   extends:
-    - .build-definition
-  stage: test
-  script:
-    - *build-before-script
-    - cd ${WORKING_DIR}/${SOURCE_DIR}
-    - |
-      if test -n "${HOST_ARCH}" && grep -qE "^Architecture:.*(any|[^\!]${HOST_ARCH})" debian/control; then
-        DB_BUILD_TYPE="any"
-      else
-        echo "###########################################"
-        echo "### No binary package of type any or ${HOST_ARCH} found."
-        echo "### Stopping ${CI_JOB_NAME} test."
-        echo "###########################################"
-        echo "You should disable this job via:"
-        echo "variables:"
-        echo "  SALSA_CI_DISABLE_CROSSBUILD_ARM64: '1'"
-        mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
-        exit 0
-      fi
-    - cd ${OLDPWD}
-    - *build-script
-    - mv ${CCACHE_TMP_DIR} ${CCACHE_WORK_DIR}
+    - .test-build-package
   variables:
+    DB_BUILD_TYPE: any
     HOST_ARCH: arm64
   rules:
     - if: $BUILD_ARCH == $HOST_ARCH
