@@ -71,7 +71,7 @@ check gpg signature:
     IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
   before_script:
     - apt-get update && apt-get upgrade -y
-    - apt-get install -y --no-install-recommends debian-keyring dirmngr git gpg gpg-agent
+    - apt-get install -y --no-install-recommends debian-keyring dirmngr git gpg gpg-agent ca-certificates
   script:
     - mkdir -p ${HOME}/.gnupg
     - chmod 600 ${HOME}/.gnupg
