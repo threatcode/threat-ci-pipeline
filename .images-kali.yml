@@ -11,6 +11,7 @@ variables:
   VENDOR: kali
 
 .all-supported-releases: &all-supported-releases
+  - kali-last-release
   - kali-rolling
   - kali-dev
   - kali-experimental
