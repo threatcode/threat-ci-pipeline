@@ -356,7 +356,7 @@ stages:
     paths:
       - .ccache
   variables:
-    CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.ccache
+    CCACHE_TMP_DIR: ${CI_PROJECT_DIR}/../.${CI_PROJECT_NAME}.ccache
     CCACHE_WORK_DIR: ${CI_PROJECT_DIR}/.ccache
     DB_BUILD_PARAM: ${SALSA_CI_DPKG_BUILDPACKAGE_ARGS}
     DB_BUILD_TYPE: full
