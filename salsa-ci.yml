@@ -329,7 +329,7 @@ stages:
   - test "${BUILD_ARCH}" = "i386" && export BUILD_COMMAND="/usr/bin/setarch i686 ${BUILD_COMMAND}"
 
   # Print the build environment
-  - printenv
+  - printenv | sort
 
   # Build package as user salsaci
   - su salsaci -c "timeout ${SALSA_CI_BUILD_TIMEOUT_ARGS} ${BUILD_COMMAND} && if [ "${BUILD_TWICE}" = "true" ]; then ${BUILD_COMMAND}; fi" |& OUTPUT_FILENAME=${BUILD_LOGFILE} filter-output
