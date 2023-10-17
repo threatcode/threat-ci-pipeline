@@ -75,6 +75,9 @@ variables:
   SALSA_CI_LINTIAN_SHOW_OVERRIDES:
     description: "To make Lintian show overridden tags, set this to 1"
     value: 0
+  SALSA_CI_LINTIAN_ARGS:
+    description: "Arguments appended to lintian's generated arguments"
+    value: ''
   SALSA_CI_PIUPARTS_ARGS: ''
   SALSA_CI_PIUPARTS_PRE_INSTALL_SCRIPT: ''
   SALSA_CI_PIUPARTS_POST_INSTALL_SCRIPT: ''
@@ -570,14 +573,14 @@ stages:
       if echo "${SALSA_CI_LINTIAN_SHOW_OVERRIDES}" | grep -qE '^(1|yes|true)$'; then
         SALSA_CI_LINTIAN_SHOW_OVERRIDES_ARG='--show-overrides'
       fi
-    - lintian --suppress-tags "${SALSA_CI_LINTIAN_SUPPRESS_TAGS}" --display-info --pedantic ${SALSA_CI_LINTIAN_FAIL_ARG} --allow-root ${SALSA_CI_LINTIAN_SHOW_OVERRIDES_ARG} ${WORKING_DIR}/*.changes | tee lintian.output || ECODE=$?
+    - lintian --suppress-tags "${SALSA_CI_LINTIAN_SUPPRESS_TAGS}" --display-info --pedantic ${SALSA_CI_LINTIAN_FAIL_ARG} --allow-root ${SALSA_CI_LINTIAN_SHOW_OVERRIDES_ARG} ${SALSA_CI_LINTIAN_ARGS} ${WORKING_DIR}/*.changes | tee lintian.output || ECODE=$?
     - |
         if echo "${SALSA_CI_LINTIAN_FAIL_WARNING}" | grep -qE '^(1|yes|true)$'; then
           grep -q '^W: ' lintian.output && ECODE=3
         fi
     - lintian2junit.py --lintian-file lintian.output > ${WORKING_DIR}/lintian.xml
     # 🗂️ Generate HTML report
-    - lintian --suppress-tags "${SALSA_CI_LINTIAN_SUPPRESS_TAGS}"  --display-info --pedantic --allow-root ${SALSA_CI_LINTIAN_SHOW_OVERRIDES_ARG} --exp-output format=html ${WORKING_DIR}/*.changes > ${WORKING_DIR}/lintian.html || true
+    - lintian --suppress-tags "${SALSA_CI_LINTIAN_SUPPRESS_TAGS}"  --display-info --pedantic --allow-root ${SALSA_CI_LINTIAN_SHOW_OVERRIDES_ARG} --exp-output format=html ${SALSA_CI_LINTIAN_ARGS} ${WORKING_DIR}/*.changes > ${WORKING_DIR}/lintian.html || true
     - exit ${ECODE-0}
   variables:
     GIT_STRATEGY: none
