@@ -9,7 +9,7 @@
 VENDOR=$1
 RELEASE=$2
 
-set -x
+set -xe
 
 fix_apt_sources_for_archived_releases() {
     # Only for Debian's archived releases
