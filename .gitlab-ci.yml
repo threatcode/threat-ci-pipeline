@@ -124,8 +124,11 @@ test-pipeline:
         IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
   parallel:
     matrix:
-      - PROJECT_URL:
-          - https://salsa.debian.org/debian/grep
+      - PROJECT_URL: https://salsa.debian.org/debian/grep
+      # boxes is used to test gbp setup-gitattributes (#322)
+      - PROJECT_URL: https://salsa.debian.org/carnil/boxes
+        SALSA_CI_DISABLE_GBP_SETUP_GITATTRIBUTES: 1
+
 
 clean images:
   stage: clean

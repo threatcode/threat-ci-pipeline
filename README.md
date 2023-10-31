@@ -600,6 +600,28 @@ Note that reprotest's faketime support is currently disabled, as it causes false
 positives on files touched by quilt. It will be re-enabled once this is fixed.
 https://salsa.debian.org/salsa-ci-team/pipeline/-/issues/251
 
+#### Git attributes
+
+Some upstream projects ship a `.gitattributes` file to set up special
+attributes to specific paths. To properly handle those path attributes, the
+Salsa CI's pipeline relies on `gbp setup-gitattributes`, that is call after
+fetching all the required branches from the repository.  See `gitattributes(5)`
+and `gbp-setup-gitattributes(1)`, and
+[#322](https://salsa.debian.org/salsa-ci-team/pipeline/-/issues/322). If `gbp
+setup-gitattributes` is causing trouble (such as staging changes or encoding
+inconsistencies), the `gbp setup-gitattributes` call can be disabled setting
+the `SALSA_CI_DISABLE_GBP_SETUP_GITATTRIBUTES` variable to 1, 'yes' or 'true':
+
+```yaml
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  SALSA_CI_DISABLE_GBP_SETUP_GITATTRIBUTES: 1
+```
+
 ## Contributing
 
 The success of this project comes from meaningful contributions that are made by interested contributors like you. If you want to contribute to this project, follow the detailed guidelines in the [CONTRIBUTING file](CONTRIBUTING.md)
