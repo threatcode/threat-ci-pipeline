@@ -100,6 +100,7 @@ variables:
   SALSA_CI_DISABLE_BUILD_DBGSYM: 1
   # Use fastzip to fix https://salsa.debian.org/salsa-ci-team/pipeline/-/issues/177
   FF_USE_FASTZIP: 'true'
+  SALSA_CI_DISABLE_GBP_SETUP_GITATTRIBUTES: 0
   # Backward compatibility
   SALSA_CI_EXTRA_REPOSITORY: ${EXTRA_REPOSITORY}
   SALSA_CI_EXTRA_REPOSITORY_KEY: ${EXTRA_REPOSITORY_KEY}
@@ -133,9 +134,11 @@ stages:
   script:
     - mkdir -vp ${WORKING_DIR}
 
-    - test -r .gitattributes && gbp setup-gitattributes
-
     - gbp pull --ignore-branch --pristine-tar --track-missing
+
+    # gbp setup-gitattributes needs to be called after gbp pull to avoid having
+    # staging commits (See #322)
+    - if echo "$SALSA_CI_DISABLE_GBP_SETUP_GITATTRIBUTES" | grep -qvE '^(1|yes|true)$'; then test -r .gitattributes && gbp setup-gitattributes ; fi
 
     - apt-get update && eatmydata apt-get upgrade -y
 
