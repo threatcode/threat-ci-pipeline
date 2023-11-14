@@ -8,7 +8,7 @@
 variables:
   VENDOR: 'kali'
   RELEASE: 'kali-dev'
-  SALSA_CI_MIRROR: 'http://kali.download/kali'
+  SALSA_CI_MIRROR: 'http://http-staging.kali.org/kali'
   SALSA_CI_COMPONENTS: 'main contrib non-free non-free-firmware'
   SALSA_CI_IMAGES: 'registry.gitlab.com/kalilinux/tools/kali-ci-pipeline'
   SALSA_CI_IMAGES_BASE_ARM32V5: ${SALSA_CI_IMAGES}/armel/base:${RELEASE}
