@@ -99,9 +99,11 @@ case "$VENDOR" in
 	# do. We use the docker images as provided.
 	;;
     kali)
-	# Use http-staging.kali.org
+	# Use kali.download to avoid transient failures caused by
+	# unreliable or outdated mirrors. kali.download is a CDN,
+	# it should be reliable and have zero downtime.
 	apt_list_files=$(find /etc/apt/ -name "*.list" -type f)
-	sed -i "s/http\.kali\.org/http-staging.kali.org/" $apt_list_files
+	sed -i "s/http\.kali\.org/kali.download/" $apt_list_files
 	apt_update
 	;;
     *)
