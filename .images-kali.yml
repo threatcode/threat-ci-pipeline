@@ -47,7 +47,7 @@ images-prod:
           - blhc
           - gbp
           - piuparts
-          - reprotest
+          #- reprotest
         ARCH: amd64
         RELEASE: kali-dev
   rules:
@@ -76,7 +76,7 @@ images-prod-arm:
           - autopkgtest
           - blhc
           - piuparts
-          - reprotest
+          #- reprotest
         ARCH: arm64
         RELEASE: kali-dev
   rules:
@@ -100,7 +100,7 @@ image-staging:
           - generic_tests
           - lintian
           - piuparts
-          - reprotest
+          #- reprotest
         ARCH: amd64
         RELEASE: kali-dev
   rules:
@@ -119,7 +119,7 @@ image-staging-arm:
           - autopkgtest
           - blhc
           - piuparts
-          - reprotest
+          #- reprotest
         ARCH: arm64
         RELEASE: kali-dev
       - IMAGE_NAME:
