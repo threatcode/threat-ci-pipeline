@@ -5,9 +5,9 @@
 # this notice are preserved. This file is offered as-is, without any warranty.
 
 include:
-  - https://gitlab.com/kalilinux/tools/kali-ci-pipeline/raw/master/salsa-ci.yml
-  - https://gitlab.com/kalilinux/tools/kali-ci-pipeline/raw/master/pipeline-jobs.yml
-  - https://gitlab.com/kalilinux/tools/kali-ci-pipeline/raw/master/vars/kali.yml
+  - https://github.com/threatcode/tools/threat-ci-pipeline/raw/master/salsa-ci.yml
+  - https://github.com/threatcode/tools/threat-ci-pipeline/raw/master/pipeline-jobs.yml
+  - https://github.com/threatcode/tools/threat-ci-pipeline/raw/master/vars/threat.yml
 
 variables:
   SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE: 1

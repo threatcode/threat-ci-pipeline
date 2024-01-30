@@ -24,7 +24,7 @@ images:
   stage: images
   trigger:
     include:
-      - local: .images-kali.yml
+      - local: .images-threat.yml
     strategy: depend
 
 check license + contributor:
@@ -32,7 +32,7 @@ check license + contributor:
   image: ${CI_REGISTRY_IMAGE}/base:${IMAGE_VERSION}
   dependencies: []
   variables:
-    RELEASE: kali-dev
+    RELEASE: threat-dev
   before_script:
     - apt-get update && apt-get upgrade -y
     - apt-get install -y licensecheck
@@ -67,7 +67,7 @@ check gpg signature:
   image: ${CI_REGISTRY_IMAGE}/base:${IMAGE_VERSION}
   dependencies: []
   variables:
-    RELEASE: kali-dev
+    RELEASE: threat-dev
     IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
   before_script:
     - apt-get update && apt-get upgrade -y
@@ -94,7 +94,7 @@ check yaml lint:
   image: ${CI_REGISTRY_IMAGE}/base:${IMAGE_VERSION}
   dependencies: []
   variables:
-    RELEASE: kali-dev
+    RELEASE: threat-dev
   before_script:
     - apt-get update && apt-get upgrade -y
     - apt-get install -y yamllint
@@ -110,7 +110,7 @@ check yaml lint:
 
 test-pipeline:
   variables:
-    RELEASE: kali-dev
+    RELEASE: threat-dev
   trigger:
     include:
       - local: .pipeline-test.yml
@@ -124,7 +124,7 @@ test-pipeline:
         IMAGE_VERSION: ${RELEASE}_${CI_COMMIT_REF_NAME}
   parallel:
     matrix:
-      - PROJECT_URL: https://gitlab.com/kalilinux/packages/unix-privesc-check
+      - PROJECT_URL: https://github.com/threatcode/packages/unix-privesc-check
 
 clean images:
   stage: clean
@@ -133,7 +133,7 @@ clean images:
     - docker:20.10.12-dind
   variables:
     IMAGES_LIST: 'aptly autopkgtest base armel/base armhf/base arm64/base i386/base blhc gbp piuparts reprotest lintian generic_tests'
-    RELEASE: kali-dev
+    RELEASE: threat-dev
   before_script:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - wget -O /usr/bin/reg https://github.com/genuinetools/reg/releases/download/v0.13.0/reg-linux-amd64

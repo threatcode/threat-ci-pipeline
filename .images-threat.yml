@@ -8,13 +8,13 @@ include:
   - .images-ci.yml
 
 variables:
-  VENDOR: kali
+  VENDOR: threat
 
 .all-supported-releases: &all-supported-releases
-  - kali-last-release
-  - kali-rolling
-  - kali-dev
-  - kali-experimental
+  - threat-last-release
+  - threat-rolling
+  - threat-dev
+  - threat-experimental
 
 # Images built on main branch
 images-prod:
@@ -38,9 +38,9 @@ images-prod:
           - lintian
         ARCH: amd64
         RELEASE:
-          - kali-rolling
-          - kali-dev
-      # Images in kali-dev only amd64
+          - threat-rolling
+          - threat-dev
+      # Images in threat-dev only amd64
       - IMAGE_NAME:
           - aptly
           - autopkgtest
@@ -49,7 +49,7 @@ images-prod:
           - piuparts
           #- reprotest
         ARCH: amd64
-        RELEASE: kali-dev
+        RELEASE: threat-dev
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
     - if: $BUILD_ALL_IMAGES
@@ -71,14 +71,14 @@ images-prod-arm:
           - armhf
           - arm64
         RELEASE: *all-supported-releases
-      # Images in kali-dev only arm64
+      # Images in threat-dev only arm64
       - IMAGE_NAME:
           - autopkgtest
           - blhc
           - piuparts
           #- reprotest
         ARCH: arm64
-        RELEASE: kali-dev
+        RELEASE: threat-dev
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
     - if: $BUILD_ALL_IMAGES
@@ -102,7 +102,7 @@ image-staging:
           - piuparts
           #- reprotest
         ARCH: amd64
-        RELEASE: kali-dev
+        RELEASE: threat-dev
   rules:
     - if: $BUILD_ALL_IMAGES
       when: never
@@ -121,14 +121,14 @@ image-staging-arm:
           - piuparts
           #- reprotest
         ARCH: arm64
-        RELEASE: kali-dev
+        RELEASE: threat-dev
       - IMAGE_NAME:
           - base
         ARCH:
           - armel
           - armhf
           - arm64
-        RELEASE: kali-dev
+        RELEASE: threat-dev
   # While there isn't an ARM shared runner available, let's allow these images
   # to fail to don't block pipelines on MRs.
   allow_failure: true

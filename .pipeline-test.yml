@@ -7,7 +7,7 @@
 include:
   - salsa-ci.yml
   - pipeline-jobs.yml
-  - vars/kali.yml
+  - vars/threat.yml
 
 workflow:
   rules:

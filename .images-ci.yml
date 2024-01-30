@@ -30,7 +30,7 @@ stages:
       # Set BASE_IMAGE, unless already set.
       if [ -z "${BASE_IMAGE}" ]; then
         case "${VENDOR}" in
-          kali) BASE_IMAGE=kalilinux/${RELEASE}:${ARCH} ;;
+          threat) BASE_IMAGE=threatos/${RELEASE}:${ARCH} ;;
           *) BASE_IMAGE=${ARCH}/${VENDOR}:${RELEASE} ;;
         esac
       else
@@ -65,8 +65,8 @@ stages:
             ALIASES=$(wget -O - ${MIRROR}/dists/${RELEASE}/Release | awk "/^Suite:/ { if (\$2 !~ /${RELEASE}/) print \$2 }")
             test "$ALIASES" != 'unstable' || ALIASES="${ALIASES} latest"
           ;;
-          kali)
-            test "$RELEASE" != "kali-dev" || ALIASES="${ALIASES} latest"
+          threat)
+            test "$RELEASE" != "threat-dev" || ALIASES="${ALIASES} latest"
           ;;
         esac
       fi
